@@ -1,0 +1,14 @@
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: Ethylene (CH2=CH2);                                        
+ATOM      1  C1  UNK     0       0.670   0.000   0.000
+ATOM      2  H2  UNK     0       1.239  -0.944   0.000
+ATOM      3  H3  UNK     0       1.239   0.944   0.000
+ATOM      4  C4  UNK     0      -0.670   0.000   0.000
+ATOM      5  H5  UNK     0      -1.239  -0.944   0.000
+ATOM      6  H6  UNK     0      -1.239   0.944   0.000
+CONECT    1    4    2    3
+CONECT    2    1
+CONECT    3    1
+CONECT    4    5    6    1
+CONECT    5    4
+CONECT    6    4
