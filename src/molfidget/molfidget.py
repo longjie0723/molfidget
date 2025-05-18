@@ -59,7 +59,7 @@ class Bond:
     shaft_d1 = 0.8
     shaft_d2 = 0.3
 
-    def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.02):
+    def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.0, bond_gap: float = 0.0):
         '''
         結合を表すクラス
         atom1(Atom): 原子1(分割したとき軸側になる)
@@ -73,6 +73,7 @@ class Bond:
         self.type = type
         self.shaft = shaft
         self.shaft_gap = shaft_gap
+        self.bond_gap = bond_gap
         self.vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
         self.atom_distance = np.linalg.norm(np.array([atom1.x - atom2.x, atom1.y - atom2.y, atom1.z - atom2.z]))
         self.vector = self.vector / np.linalg.norm(self.vector)
@@ -99,7 +100,7 @@ class Bond:
                 mesh = trimesh.boolean.union([mesh, shaft])
             else:
                 tool = trimesh.primitives.Cylinder(radius=0.3, height=0.5)
-                tool.apply_translation([0, 0, self.slice_distance+0.25-self.wall_thickness])
+                tool.apply_translation([0, 0, self.slice_distance+0.2])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 tool.apply_transform(rotation_matrix)
                 mesh = trimesh.boolean.union([mesh, tool])
@@ -114,7 +115,7 @@ class Bond:
 
     def slice_by_bond_plane(self, mesh):
         box = trimesh.primitives.Box(extents=[self.atom1.radius*2, self.atom1.radius*2, self.atom1.radius*2])
-        box.apply_translation([0, 0, self.slice_distance-self.atom1.radius])
+        box.apply_translation([0, 0, self.slice_distance-self.atom1.radius-self.bond_gap])
         z_axis = np.array([0, 0, 1])
         rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
         box.apply_transform(rotation_matrix)
@@ -145,7 +146,7 @@ def atom_distance(atom1: Atom, atom2: Atom):
     return float(np.linalg.norm(np.array([atom1.x - atom2.x, atom1.y - atom2.y, atom1.z - atom2.z])))
 
 class Molecule:
-    def __init__(self, scale=1.0, shaft_gap_mm=0.2):
+    def __init__(self, scale=1.0, shaft_gap_mm=0.2, bond_gap_mm=0.0):
         # Dictionary to hold atoms by their ids
         self.atoms = Orderdict()
         # Dictionary to hold bonds by their ids
@@ -157,6 +158,11 @@ class Molecule:
         # Too much gap is not good for sculpting
         if self.shaft_gap > 0.05:
             self.shaft_gap = 0.05
+        # Gap between the bond plane[angstrom]
+        self.bond_gap = bond_gap_mm / self.scale
+        # Too much gap is not good for sculpting
+        if self.bond_gap > 0.05:
+            self.bond_gap = 0.05
 
     def add_atom(self, atom):
         # Add an atom to the molecule
@@ -188,13 +194,13 @@ class Molecule:
                     continue
                 # Check if the atoms are within triple bond distance
                 if atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][2]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="triple", shaft=id1 < id2, shaft_gap=self.shaft_gap))
+                    atom1.bonds.append(Bond(atom1, atom2, type="triple", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))
                 # Check if the atoms are within double bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][1]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2, shaft_gap=self.shaft_gap))
+                    atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))
                 # Check if the atoms are within single bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][0]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2, shaft_gap=self.shaft_gap))  
+                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))  
 
     def __repr__(self):
         return f"Molecule({self.name}, {len(self.atoms)} atoms)"
@@ -216,6 +222,7 @@ class Molecule:
             scene.add_geometry(mesh)
         # center the scene
         scene.apply_translation(-self.center)
+        scene.apply_scale(self.scale)
         return scene
 
     def save_stl_files(self):
@@ -232,12 +239,13 @@ def main():
     parser.add_argument("--scale", type=float, default=1.0, help="Scale of the molecule")
     parser.add_argument('--rotate', nargs=2, action='append', type=int, metavar=('id1', 'id2'), help="Atom id pair to make a joint")
     parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap of the shaft and cavity [mm]")
+    parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap of the bond plane [mm]")
     
     args = parser.parse_args()
 
     print(f"rotate: {args.rotate}")
 
-    molecule = Molecule(scale=args.scale, shaft_gap_mm=args.shaft_gap)
+    molecule = Molecule(scale=args.scale, shaft_gap_mm=args.shaft_gap, bond_gap_mm=args.bond_gap)
     molecule.load_pdb_file(args.pdb_file)
     scene = molecule.create_trimesh_scene()
     scene.show()
