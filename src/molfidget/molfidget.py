@@ -53,18 +53,26 @@ class Atom:
 class Bond:
     # Size of the shaft and the hole
     wall_thickness = 0.2
-    gap = 0.03
     shaft_r1 = 0.3
     shaft_r2 = 0.4
     shaft_r3 = 0.01
-    shaft_d1 = 0.4
+    shaft_d1 = 0.8
     shaft_d2 = 0.3
 
-    def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool):
+    def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.02):
+        '''
+        結合を表すクラス
+        atom1(Atom): 原子1(分割したとき軸側になる)
+        atom2(Atom): 原子2(分割したとき穴側になる)
+        type(str): 結合の種類(single, double, triple)
+        shaft(bool): 軸側を可動にするかどうか
+        shaft_gap(float): 軸と穴の隙間[Angstrom]
+        '''
         self.atom1 = atom1
         self.atom2 = atom2
         self.type = type
         self.shaft = shaft
+        self.shaft_gap = shaft_gap
         self.vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
         self.atom_distance = np.linalg.norm(np.array([atom1.x - atom2.x, atom1.y - atom2.y, atom1.z - atom2.z]))
         self.vector = self.vector / np.linalg.norm(self.vector)
@@ -78,14 +86,14 @@ class Bond:
         if self.shaft:
             if self.type and self.type == "single":
                 # Create the cavity
-                cavity = self.create_cavity_shape(self.shaft_r1+self.gap, self.shaft_d1, self.shaft_r2+self.gap, self.shaft_d2+2*self.gap)
+                cavity = self.create_cavity_shape(self.shaft_r1+2*self.shaft_gap, self.shaft_d1, self.shaft_r2+2*self.shaft_gap, self.shaft_d2+2*self.shaft_gap)
                 cavity.apply_translation([0, 0, self.slice_distance - self.wall_thickness])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 cavity.apply_transform(rotation_matrix)
                 mesh = trimesh.boolean.difference([mesh, cavity])
                 # Create the shaft
-                shaft = self.create_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_r2, self.shaft_d2, self.shaft_r3, 2*self.gap)
-                shaft.apply_translation([0, 0, self.slice_distance - self.wall_thickness - self.gap])
+                shaft = self.create_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_r2, self.shaft_d2, self.shaft_r3, 2*self.shaft_gap)
+                shaft.apply_translation([0, 0, self.slice_distance - self.wall_thickness - self.shaft_gap])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 shaft.apply_transform(rotation_matrix)
                 mesh = trimesh.boolean.union([mesh, shaft])
@@ -137,13 +145,18 @@ def atom_distance(atom1: Atom, atom2: Atom):
     return float(np.linalg.norm(np.array([atom1.x - atom2.x, atom1.y - atom2.y, atom1.z - atom2.z])))
 
 class Molecule:
-    def __init__(self):
+    def __init__(self, scale=1.0, shaft_gap_mm=0.2):
         # Dictionary to hold atoms by their ids
         self.atoms = Orderdict()
         # Dictionary to hold bonds by their ids
         self.bonds = {}
         # Scale of the molecule
-        self.scale = 1.0
+        self.scale = scale
+        # Gap between the shaft and the cavity [angstrom]
+        self.shaft_gap = shaft_gap_mm / self.scale
+        # Too much gap is not good for sculpting
+        if self.shaft_gap > 0.05:
+            self.shaft_gap = 0.05
 
     def add_atom(self, atom):
         # Add an atom to the molecule
@@ -175,13 +188,13 @@ class Molecule:
                     continue
                 # Check if the atoms are within triple bond distance
                 if atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][2]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="triple", shaft=id1 < id2))
+                    atom1.bonds.append(Bond(atom1, atom2, type="triple", shaft=id1 < id2, shaft_gap=self.shaft_gap))
                 # Check if the atoms are within double bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][1]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2))
+                    atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2, shaft_gap=self.shaft_gap))
                 # Check if the atoms are within single bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][0]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2))  
+                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2, shaft_gap=self.shaft_gap))  
 
     def __repr__(self):
         return f"Molecule({self.name}, {len(self.atoms)} atoms)"
@@ -205,10 +218,10 @@ class Molecule:
         scene.apply_translation(-self.center)
         return scene
 
-    def save_stl_files(self, scale=1.0):
+    def save_stl_files(self):
         for atom in self.atoms.values():
             mesh = atom.create_trimesh_model()
-            mesh.apply_scale(scale)
+            mesh.apply_scale(self.scale)
             mesh.export(f"{atom.name}_{atom.id}.stl")
 
 def main():
@@ -218,19 +231,20 @@ def main():
     parser.add_argument("pdb_file", type=str, help="PDB file to load")
     parser.add_argument("--scale", type=float, default=1.0, help="Scale of the molecule")
     parser.add_argument('--rotate', nargs=2, action='append', type=int, metavar=('id1', 'id2'), help="Atom id pair to make a joint")
+    parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap of the shaft and cavity [mm]")
     
     args = parser.parse_args()
 
     print(f"rotate: {args.rotate}")
 
-    molecule = Molecule()
+    molecule = Molecule(scale=args.scale, shaft_gap_mm=args.shaft_gap)
     molecule.load_pdb_file(args.pdb_file)
     scene = molecule.create_trimesh_scene()
     scene.show()
     # Save the molecule as STL files
     scene.export(f"molecule.stl")
     
-    molecule.save_stl_files(scale=args.scale)
+    molecule.save_stl_files()
     print(f"Loaded {len(molecule.atoms)} atoms and {len(molecule.bonds)} bonds from {args.pdb_file}")
 
 if __name__ == "__main__":
