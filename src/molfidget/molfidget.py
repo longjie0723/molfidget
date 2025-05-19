@@ -56,7 +56,7 @@ class Bond:
     shaft_r1 = 0.3
     shaft_r2 = 0.4
     shaft_r3 = 0.01
-    shaft_d1 = 0.8
+    shaft_d1 = 0.6
     shaft_d2 = 0.3
 
     def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.0, bond_gap: float = 0.0):
