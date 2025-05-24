@@ -74,6 +74,7 @@ class Bond:
     shaft_r3 = 0.01
     shaft_d1 = 0.6
     shaft_d2 = 0.3
+    shaft_c1 = 0.1 # Edge chanfer length [Angstrom]
 
     def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.0, bond_gap: float = 0.0):
         '''
@@ -109,7 +110,7 @@ class Bond:
                 cavity.apply_transform(rotation_matrix)
                 mesh = trimesh.boolean.difference([mesh, cavity], check_volume=g_check_volume)
                 # Create the shaft
-                shaft = self.create_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_r2, self.shaft_d2, self.shaft_r3, 2*self.shaft_gap)
+                shaft = self.create_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_r2, self.shaft_d2, self.shaft_r3, 2*self.shaft_gap, self.shaft_c1)
                 shaft.apply_translation([0, 0, self.slice_distance - self.wall_thickness - self.shaft_gap])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 shaft.apply_transform(rotation_matrix)
@@ -139,8 +140,18 @@ class Bond:
         slice = trimesh.boolean.intersection([mesh, box], check_volume=g_check_volume)
         return slice
     
-    def create_shaft_shape(self, r1, d1, r2, d2, r3, d3):
+    def create_shaft_shape(self, r1, d1, r2, d2, r3, d3, c1):
+        # Subtract the chamfer length from the height of the first cylinder
+        d1 = d1 - c1
         cylinder1 = trimesh.creation.cylinder(radius=r1, height=d1)
+        # Create the chamfer on the shaft
+        if c1 > 0:
+            cone1 = trimesh.creation.cone(radius=r1, height=2*r1, sections=32)
+            cylinder3 = trimesh.creation.cylinder(radius=r1, height=c1)
+            cylinder3.apply_translation([0, 0, c1/2])
+            cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=g_check_volume)
+            cone1.apply_translation([0, 0, d1/2])
+            cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=g_check_volume)
         cylinder1.apply_translation([0, 0, d1/2])
         cylinder2 = trimesh.creation.cylinder(radius=r2, height=d2)
         cylinder2.apply_translation([0, 0, -d2/2])
@@ -252,12 +263,12 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(description="Molecule visualization and manipulation")
     parser.add_argument("pdb_file", type=str, help="PDB file to load")
-    parser.add_argument("--scale", type=float, default=1.0, help="Scale of the molecule")
+    parser.add_argument("--scale", type=float, default=1.0, help="Scale of the molecule (default: %(default)s)")
     parser.add_argument('--rotate', nargs=2, action='append', type=int, metavar=('id1', 'id2'), help="Atom id pair to make a joint")
-    parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap of the shaft and cavity [mm]")
-    parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap of the bond plane [mm]")
-    parser.add_argument('--check-volume', type=bool, default=False, help="Check volume of the mesh")
-    parser.add_argument('--vdw-scale', type=float, default=0.8, help="Scale factor for van der Waals radius")
+    parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap of the shaft and cavity [mm] (default: %(default)s)")
+    parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap of the bond plane [mm] (default: %(default)s)")
+    parser.add_argument('--check-volume', type=bool, default=False, help="Check volume of the mesh (default: %(default)s)")
+    parser.add_argument('--vdw-scale', type=float, default=0.8, help="Scale factor for van der Waals radius (default: %(default)s)")
 
     args = parser.parse_args()
 
