@@ -3,6 +3,8 @@ import trimesh
 import numpy as np
 from collections import OrderedDict as Orderdict
 
+g_check_volume = False
+
 atom_radius_table = {
     "C": 1.7,
     "O": 1.52,
@@ -91,25 +93,25 @@ class Bond:
                 cavity.apply_translation([0, 0, self.slice_distance - self.wall_thickness])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 cavity.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.difference([mesh, cavity])
+                mesh = trimesh.boolean.difference([mesh, cavity], check_volume=g_check_volume)
                 # Create the shaft
                 shaft = self.create_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_r2, self.shaft_d2, self.shaft_r3, 2*self.shaft_gap)
                 shaft.apply_translation([0, 0, self.slice_distance - self.wall_thickness - self.shaft_gap])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 shaft.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.union([mesh, shaft])
+                mesh = trimesh.boolean.union([mesh, shaft], check_volume=g_check_volume)
             else:
                 tool = trimesh.primitives.Cylinder(radius=0.3, height=0.5)
                 tool.apply_translation([0, 0, self.slice_distance+0.2])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 tool.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.union([mesh, tool])
+                mesh = trimesh.boolean.union([mesh, tool], check_volume=g_check_volume)
         else:
             tool = trimesh.primitives.Cylinder(radius=0.3, height=0.5)
             tool.apply_translation([0, 0, self.slice_distance-0.24])
             rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
             tool.apply_transform(rotation_matrix)
-            mesh = trimesh.boolean.difference([mesh, tool])
+            mesh = trimesh.boolean.difference([mesh, tool], check_volume=g_check_volume)
         mesh.visual.vertex_colors = atom_color_table[self.atom1.name]
         return mesh
 
@@ -120,7 +122,7 @@ class Bond:
         rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
         box.apply_transform(rotation_matrix)
         # create the slice
-        slice = trimesh.boolean.intersection([mesh, box])
+        slice = trimesh.boolean.intersection([mesh, box], check_volume=g_check_volume)
         return slice
     
     def create_shaft_shape(self, r1, d1, r2, d2, r3, d3):
@@ -130,7 +132,7 @@ class Bond:
         cylinder2.apply_translation([0, 0, -d2/2])
         cylinder3 = trimesh.creation.cylinder(radius=r3, height=d3)
         cylinder3.apply_translation([0, 0, -d2-d3/2])
-        mesh =  trimesh.boolean.union([cylinder1, cylinder2, cylinder3])
+        mesh =  trimesh.boolean.union([cylinder1, cylinder2, cylinder3], check_volume=g_check_volume)
         return mesh
     
     def create_cavity_shape(self, r1, d1, r2, d2):
@@ -138,7 +140,7 @@ class Bond:
         cylinder1.apply_translation([0, 0, d1/2])
         cylinder2 = trimesh.creation.cylinder(radius=r2, height=d2)
         cylinder2.apply_translation([0, 0, -d2/2])
-        mesh =  trimesh.boolean.union([cylinder1, cylinder2])
+        mesh =  trimesh.boolean.union([cylinder1, cylinder2], check_volume=g_check_volume)
         return mesh
     
 def atom_distance(atom1: Atom, atom2: Atom):
@@ -240,7 +242,8 @@ def main():
     parser.add_argument('--rotate', nargs=2, action='append', type=int, metavar=('id1', 'id2'), help="Atom id pair to make a joint")
     parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap of the shaft and cavity [mm]")
     parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap of the bond plane [mm]")
-    
+    parser.add_argument('--check-volume', type=bool, default=False, help="Check volume of the mesh")
+
     args = parser.parse_args()
 
     print(f"rotate: {args.rotate}")
