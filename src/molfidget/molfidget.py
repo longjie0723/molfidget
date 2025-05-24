@@ -4,6 +4,7 @@ import numpy as np
 from collections import OrderedDict as Orderdict
 
 g_check_volume = False
+g_vdw_scale = 0.8  # Scale factor for van der Waals radius
 
 atom_radius_table = {
     "C": 1.7,
@@ -33,7 +34,7 @@ class Atom:
             raise ValueError(f"Unknown atom {id}: name: {self.name}")
 
         # ファンデルワールス半径のままだと干渉するのでちょっと小さくする
-        self.radius = 0.8 * atom_radius_table[self.name]
+        self.radius = g_vdw_scale * atom_radius_table[self.name]
         self.x = x
         self.y = y
         self.z = z
@@ -243,10 +244,13 @@ def main():
     parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap of the shaft and cavity [mm]")
     parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap of the bond plane [mm]")
     parser.add_argument('--check-volume', type=bool, default=False, help="Check volume of the mesh")
+    parser.add_argument('--vdw-scale', type=float, default=0.8, help="Scale factor for van der Waals radius")
 
     args = parser.parse_args()
 
-    print(f"rotate: {args.rotate}")
+    global g_check_volume, g_vdw_scale
+    g_check_volume = args.check_volume
+    g_vdw_scale = args.vdw_scale
 
     molecule = Molecule(scale=args.scale, shaft_gap_mm=args.shaft_gap, bond_gap_mm=args.bond_gap)
     molecule.load_pdb_file(args.pdb_file)
