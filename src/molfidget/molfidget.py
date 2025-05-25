@@ -29,15 +29,17 @@ bond_distance_table = {
     ("C", "H"): (1.09, 0.00, 0.00),
     ("O", "O"): (1.48, 1.2075, 1.28),
     ("H", "O"): (0.96, 0.00, 0.00),
-    ("S", "C"): (1.81, 1.50, 1.40),
-    ("S", "O"): (1.70, 1.45, 1.35),
-    ("S", "H"): (1.34, 0.00, 0.00),
-    ("O", "H"): (0.96, 0.00, 0.00),
-    ("N", "C"): (1.47, 1.34, 1.20),
+    ("C", "S"): (1.81, 1.50, 1.40),
+    ("O", "S"): (1.70, 1.45, 1.35),
+    ("H", "S"): (1.34, 0.00, 0.00),
+    ("H", "O"): (0.96, 0.00, 0.00),
+    ("C", "N"): (1.47, 1.34, 1.20),
     ("N", "O"): (1.40, 1.20, 1.15),
-    ("N", "H"): (1.01, 0.00, 0.00),
+    ("H", "N"): (1.01, 0.00, 0.00),
     ("N", "N"): (1.45, 1.25, 1.10),
 }
+
+
 
 class Atom:
     def __init__(self, id, name, x, y, z):
@@ -68,12 +70,12 @@ class Atom:
     
 class Bond:
     # Size of the shaft and the hole
-    wall_thickness = 0.2
+    wall_thickness = 0.15
     shaft_r1 = 0.3
     shaft_r2 = 0.4
     shaft_r3 = 0.01
-    shaft_d1 = 0.6
-    shaft_d2 = 0.3
+    shaft_d1 = 0.6 # Length of the shaft from bond surface [Angstrom]
+    shaft_d2 = 0.3 # Thickness of the wall [Angstrom]
     shaft_c1 = 0.1 # Edge chanfer length [Angstrom]
 
     def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.0, bond_gap: float = 0.0):
@@ -116,14 +118,16 @@ class Bond:
                 shaft.apply_transform(rotation_matrix)
                 mesh = trimesh.boolean.union([mesh, shaft], check_volume=g_check_volume)
             else:
-                tool = trimesh.primitives.Cylinder(radius=0.3, height=0.5)
-                tool.apply_translation([0, 0, self.slice_distance+0.2])
+                # Create the fixed shaft
+                shaft = self.create_fixed_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_c1)
+                shaft.apply_translation([0, 0, self.slice_distance])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-                tool.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.union([mesh, tool], check_volume=g_check_volume)
+                shaft.apply_transform(rotation_matrix)
+                mesh = trimesh.boolean.union([mesh, shaft], check_volume=g_check_volume)
         else:
-            tool = trimesh.primitives.Cylinder(radius=0.3, height=0.5)
-            tool.apply_translation([0, 0, self.slice_distance-0.24])
+            depth = self.shaft_d1 - self.wall_thickness + 0.02
+            tool = trimesh.primitives.Cylinder(radius=self.shaft_r1, height=depth)
+            tool.apply_translation([0, 0, self.slice_distance - depth / 2])
             rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
             tool.apply_transform(rotation_matrix)
             mesh = trimesh.boolean.difference([mesh, tool], check_volume=g_check_volume)
@@ -168,6 +172,21 @@ class Bond:
         mesh =  trimesh.boolean.union([cylinder1, cylinder2], check_volume=g_check_volume)
         return mesh
     
+    def create_fixed_shaft_shape(self, r1, d1, c1):
+        # Create a fixed shaft shape
+        d1 = d1 - c1
+        cylinder1 = trimesh.creation.cylinder(radius=r1, height=d1)
+        # Create the chamfer on the shaft
+        if c1 > 0:
+            cone1 = trimesh.creation.cone(radius=r1, height=2*r1, sections=32)
+            cylinder2 = trimesh.creation.cylinder(radius=r1, height=c1)
+            cylinder2.apply_translation([0, 0, c1/2])
+            cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=g_check_volume)
+            cone1.apply_translation([0, 0, d1/2])
+            cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=g_check_volume)
+        cylinder1.apply_translation([0, 0, d1/2])
+        return cylinder1
+
 def atom_distance(atom1: Atom, atom2: Atom):
     # Calculate the distance between two atoms
     return float(np.linalg.norm(np.array([atom1.x - atom2.x, atom1.y - atom2.y, atom1.z - atom2.z])))
@@ -227,7 +246,7 @@ class Molecule:
                     atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))
                 # Check if the atoms are within single bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][0]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))  
+                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))
 
     def __repr__(self):
         return f"Molecule({self.name}, {len(self.atoms)} atoms)"
