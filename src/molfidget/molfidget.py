@@ -1,10 +1,8 @@
+import argparse
 import trimesh
 import numpy as np
 from collections import OrderedDict as Orderdict
 from dataclasses import dataclass
-
-g_check_volume = False
-g_vdw_scale = 0.8  # Scale factor for van der Waals radius
 
 atom_radius_table = {
     "C": 1.7,
@@ -24,30 +22,44 @@ atom_color_table = {
 
 # Bond distance table in Angstroms for single, double, and triple bonds
 bond_distance_table = {
-    ("C", "C"): (1.54, 1.33, 1.20),
-    ("C", "O"): (1.43, 1.23, 1.17),
-    ("C", "H"): (1.09, 0.00, 0.00),
-    ("O", "O"): (1.48, 1.2075, 1.28),
-    ("H", "O"): (0.96, 0.00, 0.00),
-    ("C", "S"): (1.81, 1.50, 1.40),
-    ("O", "S"): (1.70, 1.45, 1.35),
-    ("H", "S"): (1.34, 0.00, 0.00),
-    ("H", "O"): (0.96, 0.00, 0.00),
-    ("C", "N"): (1.47, 1.34, 1.20),
-    ("N", "O"): (1.40, 1.20, 1.15),
-    ("H", "N"): (1.01, 0.00, 0.00),
-    ("N", "N"): (1.45, 1.25, 1.10),
+    frozenset(["C", "C"]): (1.54, 1.33, 1.20),
+    frozenset(["C", "O"]): (1.43, 1.23, 1.17),
+    frozenset(["C", "H"]): (1.09, 0.00, 0.00),
+    frozenset(["O", "O"]): (1.48, 1.2075, 1.28),
+    frozenset(["H", "O"]): (0.96, 0.00, 0.00),
+    frozenset(["C", "S"]): (1.81, 1.50, 1.40),
+    frozenset(["O", "S"]): (1.70, 1.45, 1.35),
+    frozenset(["H", "S"]): (1.34, 0.00, 0.00),
+    frozenset(["C", "N"]): (1.47, 1.34, 1.20),
+    frozenset(["N", "O"]): (1.40, 1.20, 1.15),
+    frozenset(["H", "N"]): (1.01, 0.00, 0.00),
+    frozenset(["N", "N"]): (1.45, 1.25, 1.10),
 }
 
+@dataclass
+class ShapeConfig:
+    scale: float = 10.0 # Scale factor for the whole model
+    vdw_scale: float = 0.8 # Scale factor for van der Waals radius
+    shaft_radius: float = 0.3 # Radius of the shaft [Angstrom]
+    shaft_length: float = 0.5 # Length of the shaft [Angstrom]
+    stopper_radius: float = 0.4 # Radius of the stopper [Angstrom]
+    stopper_length: float = 0.3 # Length of the stopper [Angstrom]
+    hole_radius: float = 0.3 # Radius of the hole [Angstrom]
+    hole_length: float = 0.5 # Length of the hole [Angstrom]
+    chamfer_length: float = 0.1 # Length of the chamfer [Angstrom]
+    wall_thickness: float = 0.12 # Thickness of the wall [Angstrom]
+    shaft_gap: float = 0.02 # Gap between the shaft and the hole [Angstrom]
+    bond_gap: float = 0.0 # Gap between the bond plane [Angstrom]
+
+    slice_distance: float = 0.0 # Distance from the atom to the bond plane, calculated in Bond class
+
 class Atom:
-    def __init__(self, id, name, x, y, z):
+    def __init__(self, id: int, name: str, x: float, y: float, z: float):
         self.id = id
         self.name = name[0]
         if self.name not in atom_radius_table:
             raise ValueError(f"Unknown atom {id}: name: {self.name}")
-
-        # ファンデルワールス半径のままだと干渉するのでちょっと小さくする
-        self.radius = g_vdw_scale * atom_radius_table[self.name]
+        self.radius = atom_radius_table[self.name]
         self.x = x
         self.y = y
         self.z = z
@@ -56,135 +68,139 @@ class Atom:
     def __repr__(self):
         return f"{self.name}_{self.id}({self.x}, {self.y}, {self.z})"
     
-    def create_trimesh_model(self):
-        # Trimeshモデルを生成するためのコードをここに記述
-        mesh = trimesh.primitives.Sphere(radius=self.radius, center=[0, 0, 0])
-        mesh.visual.vertex_colors = atom_color_table[self.name]
+    def create_trimesh_model(self, config: ShapeConfig):
+        # Shpere mesh for the atom
+        mesh = trimesh.primitives.Sphere(radius=config.vdw_scale*self.radius, center=[0, 0, 0])
         # Scrupt the sphere to represent bonds
         for bond in self.bonds:
-            mesh = bond.sculpt_trimesh_model(mesh)
+            bond.update_slice_distance(config)
+            mesh = bond.sculpt_trimesh_model(mesh, config)
         mesh.apply_translation([self.x, self.y, self.z])
+        mesh.visual.vertex_colors = atom_color_table[self.name]
         return mesh
 
 class Bond:
-    # Size of the shaft and the hole
-    wall_thickness = 0.15
-    shaft_r1 = 0.3 # Radius of the shaft [Angstrom]
-    shaft_r2 = 0.4 # Radius of the larger shaft [Angstrom]
-    shaft_r3 = 0.01 # Radius of the connecting [Angstrom]
-    shaft_d1 = 0.6 # Length of the shaft from bond surface [Angstrom]
-    shaft_d2 = 0.3 # Thickness of the wall [Angstrom]
-    shaft_c1 = 0.1 # Edge chanfer length [Angstrom]
-
-    
-
-    def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.0, bond_gap: float = 0.0):
+    def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool):
         '''
         結合を表すクラス
         atom1(Atom): 原子1(分割したとき軸側になる)
         atom2(Atom): 原子2(分割したとき穴側になる)
         type(str): 結合の種類(single, double, triple)
-        shaft(bool): 軸側を可動にするかどうか
-        shaft_gap(float): 軸と穴の隙間[Angstrom]
+        shaft(bool): True: 軸側 / False 穴側
         '''
         self.atom1 = atom1
         self.atom2 = atom2
         self.type = type
         self.shaft = shaft
-        self.shaft_gap = shaft_gap
-        self.bond_gap = bond_gap
-        self.vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
         self.atom_distance = np.linalg.norm(np.array([atom1.x - atom2.x, atom1.y - atom2.y, atom1.z - atom2.z]))
+        self.vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
         self.vector = self.vector / np.linalg.norm(self.vector)
-        self.slice_distance = (atom1.radius**2 - atom2.radius**2 + self.atom_distance**2)/(2*self.atom_distance)
     
     def __repr__(self):
         return f"Bond({self.atom1.id}, {self.atom2}, type={self.type})"
     
-    def sculpt_trimesh_model(self, mesh):
-        mesh = self.slice_by_bond_plane(mesh)
+    def update_slice_distance(self, config: ShapeConfig):
+        # Update the slice distance based on the configuration
+        r1 = config.vdw_scale * self.atom1.radius
+        r2 = config.vdw_scale * self.atom2.radius
+        self.slice_distance = (r1**2 - r2**2 + self.atom_distance**2)/(2*self.atom_distance)
+        #self.slice_distance = (self.atom1.radius**2 - self.atom2.radius**2 + self.atom_distance**2)/(2*self.atom_distance)
+        print(f"Bond {self.atom1.id}-{self.atom2.id} slice distance: {self.slice_distance} Angstroms")
+    
+    def sculpt_trimesh_model(self, mesh: trimesh.Trimesh, config: ShapeConfig):
+        mesh = self.slice_by_bond_plane(mesh, config)
+        #return mesh
         if self.shaft:
             if self.type and self.type == "single":
                 # Create the cavity
-                cavity = self.create_cavity_shape(self.shaft_r1+2*self.shaft_gap, self.shaft_d1, self.shaft_r2+2*self.shaft_gap, self.shaft_d2+2*self.shaft_gap)
-                cavity.apply_translation([0, 0, self.slice_distance - self.wall_thickness])
+                cavity = self.create_cavity_shape(config)
+                cavity.apply_translation([0, 0, self.slice_distance])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 cavity.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.difference([mesh, cavity], check_volume=g_check_volume)
+                mesh = trimesh.boolean.difference([mesh, cavity], check_volume=False)
                 # Create the shaft
-                shaft = self.create_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_r2, self.shaft_d2, self.shaft_r3, 2*self.shaft_gap, self.shaft_c1)
-                shaft.apply_translation([0, 0, self.slice_distance - self.wall_thickness - self.shaft_gap])
-                rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-                shaft.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.union([mesh, shaft], check_volume=g_check_volume)
-            else:
-                # Create the fixed shaft
-                shaft = self.create_fixed_shaft_shape(self.shaft_r1, self.shaft_d1, self.shaft_c1)
+                shaft = self.create_rotate_shaft(config)
                 shaft.apply_translation([0, 0, self.slice_distance])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 shaft.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.union([mesh, shaft], check_volume=g_check_volume)
+                mesh = trimesh.boolean.union([mesh, shaft], check_volume=False)
+            else:
+                # Create the fixed shaft
+                shaft = self.create_fixed_shaft_shape(config)
+                shaft.apply_translation([0, 0, self.slice_distance])
+                rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
+                shaft.apply_transform(rotation_matrix)
+                mesh = trimesh.boolean.union([mesh, shaft], check_volume=False)
         else:
-            depth = self.shaft_d1 - self.wall_thickness + 0.02
-            tool = trimesh.primitives.Cylinder(radius=self.shaft_r1, height=depth)
-            tool.apply_translation([0, 0, self.slice_distance - depth / 2])
+            hole = self.create_hole_shape(config)
+            hole.apply_translation([0, 0, self.slice_distance])
             rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            tool.apply_transform(rotation_matrix)
-            mesh = trimesh.boolean.difference([mesh, tool], check_volume=g_check_volume)
-        mesh.visual.vertex_colors = atom_color_table[self.atom1.name]
+            hole.apply_transform(rotation_matrix)
+            mesh = trimesh.boolean.difference([mesh, hole], check_volume=False)
         return mesh
 
-    def slice_by_bond_plane(self, mesh):
+    def slice_by_bond_plane(self, mesh: trimesh.Trimesh, config: ShapeConfig):
         box = trimesh.primitives.Box(extents=[self.atom1.radius*2, self.atom1.radius*2, self.atom1.radius*2])
-        box.apply_translation([0, 0, self.slice_distance-self.atom1.radius-self.bond_gap])
+        box.apply_translation([0, 0, self.slice_distance-self.atom1.radius-config.bond_gap])
         z_axis = np.array([0, 0, 1])
         rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
         box.apply_transform(rotation_matrix)
-        # create the slice
-        slice = trimesh.boolean.intersection([mesh, box], check_volume=g_check_volume)
-        return slice
+        mesh = trimesh.boolean.intersection([mesh, box], check_volume=False)
+        #mesh = trimesh.boolean.union([mesh, box], check_volume=False)
+        return mesh
     
-    def create_shaft_shape(self, r1, d1, r2, d2, r3, d3, c1):
-        # Subtract the chamfer length from the height of the first cylinder
-        d1 = d1 - c1
-        cylinder1 = trimesh.creation.cylinder(radius=r1, height=d1)
+    def create_rotate_shaft(self, config):
+        # Create a shaft
+        # d1: Shaft length including the wall thickness and gap without chamfer
+        d1 = config.shaft_length + config.wall_thickness + config.shaft_gap
+        cylinder1 = trimesh.creation.cylinder(radius=config.shaft_radius, height=d1)
+        cylinder1.apply_translation([0, 0, -d1/2])
         # Create the chamfer on the shaft
-        if c1 > 0:
-            cone1 = trimesh.creation.cone(radius=r1, height=2*r1, sections=32)
-            cylinder3 = trimesh.creation.cylinder(radius=r1, height=c1)
-            cylinder3.apply_translation([0, 0, c1/2])
-            cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=g_check_volume)
-            cone1.apply_translation([0, 0, d1/2])
-            cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=g_check_volume)
-        cylinder1.apply_translation([0, 0, d1/2])
-        cylinder2 = trimesh.creation.cylinder(radius=r2, height=d2)
-        cylinder2.apply_translation([0, 0, -d2/2])
-        cylinder3 = trimesh.creation.cylinder(radius=r3, height=d3)
-        cylinder3.apply_translation([0, 0, -d2-d3/2])
-        mesh =  trimesh.boolean.union([cylinder1, cylinder2, cylinder3], check_volume=g_check_volume)
+        cylinder3 = trimesh.creation.cylinder(radius=config.shaft_radius, height=config.chamfer_length)
+        cylinder3.apply_translation([0, 0, config.chamfer_length/2])
+        cone1 = trimesh.creation.cone(radius=config.shaft_radius, height=2*config.shaft_radius, sections=32)
+        cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=False)
+        cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
+        cylinder1.apply_translation([0, 0, config.shaft_length - config.chamfer_length])
+        # Create the stopper
+        cylinder2 = trimesh.creation.cylinder(radius=config.stopper_radius, height=config.stopper_length)
+        cylinder2.apply_translation([0, 0, - config.stopper_length/2 - config.wall_thickness - config.shaft_gap])
+        mesh =  trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
         return mesh
     
-    def create_cavity_shape(self, r1, d1, r2, d2):
-        cylinder1 = trimesh.creation.cylinder(radius=r1, height=d1)
-        cylinder1.apply_translation([0, 0, d1/2])
-        cylinder2 = trimesh.creation.cylinder(radius=r2, height=d2)
-        cylinder2.apply_translation([0, 0, -d2/2])
-        mesh =  trimesh.boolean.union([cylinder1, cylinder2], check_volume=g_check_volume)
+    def create_cavity_shape(self, config):
+        eps = 0.01  # Small epsilon to avoid numerical issues
+        # Create the cavity shape for the shaft
+        d1 = config.wall_thickness + eps
+        cylinder1 = trimesh.creation.cylinder(radius=config.shaft_radius+config.shaft_gap, height=d1)
+        cylinder1.apply_translation([0, 0, -d1/2 + eps])
+        # Create the cavity for the stopper
+        d2 = config.stopper_length + 2*config.shaft_gap
+        cylinder2 = trimesh.creation.cylinder(radius=config.stopper_radius+config.shaft_gap, height=d2)
+        cylinder2.apply_translation([0, 0, -d2/2 - d1 + eps])
+        mesh =  trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
         return mesh
     
-    def create_fixed_shaft_shape(self, r1, d1, c1):
+    def create_fixed_shaft_shape(self, config):
         # Create a fixed shaft shape
-        d1 = d1 - c1
-        cylinder1 = trimesh.creation.cylinder(radius=r1, height=d1)
+        d1 = config.shaft_length - config.chamfer_length
+        cylinder1 = trimesh.creation.cylinder(radius=config.shaft_radius, height=d1)
+        cylinder1.apply_translation([0, 0, -d1/2])
         # Create the chamfer on the shaft
-        if c1 > 0:
-            cone1 = trimesh.creation.cone(radius=r1, height=2*r1, sections=32)
-            cylinder2 = trimesh.creation.cylinder(radius=r1, height=c1)
-            cylinder2.apply_translation([0, 0, c1/2])
-            cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=g_check_volume)
-            cone1.apply_translation([0, 0, d1/2])
-            cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=g_check_volume)
-        cylinder1.apply_translation([0, 0, d1/2])
+        cylinder2 = trimesh.creation.cylinder(radius=config.shaft_radius, height=config.chamfer_length)
+        cylinder2.apply_translation([0, 0, config.chamfer_length/2])
+        cone1 = trimesh.creation.cone(radius=config.shaft_radius, height=2*config.shaft_radius, sections=32)
+        cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=False)
+        cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
+        cylinder1.apply_translation([0, 0, config.shaft_length - config.chamfer_length])
+        return cylinder1
+    
+    def create_hole_shape(self, config):
+        # Create a hole shape for the shaft
+        eps = 0.01  # Small epsilon to avoid numerical issues
+        d1 = config.hole_length + eps
+        cylinder1 = trimesh.creation.cylinder(radius=config.hole_radius, height=d1)
+        cylinder1.apply_translation([0, 0, -d1/2 + eps])
         return cylinder1
 
 def atom_distance(atom1: Atom, atom2: Atom):
@@ -192,34 +208,20 @@ def atom_distance(atom1: Atom, atom2: Atom):
     return float(np.linalg.norm(np.array([atom1.x - atom2.x, atom1.y - atom2.y, atom1.z - atom2.z])))
 
 class Molecule:
-    def __init__(self, scale=1.0, shaft_gap_mm=0.2, bond_gap_mm=0.0):
+    def __init__(self):
         # Dictionary to hold atoms by their ids
         self.atoms = Orderdict()
         # Dictionary to hold bonds by their ids
         self.bonds = {}
-        # Scale of the molecule
-        self.scale = scale
-        # Gap between the shaft and the cavity [angstrom]
-        self.shaft_gap = shaft_gap_mm / self.scale
-        # Too much gap is not good for sculpting
-        if self.shaft_gap > 0.05:
-            self.shaft_gap = 0.05
-        # Gap between the bond plane[angstrom]
-        self.bond_gap = bond_gap_mm / self.scale
-        # Too much gap is not good for sculpting
-        if self.bond_gap > 0.05:
-            self.bond_gap = 0.05
-
-    def add_atom(self, atom):
-        # Add an atom to the molecule
-        self.atoms[atom.id] = atom
 
     def load_pdb_file(self, file_name):
         # Load a PDB file and populate the molecule with atoms and bonds
         with open(file_name, 'r') as file:
             for line in file:
+                # Do we have the name of the molecule somewhere?
                 if line.startswith("COMPND"):
                     self.name = line[10:].strip()
+                # Parse ATOM and HETATM lines to extract atom information
                 if line.startswith("ATOM") or line.startswith("HETATM"):
                     id = int(line[6:11].strip())
                     name = line[12:16].strip()
@@ -227,8 +229,8 @@ class Molecule:
                     y = float(line[38:46])
                     z = float(line[46:54])
                     self.atoms[id] = Atom(id, name, x, y, z)
+        # Update the bonds based on the atom distances
         self.update_bond()
-
 
     def update_bond(self):
         # Update the bonds based on the distance between atoms
@@ -236,17 +238,17 @@ class Molecule:
             for id2, atom2 in self.atoms.items():
                 if id1 == id2:
                     continue
-                if tuple(sorted((atom1.name, atom2.name))) not in bond_distance_table:
+                if frozenset([atom1.name, atom2.name]) not in bond_distance_table:
                     continue
                 # Check if the atoms are within triple bond distance
-                if atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][2]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="triple", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))
+                if atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][2]:
+                    atom1.bonds.append(Bond(atom1, atom2, type="triple", shaft=id1 < id2))
                 # Check if the atoms are within double bond distance
-                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][1]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))
+                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][1]:
+                    atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2))
                 # Check if the atoms are within single bond distance
-                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[tuple(sorted((atom1.name, atom2.name)))][0]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2, shaft_gap=self.shaft_gap, bond_gap=self.bond_gap))
+                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][0]:
+                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2))
 
     def __repr__(self):
         return f"Molecule({self.name}, {len(self.atoms)} atoms)"
@@ -260,49 +262,63 @@ class Molecule:
         z = np.mean([atom.z for atom in self.atoms.values()])
         return np.array([x, y, z])
     
-    def create_trimesh_scene(self):
+    def create_trimesh_scene(self, config: ShapeConfig):
         # Create a trimesh model for the molecule
         scene = trimesh.Scene()
         for atom in self.atoms.values():
-            mesh = atom.create_trimesh_model()
+            mesh = atom.create_trimesh_model(config)
             scene.add_geometry(mesh)
         # center the scene
         scene.apply_translation(-self.center)
-        scene.apply_scale(self.scale)
+        scene.apply_scale(config.scale)
         return scene
 
-    def save_stl_files(self):
+    def save_stl_files(self, config: ShapeConfig = None):
         for atom in self.atoms.values():
-            mesh = atom.create_trimesh_model()
-            mesh.apply_scale(self.scale)
+            mesh = atom.create_trimesh_model(config)
+            mesh.apply_scale(config.scale)
             mesh.export(f"{atom.name}_{atom.id}.stl")
 
 def main():
+    config = ShapeConfig()
     # command line interface
-    import argparse
     parser = argparse.ArgumentParser(description="Molecule visualization and manipulation")
     parser.add_argument("pdb_file", type=str, help="PDB file to load")
-    parser.add_argument("--scale", type=float, default=1.0, help="Scale of the molecule (default: %(default)s)")
-    parser.add_argument('--rotate', nargs=2, action='append', type=int, metavar=('id1', 'id2'), help="Atom id pair to make a joint")
-    parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap of the shaft and cavity [mm] (default: %(default)s)")
-    parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap of the bond plane [mm] (default: %(default)s)")
-    parser.add_argument('--check-volume', type=bool, default=False, help="Check volume of the mesh (default: %(default)s)")
-    parser.add_argument('--vdw-scale', type=float, default=0.8, help="Scale factor for van der Waals radius (default: %(default)s)")
-
+    parser.add_argument("--scale", type=float, default=config.scale, help="Scale of the molecule (default: %(default)s)")
+    parser.add_argument('--vdw-radius-scale', type=float, default=config.vdw_scale, help="Scale factor for van der Waals radius (default: %(default)s)")
+    parser.add_argument('--shaft-radius', type=float, default=config.shaft_radius, help="Radius of the shaft [Angstrom] (default: %(default)s)")
+    parser.add_argument('--shaft-length', type=float, default=config.shaft_length, help="Length of the shaft [Angstrom] (default: %(default)s)")
+    parser.add_argument('--stopper-radius', type=float, default=config.stopper_radius, help="Radius of the stopper [Angstrom] (default: %(default)s)")
+    parser.add_argument('--stopper-length', type=float, default=config.stopper_length, help="Length of the stopper [Angstrom] (default: %(default)s)")
+    parser.add_argument('--hole-radius', type=float, default=config.hole_radius, help="Radius of the hole [Angstrom] (default: %(default)s)")
+    parser.add_argument('--hole-length', type=float, default=config.hole_length, help="Length of the hole [Angstrom] (default: %(default)s)")
+    parser.add_argument('--chamfer-length', type=float, default=config.chamfer_length, help="Length of the chamfer [Angstrom] (default: %(default)s)")
+    parser.add_argument('--wall-thickness', type=float, default=config.wall_thickness, help="Thickness of the wall [Angstrom] (default: %(default)s)")
+    parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap between the shaft and the hole [mm] (default: %(default)s)")
+    parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap between the bond plane [mm] (default: %(default)s)") 
     args = parser.parse_args()
 
-    global g_check_volume, g_vdw_scale
-    g_check_volume = args.check_volume
-    g_vdw_scale = args.vdw_scale
+    config.scale = args.scale
+    config.vdw_scale = args.vdw_radius_scale
+    config.shaft_radius = args.shaft_radius
+    config.shaft_length = args.shaft_length
+    config.stopper_radius = args.stopper_radius
+    config.stopper_length = args.stopper_length
+    config.hole_radius = args.hole_radius
+    config.hole_length = args.hole_length
+    config.chamfer_length = args.chamfer_length
+    config.wall_thickness = args.wall_thickness
+    config.shaft_gap = min(0.05, args.shaft_gap / args.scale)
+    config.bond_gap = min(0.05, args.bond_gap / args.scale)
 
-    molecule = Molecule(scale=args.scale, shaft_gap_mm=args.shaft_gap, bond_gap_mm=args.bond_gap)
+    molecule = Molecule()
     molecule.load_pdb_file(args.pdb_file)
-    scene = molecule.create_trimesh_scene()
+    scene = molecule.create_trimesh_scene(config)
     scene.show()
     # Save the molecule as STL files
     scene.export(f"molecule.stl")
     
-    molecule.save_stl_files()
+    molecule.save_stl_files(config)
     print(f"Loaded {len(molecule.atoms)} atoms and {len(molecule.bonds)} bonds from {args.pdb_file}")
 
 if __name__ == "__main__":
