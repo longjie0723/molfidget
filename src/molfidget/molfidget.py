@@ -1,7 +1,7 @@
-import scipy
 import trimesh
 import numpy as np
 from collections import OrderedDict as Orderdict
+from dataclasses import dataclass
 
 g_check_volume = False
 g_vdw_scale = 0.8  # Scale factor for van der Waals radius
@@ -39,8 +39,6 @@ bond_distance_table = {
     ("N", "N"): (1.45, 1.25, 1.10),
 }
 
-
-
 class Atom:
     def __init__(self, id, name, x, y, z):
         self.id = id
@@ -67,16 +65,18 @@ class Atom:
             mesh = bond.sculpt_trimesh_model(mesh)
         mesh.apply_translation([self.x, self.y, self.z])
         return mesh
-    
+
 class Bond:
     # Size of the shaft and the hole
     wall_thickness = 0.15
-    shaft_r1 = 0.3
-    shaft_r2 = 0.4
-    shaft_r3 = 0.01
+    shaft_r1 = 0.3 # Radius of the shaft [Angstrom]
+    shaft_r2 = 0.4 # Radius of the larger shaft [Angstrom]
+    shaft_r3 = 0.01 # Radius of the connecting [Angstrom]
     shaft_d1 = 0.6 # Length of the shaft from bond surface [Angstrom]
     shaft_d2 = 0.3 # Thickness of the wall [Angstrom]
     shaft_c1 = 0.1 # Edge chanfer length [Angstrom]
+
+    
 
     def __init__(self, atom1:Atom, atom2:Atom, type:str, shaft: bool, shaft_gap: float = 0.0, bond_gap: float = 0.0):
         '''
