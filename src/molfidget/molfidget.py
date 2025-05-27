@@ -214,6 +214,43 @@ class Molecule:
         # Dictionary to hold bonds by their ids
         self.bonds = {}
 
+    def load_mol_file(self, file_name):
+        # Load a MOL file and populate the molecule with atoms and bonds
+        with open(file_name, 'r') as file:
+            lines = file.readlines()
+        # Fist line contains the name of the molecule
+        self.name = lines[0].strip()
+        counts = lines[3].split()
+        atom_count = int(counts[0])
+        bond_count = int(counts[1])
+        # Parse the atom lines
+        for i in range(atom_count):
+            data = lines[4 + i].strip().split()
+            x = float(data[0])
+            y = float(data[1])
+            z = float(data[2])
+            name = data[3]
+            self.atoms[i+1] = Atom(i+1, name, x, y, z)
+            print(f"Loaded atom: {self.atoms[i+1]}")
+        # Parse the bond lines
+        for i in range(bond_count):
+            data = lines[4 + atom_count + i].strip().split()
+            id1 = int(data[0])
+            id2 = int(data[1])
+            type = int(data[2])
+            if type == 1:
+                bond_type = "single"
+            elif type == 2:
+                bond_type = "double"
+            elif type == 3:
+                bond_type = "triple"
+            elif type == 4:
+                bond_type = "1.5"
+            else:
+                raise ValueError(f"Unknown bond type: {type}")
+            self.atoms[id1].bonds.append(Bond(self.atoms[id1], self.atoms[id2], type=bond_type, shaft=id1 < id2))
+            self.atoms[id2].bonds.append(Bond(self.atoms[id2], self.atoms[id1], type=bond_type, shaft=id2 < id1))  
+
     def load_pdb_file(self, file_name):
         # Load a PDB file and populate the molecule with atoms and bonds
         with open(file_name, 'r') as file:
@@ -312,7 +349,14 @@ def main():
     config.bond_gap = min(0.05, args.bond_gap / args.scale)
 
     molecule = Molecule()
-    molecule.load_pdb_file(args.pdb_file)
+
+    if args.pdb_file.endswith(".pdb"):
+        molecule.load_pdb_file(args.pdb_file)
+    elif args.pdb_file.endswith(".mol"):
+        molecule.load_mol_file(args.pdb_file)
+    else:
+        exit(f"Unsupported file format: {args.pdb_file}. Please provide a .pdb or .mol file.")
+
     scene = molecule.create_trimesh_scene(config)
     scene.show()
     # Save the molecule as STL files
