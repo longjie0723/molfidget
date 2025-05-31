@@ -1,4 +1,5 @@
 import argparse
+import os
 import trimesh
 import numpy as np
 from collections import OrderedDict as Orderdict
@@ -63,7 +64,7 @@ class Atom:
         self.x = x
         self.y = y
         self.z = z
-        self.bonds = []
+        self.pairs = {}
 
     def __repr__(self):
         return f"{self.name}_{self.id}({self.x}, {self.y}, {self.z})"
@@ -72,9 +73,9 @@ class Atom:
         # Shpere mesh for the atom
         mesh = trimesh.primitives.Sphere(radius=config.vdw_scale*self.radius, center=[0, 0, 0])
         # Scrupt the sphere to represent bonds
-        for bond in self.bonds:
-            bond.update_slice_distance(config)
-            mesh = bond.sculpt_trimesh_model(mesh, config)
+        for pair in self.pairs.values():
+            pair.update_slice_distance(config)
+            mesh = pair.sculpt_trimesh_model(mesh, config)
         mesh.apply_translation([self.x, self.y, self.z])
         mesh.visual.vertex_colors = atom_color_table[self.name]
         return mesh
@@ -104,14 +105,15 @@ class Bond:
         r1 = config.vdw_scale * self.atom1.radius
         r2 = config.vdw_scale * self.atom2.radius
         self.slice_distance = (r1**2 - r2**2 + self.atom_distance**2)/(2*self.atom_distance)
-        #self.slice_distance = (self.atom1.radius**2 - self.atom2.radius**2 + self.atom_distance**2)/(2*self.atom_distance)
-        print(f"Bond {self.atom1.id}-{self.atom2.id} slice distance: {self.slice_distance} Angstroms")
     
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh, config: ShapeConfig):
         mesh = self.slice_by_bond_plane(mesh, config)
-        #return mesh
+
+        if self.type == "none":
+            return mesh
+        
         if self.shaft:
-            if self.type and self.type == "single":
+            if self.type == "single":
                 # Create the cavity
                 cavity = self.create_cavity_shape(config)
                 cavity.apply_translation([0, 0, self.slice_distance])
@@ -211,8 +213,6 @@ class Molecule:
     def __init__(self):
         # Dictionary to hold atoms by their ids
         self.atoms = Orderdict()
-        # Dictionary to hold bonds by their ids
-        self.bonds = {}
 
     def load_mol_file(self, file_name):
         # Load a MOL file and populate the molecule with atoms and bonds
@@ -232,6 +232,8 @@ class Molecule:
             name = data[3]
             self.atoms[i+1] = Atom(i+1, name, x, y, z)
             print(f"Loaded atom: {self.atoms[i+1]}")
+        # Create the pairs of atoms based on the distances
+        self.create_pairs()
         # Parse the bond lines
         for i in range(bond_count):
             data = lines[4 + atom_count + i].strip().split()
@@ -248,8 +250,9 @@ class Molecule:
                 bond_type = "1.5"
             else:
                 raise ValueError(f"Unknown bond type: {type}")
-            self.atoms[id1].bonds.append(Bond(self.atoms[id1], self.atoms[id2], type=bond_type, shaft=id1 < id2))
-            self.atoms[id2].bonds.append(Bond(self.atoms[id2], self.atoms[id1], type=bond_type, shaft=id2 < id1))  
+            self.atoms[id1].pairs[id1, id2] = Bond(self.atoms[id1], self.atoms[id2], type=bond_type, shaft=id1 < id2)
+            self.atoms[id2].pairs[id1, id2] = Bond(self.atoms[id2], self.atoms[id1], type=bond_type, shaft=id2 < id1)
+            print(f"Loaded bond: {self.atoms[id1].name}_{id1} - {self.atoms[id2].name}_{id2}, type={bond_type}")
 
     def load_pdb_file(self, file_name):
         # Load a PDB file and populate the molecule with atoms and bonds
@@ -266,10 +269,21 @@ class Molecule:
                     y = float(line[38:46])
                     z = float(line[46:54])
                     self.atoms[id] = Atom(id, name, x, y, z)
-        # Update the bonds based on the atom distances
-        self.update_bond()
+        # Create the atom pairs based on the atom distances
+        self.create_pairs()
+        # Find the bonds based on the atom pairs
+        self.find_bonds()
 
-    def update_bond(self):
+    def create_pairs(self):
+        # Update the pairs of atoms based on the distance between them
+        for id1, atom1 in self.atoms.items():
+            for id2, atom2 in self.atoms.items():
+                if id1 == id2:
+                    continue
+                if atom_distance(atom1, atom2) < atom1.radius + atom2.radius:
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="none", shaft=id1 < id2)
+
+    def find_bonds(self):
         # Update the bonds based on the distance between atoms
         for id1, atom1 in self.atoms.items():
             for id2, atom2 in self.atoms.items():
@@ -279,13 +293,13 @@ class Molecule:
                     continue
                 # Check if the atoms are within triple bond distance
                 if atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][2]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="triple", shaft=id1 < id2))
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="triple", shaft=id1 < id2)
                 # Check if the atoms are within double bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][1]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="double", shaft=id1 < id2))
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="double", shaft=id1 < id2)
                 # Check if the atoms are within single bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][0]:
-                    atom1.bonds.append(Bond(atom1, atom2, type="single", shaft=id1 < id2))
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="single", shaft=id1 < id2)
 
     def __repr__(self):
         return f"Molecule({self.name}, {len(self.atoms)} atoms)"
@@ -310,17 +324,18 @@ class Molecule:
         scene.apply_scale(config.scale)
         return scene
 
-    def save_stl_files(self, config: ShapeConfig = None):
+    def save_stl_files(self, config: ShapeConfig, output_dir: str ='output'):
+        os.makedirs(output_dir, exist_ok=True)
         for atom in self.atoms.values():
             mesh = atom.create_trimesh_model(config)
             mesh.apply_scale(config.scale)
-            mesh.export(f"{atom.name}_{atom.id}.stl")
+            mesh.export(os.path.join(output_dir, f"{atom.name}_{atom.id}.stl"))
 
 def main():
     config = ShapeConfig()
     # command line interface
     parser = argparse.ArgumentParser(description="Molecule visualization and manipulation")
-    parser.add_argument("pdb_file", type=str, help="PDB file to load")
+    parser.add_argument("file_name", type=str, help="PDB or MOL file to load")
     parser.add_argument("--scale", type=float, default=config.scale, help="Scale of the molecule (default: %(default)s)")
     parser.add_argument('--vdw-radius-scale', type=float, default=config.vdw_scale, help="Scale factor for van der Waals radius (default: %(default)s)")
     parser.add_argument('--shaft-radius', type=float, default=config.shaft_radius, help="Radius of the shaft [Angstrom] (default: %(default)s)")
@@ -333,6 +348,7 @@ def main():
     parser.add_argument('--wall-thickness', type=float, default=config.wall_thickness, help="Thickness of the wall [Angstrom] (default: %(default)s)")
     parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap between the shaft and the hole [mm] (default: %(default)s)")
     parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap between the bond plane [mm] (default: %(default)s)") 
+    parser.add_argument('--output-dir', type=str, default='output', help="Output directory for STL files (default: %(default)s)")
     args = parser.parse_args()
 
     config.scale = args.scale
@@ -350,20 +366,20 @@ def main():
 
     molecule = Molecule()
 
-    if args.pdb_file.endswith(".pdb"):
-        molecule.load_pdb_file(args.pdb_file)
-    elif args.pdb_file.endswith(".mol"):
-        molecule.load_mol_file(args.pdb_file)
+    if args.file_name.endswith(".pdb"):
+        molecule.load_pdb_file(args.file_name)
+    elif args.file_name.endswith(".mol"):
+        molecule.load_mol_file(args.file_name)
     else:
-        exit(f"Unsupported file format: {args.pdb_file}. Please provide a .pdb or .mol file.")
+        exit(f"Unsupported file format: {args.file_name}. Please provide a .pdb or .mol file.")
 
     scene = molecule.create_trimesh_scene(config)
     scene.show()
     # Save the molecule as STL files
-    scene.export(f"molecule.stl")
+    scene.export(os.path.join(args.output_dir, "molecule.stl"))
     
-    molecule.save_stl_files(config)
-    print(f"Loaded {len(molecule.atoms)} atoms and {len(molecule.bonds)} bonds from {args.pdb_file}")
+    molecule.save_stl_files(config, output_dir=args.output_dir)
+    print(f"Loaded {len(molecule.atoms)} atoms from {args.file_name}")
 
 if __name__ == "__main__":
     main()
