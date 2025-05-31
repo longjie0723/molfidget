@@ -376,6 +376,8 @@ def main():
     scene = molecule.create_trimesh_scene(config)
     scene.show()
     # Save the molecule as STL files
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
     scene.export(os.path.join(args.output_dir, "molecule.stl"))
     
     molecule.save_stl_files(config, output_dir=args.output_dir)
