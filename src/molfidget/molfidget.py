@@ -1,6 +1,8 @@
 import argparse
+import dataclasses
 import os
 import trimesh
+import yaml
 import numpy as np
 from collections import OrderedDict as Orderdict
 from dataclasses import dataclass
@@ -336,6 +338,7 @@ def main():
     # command line interface
     parser = argparse.ArgumentParser(description="Molecule visualization and manipulation")
     parser.add_argument("file_name", type=str, help="PDB or MOL file to load")
+    parser.add_argument('--config-file', type=str, help="Configuration yaml file")
     parser.add_argument("--scale", type=float, default=config.scale, help="Scale of the molecule (default: %(default)s)")
     parser.add_argument('--vdw-radius-scale', type=float, default=config.vdw_scale, help="Scale factor for van der Waals radius (default: %(default)s)")
     parser.add_argument('--shaft-radius', type=float, default=config.shaft_radius, help="Radius of the shaft [Angstrom] (default: %(default)s)")
@@ -349,7 +352,14 @@ def main():
     parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap between the shaft and the hole [mm] (default: %(default)s)")
     parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap between the bond plane [mm] (default: %(default)s)") 
     parser.add_argument('--output-dir', type=str, default='output', help="Output directory for STL files (default: %(default)s)")
+
     args = parser.parse_args()
+
+    # Load configuration from a YAML file if provided
+    if args.config_file:
+        with open(args.config_file, 'r') as file:
+            config_data = yaml.safe_load(file)
+            config = ShapeConfig(**config_data)
 
     config.scale = args.scale
     config.vdw_scale = args.vdw_radius_scale
@@ -379,9 +389,16 @@ def main():
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
     scene.export(os.path.join(args.output_dir, "molecule.stl"))
+    scene.export(os.path.join(args.output_dir, "molecule.ply"))
     
     molecule.save_stl_files(config, output_dir=args.output_dir)
     print(f"Loaded {len(molecule.atoms)} atoms from {args.file_name}")
+
+    # Save the configuration to a YAML file
+    config_data = dataclasses.asdict(config)
+    config_data["file_name"] = args.file_name
+    with open(os.path.join(args.output_dir, "config.yaml"), 'w') as file:
+        yaml.dump(config_data, file, default_flow_style=False)
 
 if __name__ == "__main__":
     main()
