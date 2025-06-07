@@ -10,6 +10,7 @@ scipy = "^1.15.3"
 trimesh = "^4.6.9"
 manifold3d = "^3.1.0"
 pyglet = "<2"
+pyyaml = "^6.0.1"
 
 [tool.poetry.dev-dependencies]
 
