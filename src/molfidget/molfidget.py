@@ -44,13 +44,13 @@ class ShapeConfig:
     scale: float = 10.0 # Scale factor for the whole model
     vdw_scale: float = 0.8 # Scale factor for van der Waals radius
     shaft_radius: float = 0.3 # Radius of the shaft [Angstrom]
-    shaft_length: float = 0.5 # Length of the shaft [Angstrom]
+    shaft_length: float = 0.3 # Length of the shaft [Angstrom]
     stopper_radius: float = 0.4 # Radius of the stopper [Angstrom]
-    stopper_length: float = 0.3 # Length of the stopper [Angstrom]
+    stopper_length: float = 0.18 # Length of the stopper [Angstrom]
     hole_radius: float = 0.3 # Radius of the hole [Angstrom]
-    hole_length: float = 0.5 # Length of the hole [Angstrom]
+    hole_length: float = 0.3 # Length of the hole [Angstrom]
     chamfer_length: float = 0.1 # Length of the chamfer [Angstrom]
-    wall_thickness: float = 0.12 # Thickness of the wall [Angstrom]
+    wall_thickness: float = 0.1 # Thickness of the wall [Angstrom]
     shaft_gap: float = 0.02 # Gap between the shaft and the hole [Angstrom]
     bond_gap: float = 0.0 # Gap between the bond plane [Angstrom]
 
@@ -215,6 +215,8 @@ class Molecule:
     def __init__(self):
         # Dictionary to hold atoms by their ids
         self.atoms = Orderdict()
+        # Group of atoms that can be merged
+        self.atom_groups = Orderdict()
 
     def load_mol_file(self, file_name):
         # Load a MOL file and populate the molecule with atoms and bonds
@@ -333,6 +335,39 @@ class Molecule:
             mesh.apply_scale(config.scale)
             mesh.export(os.path.join(output_dir, f"{atom.name}_{atom.id}.stl"))
 
+    def merge_atoms(self):
+        counter = 0
+        for atom in self.atoms.values():
+            for pair in atom.pairs.values():
+                if pair.type == "none":
+                    continue
+                if pair.atom1.name != pair.atom2.name:
+                    continue
+                # Search group containing atom1 or atom2
+                group = next((g for g in self.atom_groups.values() if pair.atom1.id in g or pair.atom2.id in g), None)
+                if group is None:
+                    # Create a new group if not found
+                    self.atom_groups[f"group_{counter}"] = set()
+                    self.atom_groups[f"group_{counter}"].add(pair.atom1.id)
+                    self.atom_groups[f"group_{counter}"].add(pair.atom2.id)
+                    counter += 1
+                else:
+                    # Add the atoms to the existing group
+                    group.add(pair.atom1.id)
+                    group.add(pair.atom2.id)
+
+        print(f"Merged atoms into {len(self.atom_groups)} groups")
+        print("Groups:", self.atom_groups)
+
+    def save_group_stl_files(self, config: ShapeConfig, output_dir: str ='output'):
+        os.makedirs(output_dir, exist_ok=True)
+        for group_name, group in self.atom_groups.items():
+            # Merge the atoms and save as a single file
+            meshes = [self.atoms[id].create_trimesh_model(config) for id in group]
+            merged_mesh = trimesh.util.concatenate(meshes)
+            merged_mesh.apply_scale(config.scale)
+            merged_mesh.export(os.path.join(output_dir, f"{group_name}.stl"))
+
 def main():
     config = ShapeConfig()
     # command line interface
@@ -393,6 +428,9 @@ def main():
     
     molecule.save_stl_files(config, output_dir=args.output_dir)
     print(f"Loaded {len(molecule.atoms)} atoms from {args.file_name}")
+
+    molecule.merge_atoms()
+    molecule.save_group_stl_files(config, output_dir=args.output_dir)
 
     # Save the configuration to a YAML file
     config_data = dataclasses.asdict(config)
