@@ -131,7 +131,7 @@ class Bond:
             else:
                 # Create the fixed shaft
                 shaft = self.create_fixed_shaft_shape(config)
-                shaft.apply_translation([0, 0, self.slice_distance])
+                shaft.apply_translation([0, 0, self.slice_distance - config.bond_gap])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 shaft.apply_transform(rotation_matrix)
                 mesh = trimesh.boolean.union([mesh, shaft], check_volume=False)
@@ -186,8 +186,9 @@ class Bond:
         return mesh
     
     def create_fixed_shaft_shape(self, config):
+        eps = 0.01  # Small epsilon to avoid numerical issues
         # Create a fixed shaft shape
-        d1 = config.shaft_length - config.chamfer_length
+        d1 = config.shaft_length + config.bond_gap - config.chamfer_length
         cylinder1 = trimesh.creation.cylinder(radius=config.shaft_radius, height=d1)
         cylinder1.apply_translation([0, 0, -d1/2])
         # Create the chamfer on the shaft
@@ -196,7 +197,7 @@ class Bond:
         cone1 = trimesh.creation.cone(radius=config.shaft_radius, height=2*config.shaft_radius, sections=32)
         cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=False)
         cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
-        cylinder1.apply_translation([0, 0, config.shaft_length - config.chamfer_length])
+        cylinder1.apply_translation([0, 0, config.shaft_length + config.bond_gap - config.chamfer_length - eps])
         return cylinder1
     
     def create_hole_shape(self, config):
