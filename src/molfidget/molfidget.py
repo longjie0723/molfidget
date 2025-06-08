@@ -385,7 +385,7 @@ def main():
     parser.add_argument('--hole-length', type=float, default=config.hole_length, help="Length of the hole [Angstrom] (default: %(default)s)")
     parser.add_argument('--chamfer-length', type=float, default=config.chamfer_length, help="Length of the chamfer [Angstrom] (default: %(default)s)")
     parser.add_argument('--wall-thickness', type=float, default=config.wall_thickness, help="Thickness of the wall [Angstrom] (default: %(default)s)")
-    parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap between the shaft and the hole [mm] (default: %(default)s)")
+    parser.add_argument('--shaft-gap', type=float, default=0.35, help="Gap between the shaft and the hole [mm] (default: %(default)s)")
     parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap between the bond plane [mm] (default: %(default)s)") 
     parser.add_argument('--output-dir', type=str, default='output', help="Output directory for STL files (default: %(default)s)")
 
