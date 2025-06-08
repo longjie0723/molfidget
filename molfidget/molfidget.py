@@ -225,9 +225,8 @@ class Molecule:
             lines = file.readlines()
         # Fist line contains the name of the molecule
         self.name = lines[0].strip()
-        counts = lines[3].split()
-        atom_count = int(counts[0])
-        bond_count = int(counts[1])
+        atom_count = int(lines[3][0:3])
+        bond_count = int(lines[3][3:6])
         # Parse the atom lines
         for i in range(atom_count):
             data = lines[4 + i].strip().split()
@@ -241,10 +240,10 @@ class Molecule:
         self.create_pairs()
         # Parse the bond lines
         for i in range(bond_count):
-            data = lines[4 + atom_count + i].strip().split()
-            id1 = int(data[0])
-            id2 = int(data[1])
-            type = int(data[2])
+            line = lines[4 + atom_count + i]
+            id1 = int(line[0:3])
+            id2 = int(line[3:6])
+            type = int(line[6:9])
             if type == 1:
                 bond_type = "single"
             elif type == 2:
