@@ -44,14 +44,14 @@ class ShapeConfig:
     scale: float = 10.0 # Scale factor for the whole model
     vdw_scale: float = 0.8 # Scale factor for van der Waals radius
     shaft_radius: float = 0.3 # Radius of the shaft [Angstrom]
-    shaft_length: float = 0.5 # Length of the shaft [Angstrom]
+    shaft_length: float = 0.3 # Length of the shaft [Angstrom]
     stopper_radius: float = 0.4 # Radius of the stopper [Angstrom]
-    stopper_length: float = 0.3 # Length of the stopper [Angstrom]
+    stopper_length: float = 0.2 # Length of the stopper [Angstrom]
     hole_radius: float = 0.3 # Radius of the hole [Angstrom]
-    hole_length: float = 0.5 # Length of the hole [Angstrom]
+    hole_length: float = 0.3 # Length of the hole [Angstrom]
     chamfer_length: float = 0.1 # Length of the chamfer [Angstrom]
-    wall_thickness: float = 0.12 # Thickness of the wall [Angstrom]
-    shaft_gap: float = 0.02 # Gap between the shaft and the hole [Angstrom]
+    wall_thickness: float = 0.1 # Thickness of the wall [Angstrom]
+    shaft_gap: float = 0.03 # Gap between the shaft and the hole [Angstrom]
     bond_gap: float = 0.0 # Gap between the bond plane [Angstrom]
 
     slice_distance: float = 0.0 # Distance from the atom to the bond plane, calculated in Bond class
@@ -131,7 +131,7 @@ class Bond:
             else:
                 # Create the fixed shaft
                 shaft = self.create_fixed_shaft_shape(config)
-                shaft.apply_translation([0, 0, self.slice_distance])
+                shaft.apply_translation([0, 0, self.slice_distance - config.bond_gap])
                 rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
                 shaft.apply_transform(rotation_matrix)
                 mesh = trimesh.boolean.union([mesh, shaft], check_volume=False)
@@ -186,8 +186,9 @@ class Bond:
         return mesh
     
     def create_fixed_shaft_shape(self, config):
+        eps = 0.01  # Small epsilon to avoid numerical issues
         # Create a fixed shaft shape
-        d1 = config.shaft_length - config.chamfer_length
+        d1 = config.shaft_length + config.bond_gap - config.chamfer_length
         cylinder1 = trimesh.creation.cylinder(radius=config.shaft_radius, height=d1)
         cylinder1.apply_translation([0, 0, -d1/2])
         # Create the chamfer on the shaft
@@ -196,7 +197,7 @@ class Bond:
         cone1 = trimesh.creation.cone(radius=config.shaft_radius, height=2*config.shaft_radius, sections=32)
         cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=False)
         cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
-        cylinder1.apply_translation([0, 0, config.shaft_length - config.chamfer_length])
+        cylinder1.apply_translation([0, 0, config.shaft_length + config.bond_gap - config.chamfer_length - eps])
         return cylinder1
     
     def create_hole_shape(self, config):
@@ -215,6 +216,8 @@ class Molecule:
     def __init__(self):
         # Dictionary to hold atoms by their ids
         self.atoms = Orderdict()
+        # Group of atoms that can be merged
+        self.atom_groups = Orderdict()
 
     def load_mol_file(self, file_name):
         # Load a MOL file and populate the molecule with atoms and bonds
@@ -333,6 +336,39 @@ class Molecule:
             mesh.apply_scale(config.scale)
             mesh.export(os.path.join(output_dir, f"{atom.name}_{atom.id}.stl"))
 
+    def merge_atoms(self):
+        counter = 0
+        for atom in self.atoms.values():
+            for pair in atom.pairs.values():
+                if pair.type == "none":
+                    continue
+                if pair.atom1.name != pair.atom2.name:
+                    continue
+                # Search group containing atom1 or atom2
+                group = next((g for g in self.atom_groups.values() if pair.atom1.id in g or pair.atom2.id in g), None)
+                if group is None:
+                    # Create a new group if not found
+                    self.atom_groups[f"group_{counter}"] = set()
+                    self.atom_groups[f"group_{counter}"].add(pair.atom1.id)
+                    self.atom_groups[f"group_{counter}"].add(pair.atom2.id)
+                    counter += 1
+                else:
+                    # Add the atoms to the existing group
+                    group.add(pair.atom1.id)
+                    group.add(pair.atom2.id)
+
+        print(f"Merged atoms into {len(self.atom_groups)} groups")
+        print("Groups:", self.atom_groups)
+
+    def save_group_stl_files(self, config: ShapeConfig, output_dir: str ='output'):
+        os.makedirs(output_dir, exist_ok=True)
+        for group_name, group in self.atom_groups.items():
+            # Merge the atoms and save as a single file
+            meshes = [self.atoms[id].create_trimesh_model(config) for id in group]
+            merged_mesh = trimesh.util.concatenate(meshes)
+            merged_mesh.apply_scale(config.scale)
+            merged_mesh.export(os.path.join(output_dir, f"{group_name}.stl"))
+
 def main():
     config = ShapeConfig()
     # command line interface
@@ -349,7 +385,7 @@ def main():
     parser.add_argument('--hole-length', type=float, default=config.hole_length, help="Length of the hole [Angstrom] (default: %(default)s)")
     parser.add_argument('--chamfer-length', type=float, default=config.chamfer_length, help="Length of the chamfer [Angstrom] (default: %(default)s)")
     parser.add_argument('--wall-thickness', type=float, default=config.wall_thickness, help="Thickness of the wall [Angstrom] (default: %(default)s)")
-    parser.add_argument('--shaft-gap', type=float, default=0.2, help="Gap between the shaft and the hole [mm] (default: %(default)s)")
+    parser.add_argument('--shaft-gap', type=float, default=0.35, help="Gap between the shaft and the hole [mm] (default: %(default)s)")
     parser.add_argument('--bond-gap', type=float, default=0.0, help="Gap between the bond plane [mm] (default: %(default)s)") 
     parser.add_argument('--output-dir', type=str, default='output', help="Output directory for STL files (default: %(default)s)")
 
@@ -393,6 +429,9 @@ def main():
     
     molecule.save_stl_files(config, output_dir=args.output_dir)
     print(f"Loaded {len(molecule.atoms)} atoms from {args.file_name}")
+
+    molecule.merge_atoms()
+    molecule.save_group_stl_files(config, output_dir=args.output_dir)
 
     # Save the configuration to a YAML file
     config_data = dataclasses.asdict(config)
