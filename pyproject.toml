@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "molfidget"
-version = "0.1.0"
+version = "0.1.1"
 description = "A molecular modeler of 3D printable models from the MOL/PDB format."
 authors = ["Ryosuke Tajima <tajima.ryosuke@techmagic.co.jp>"]
 
