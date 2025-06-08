@@ -46,12 +46,12 @@ class ShapeConfig:
     shaft_radius: float = 0.3 # Radius of the shaft [Angstrom]
     shaft_length: float = 0.3 # Length of the shaft [Angstrom]
     stopper_radius: float = 0.4 # Radius of the stopper [Angstrom]
-    stopper_length: float = 0.18 # Length of the stopper [Angstrom]
+    stopper_length: float = 0.2 # Length of the stopper [Angstrom]
     hole_radius: float = 0.3 # Radius of the hole [Angstrom]
     hole_length: float = 0.3 # Length of the hole [Angstrom]
     chamfer_length: float = 0.1 # Length of the chamfer [Angstrom]
     wall_thickness: float = 0.1 # Thickness of the wall [Angstrom]
-    shaft_gap: float = 0.02 # Gap between the shaft and the hole [Angstrom]
+    shaft_gap: float = 0.03 # Gap between the shaft and the hole [Angstrom]
     bond_gap: float = 0.0 # Gap between the bond plane [Angstrom]
 
     slice_distance: float = 0.0 # Distance from the atom to the bond plane, calculated in Bond class
