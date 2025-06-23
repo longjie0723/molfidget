@@ -72,10 +72,26 @@ class Atom:
         return f"{self.name}_{self.id}({self.x}, {self.y}, {self.z})"
     
     def create_trimesh_model(self, config: ShapeConfig):
+        print(f"Creating trimesh model for atom {self.name}_{self.id}")
         # Shpere mesh for the atom
         mesh = trimesh.primitives.Sphere(radius=config.vdw_scale*self.radius, center=[0, 0, 0])
         # Scrupt the sphere to represent bonds
         for pair in self.pairs.values():
+            # Check if the bond is single
+            if pair.type == "single":
+                # Check if the atom has other intersections with other atoms
+                rest_pairs = [p for p in self.pairs.values() if p.type == 'none' and p != pair]
+                print(f"rest_pairs: {rest_pairs}") # debug print
+                if len(rest_pairs) > 0:
+                    # If there are other intersections, we need to create cone shape for the bond
+                    for rest_pair in rest_pairs:
+                        if rest_pair.atom_distance > config.vdw_scale * (self.radius + rest_pair.atom2.radius):
+                            continue
+                        print(f"Sculpting bond cone for {pair} with rest pair {rest_pair}")
+                        # mesh = pair.sculpt_bond_cone(mesh, rest_pair, config)
+                else:
+                    # If there are no other intersections, we can just create a shaft
+                    mesh = pair.create_rotate_shaft(config)
             pair.update_slice_distance(config)
             mesh = pair.sculpt_trimesh_model(mesh, config)
         mesh.apply_translation([self.x, self.y, self.z])
@@ -100,7 +116,26 @@ class Bond:
         self.vector = self.vector / np.linalg.norm(self.vector)
     
     def __repr__(self):
-        return f"Bond({self.atom1.id}, {self.atom2}, type={self.type})"
+        return f"Bond({self.atom1.name + '_' + str(self.atom1.id)}, {self.atom2.name + '_' + str(self.atom2.id)}, type={self.type})"
+    
+    def sculpt_bond_cone(self, mesh: trimesh.Trimesh, rest_pair,  config: ShapeConfig):
+        theta = np.asin(np.linalg.norm(np.cross(self.vector, rest_pair.vector)))
+        if theta < 1e-3:
+            # If the angle is too small, we can skip the cone creation
+            return mesh
+        H = self.atom_distance / np.cos(theta)
+        R = self.atom_distance / np.sin(theta)
+        # debug print
+        print(f"Sculpting bond cone: theta={theta:.3f}, H={H:.3f}, R={R:.3f}")
+        # Create a cone mesh for the bond
+        cone = trimesh.creation.cone(radius=2*R, height=2*H, sections=32)
+        cone.apply_translation([0, 0, -H])
+        z_axis = np.array([0, 0, 1])
+        rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
+        cone.apply_transform(rotation_matrix)
+        # Intersection with the mesh
+        mesh = trimesh.boolean.intersection([mesh, cone], check_volume=False)
+        return mesh
     
     def update_slice_distance(self, config: ShapeConfig):
         # Update the slice distance based on the configuration
@@ -304,6 +339,7 @@ class Molecule:
                 # Check if the atoms are within single bond distance
                 elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][0]:
                     atom1.pairs[id1, id2] = Bond(atom1, atom2, type="single", shaft=id1 < id2)
+                    print(f"Found bond: {atom1.name}_{id1} - {atom2.name}_{id2}, type=single")
 
     def __repr__(self):
         return f"Molecule({self.name}, {len(self.atoms)} atoms)"
