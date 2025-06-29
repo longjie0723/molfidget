@@ -1,11 +1,13 @@
 import argparse
 import dataclasses
 import os
+import pyglet
 import trimesh
 import yaml
 import numpy as np
 from collections import OrderedDict as Orderdict
 from dataclasses import dataclass
+from molfidget.labeled_scene_viewer import LabeledSceneViewer
 
 atom_radius_table = {
     "H": 1.2,
@@ -361,10 +363,10 @@ class Molecule:
         scene = trimesh.Scene()
         for atom in self.atoms.values():
             mesh = atom.create_trimesh_model(config)
-            scene.add_geometry(mesh)
+            mesh.apply_scale(config.scale)
+            scene.add_geometry(mesh, geom_name=f"{atom.name}_{atom.id}")
         # center the scene
         scene.apply_translation(-self.center)
-        scene.apply_scale(config.scale)
         return scene
 
     def save_stl_files(self, config: ShapeConfig, output_dir: str ='output'):
@@ -458,7 +460,11 @@ def main():
         exit(f"Unsupported file format: {args.file_name}. Please provide a .pdb or .mol file.")
 
     scene = molecule.create_trimesh_scene(config)
-    scene.show()
+    # scene.show()
+    # Create a labeled scene viewer
+    viewer = LabeledSceneViewer(scene)
+    pyglet.app.run()
+
     # Save the molecule as STL files
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
