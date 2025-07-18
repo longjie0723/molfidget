@@ -92,8 +92,12 @@ class ShapeConfig:
     hole_length: float = 0.3 # Length of the hole [Angstrom]
     chamfer_length: float = 0.1 # Length of the chamfer [Angstrom]
     wall_thickness: float = 0.1 # Thickness of the wall [Angstrom]
-    shaft_gap: float = 0.03 # Gap between the shaft and the hole [Angstrom]
+    shaft_gap: float = 0.03 # Gap between the shaft and the cavity [Angstrom]
+    shaft_gap_mm: float = 0.3 # Gap between the shaft and the cavity [mm]
     bond_gap: float = 0.0 # Gap between the bond plane [Angstrom]
+    bond_gap_mm: float = 0.0 # Gap between the bond plane [mm]
+    taper_angle_deg: list = dataclasses.field(default_factory=lambda: [0, 0])
+    taper_radius_scale: list = dataclasses.field(default_factory=lambda: [0.2, 0.2])
 
     slice_distance: float = 0.0 # Distance from the atom to the bond plane, calculated in Bond class
 
@@ -409,6 +413,56 @@ class Molecule:
             merged_mesh.apply_scale(config.scale)
             merged_mesh.export(os.path.join(output_dir, f"{group_name}.stl"))
 
+    def load_molfidget_file(self, file_name, config: ShapeConfig):
+        # Molfidget file is a yaml file
+        with open(file_name, 'r') as file:
+            data = yaml.safe_load(file)
+        if data is None or not 'molecule' in data:
+            raise ValueError(f"Invalid molfidget file: {file_name}. Expected a valid YAML file with 'molecule' key.")
+        # Load the config
+        if 'config' in data['molecule']:
+            print("Loading default configuration for the molecule.")
+            config_data = data['molecule']['config']
+            for key, value in config_data.items():
+                if hasattr(config, key):
+                    setattr(config, key, value)
+                else:
+                    raise ValueError(f"Unknown config key: {key}")
+            config.bond_gap = config.bond_gap_mm / config.scale
+            config.shaft_gap = min(0.05, config.shaft_gap_mm / config.scale)
+        print(f"Loaded configuration: {config}")
+
+        # Load the atoms
+        for atom_data in data['molecule'].get('atoms', []):
+            id = atom_data['name']
+            name = id.split('_')[0]
+            if name not in atom_radius_table:
+                raise ValueError(f"Unknown atom {id}: name: {name}")
+            if id in self.atoms:
+                raise ValueError(f"Atom {id} already exists in the molecule.")
+            if 'position' not in atom_data:
+                raise ValueError(f"Atom {id} does not have a position defined in the molfidget file.")
+            position = atom_data['position']
+            if len(position) != 3:
+                raise ValueError(f"Atom {id} position must be a list of three coordinates [x, y, z].")
+            atom = Atom(id=id, name=name, x=position[0], y=position[1], z=position[2])
+            self.atoms[id] = atom
+            print(f"Loaded atom: {atom}")
+
+        # Load the bonds
+        for bond_data in data['molecule'].get('bonds', []):
+            if 'atoms' not in bond_data or len(bond_data['atoms']) != 2:
+                raise ValueError(f"Bond data must contain exactly two atoms: {bond_data}")
+            id1, id2 = bond_data['atoms']
+            if id1 not in self.atoms or id2 not in self.atoms:
+                raise ValueError(f"Bond atoms {id1} and {id2} must exist in the molecule.")
+            bond_type = bond_data.get('bond_type', 'single')
+            shaft_type = bond_data.get('shaf__type', 'spin')
+            bond = Bond(self.atoms[id1], self.atoms[id2], type=type, shaft=True)
+            self.atoms[id1].pairs[id1, id2] = Bond(self.atoms[id1], self.atoms[id2], type=bond_type, shaft=True)
+            self.atoms[id2].pairs[id1, id2] = Bond(self.atoms[id2], self.atoms[id1], type=bond_type, shaft=False)
+            print(f"Loaded bond: {bond}")
+            
 def main():
     config = ShapeConfig()
     # command line interface
@@ -456,8 +510,13 @@ def main():
         molecule.load_pdb_file(args.file_name)
     elif args.file_name.endswith(".mol"):
         molecule.load_mol_file(args.file_name)
+    elif args.file_name.endswith(".yaml"):
+        print(f"Config: {config}")
+        molecule.load_molfidget_file(args.file_name, config)
     else:
         exit(f"Unsupported file format: {args.file_name}. Please provide a .pdb or .mol file.")
+
+    print(f"Config: {config}")
 
     scene = molecule.create_trimesh_scene(config)
     # scene.show()
