@@ -158,7 +158,7 @@ class Bond:
 
         if self.type == "none":
             return mesh
-        
+        mesh = self.slice_by_taper(mesh, config)
         if self.shaft:
             if self.type == "single":
                 # Create the cavity
@@ -187,6 +187,33 @@ class Bond:
             hole.apply_transform(rotation_matrix)
             mesh = trimesh.boolean.difference([mesh, hole], check_volume=False)
         return mesh
+    
+    def slice_by_taper(self, mesh: trimesh.Trimesh, config: ShapeConfig):
+        import math
+        taper_distance = 0.3
+        if taper_distance > self.slice_distance:
+            taper_distance = self.slice_distance
+        atom_radius = self.atom1.radius * config.vdw_scale
+        # r2 は上円錐の半径
+        r2 = math.sqrt(atom_radius**2 - self.slice_distance**2)
+        # r1 は下円錐の半径
+        r1 = math.sqrt(atom_radius**2 - (self.slice_distance -taper_distance)**2)
+        # h1 下円錐の高さ
+        h1 = r1 * taper_distance / (r1 - r2)
+        # h 円錐の高さ
+        h = h1 + (self.slice_distance - taper_distance) + atom_radius
+        # r 大円錐の半径
+        r = h * r1 / h1
+        print(f"Creating taper cone with r1={r1}, r2={r2}, h1={h1}, h={h}, r={r}")
+        cone = trimesh.creation.cone(radius=r, height=h)
+        cone.apply_translation([0, 0, - atom_radius])
+        z_axis = np.array([0, 0, 1])
+        rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
+        cone.apply_transform(rotation_matrix)
+        mesh = trimesh.boolean.intersection([mesh, cone], check_volume=False)
+        #mesh = trimesh.boolean.union([mesh, cone], check_volume=False)
+
+        return mesh
 
     def slice_by_bond_plane(self, mesh: trimesh.Trimesh, config: ShapeConfig):
         box = trimesh.primitives.Box(extents=[self.atom1.radius*2, self.atom1.radius*2, self.atom1.radius*2])
@@ -195,7 +222,6 @@ class Bond:
         rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
         box.apply_transform(rotation_matrix)
         mesh = trimesh.boolean.intersection([mesh, box], check_volume=False)
-        #mesh = trimesh.boolean.union([mesh, box], check_volume=False)
         return mesh
     
     def create_rotate_shaft(self, config):
