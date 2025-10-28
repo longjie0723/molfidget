@@ -1,0 +1,61 @@
+molecule:
+  name: Ethanol # 分子の名前
+  scale: 10.0   # 3Dモデルのスケール [mm/Angstrom]
+  default:
+    atom:
+      scale: 0.8
+    bond:
+      bond_gap_mm: 0.1    # 結合平面の隙間 [mm]
+      wall_thickness: 0.1 # 壁の厚さ [Angstrom]
+      shaft_radius: 0.3   # シャフトの半径
+      shaft_length: 0.3   # シャフトの長さ
+      stopper_radius: 0.4 # ストッパーの半径
+      stopper_length: 0.2 # ストッパーの長さ
+      shaft_gap_mm: 0.3   # シャフトの隙間 [mm]
+      chamfer_length: 0.1 # 軸の面取りの長さ
+      hole_radius: 0.3    # 軸穴の半径
+      hole_length: 0.3        # 軸穴の長さ
+      taper_angle_deg: [0, 0]         # テーパー角度 [度]
+      taper_radius_scale: [1.0, 0.3]  # テーパーの半径スケール
+
+  # 原子のリスト
+  atoms:
+    - name: C_1 # 原子の名前: 元素名 + '_' + ID
+      position: [0.445, -2.202, -5.28] # 原子の位置: [x, y, z] 座標 [単位: Å]
+    - name: H_2
+      position: [1.032, -1.394, -5.234]
+    - name: H_3
+      position: [-0.1510, -2.2280, -4.4770]
+    - name: O_4
+      position: [1.2950, -3.4370, -5.3100]
+    - name: H_5
+      position: [1.8500, -3.4790, -4.4790]
+    - name: C_6
+      position: [-0.3940, -2.1410, -6.5220]
+    - name: H_7
+      position: [-0.9790, -2.9510, -6.5690]
+    - name: H_8
+      position: [-0.9620, -1.3190, -6.5010]
+    - name: H_9
+      position: [0.2020, -2.1140, -7.3250]
+  # 結合のリスト
+  bonds:
+    - atom_pair: [C_1, H_2] # 結合する原子の名前をペアで指定
+      bond_type: single
+      bond_gap_mm: 0.3
+    - atom_pair: [C_1, H_3]
+      bond_type: single
+    - atom_pair: [C_1, O_4]
+      bond_type: single
+    - atom_pair: [O_4, H_5]
+      bond_type: single
+    - atom_pair: [C_1, C_6]
+      bond_type: single
+      shaft_types: [hole, spin] # 軸のタイプ: "spin"（スピン軸）, "fixed"(固定軸), "hole(穴)", "none"（軸なし）
+    - atom_pair: [C_6, H_7]
+      bond_type: single
+    - atom_pair: [C_6, H_8]
+      bond_type: single
+    - atom_pair: [C_6, H_9]
+      bond_type: single
+      shaft_types: [spin, hole]

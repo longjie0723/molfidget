@@ -1,0 +1,65 @@
+molecule:
+  config:
+    scale: 10.0 # スケール [mm/Angstrom]
+    bond_gap_mm: 0.1 # 結合平面の隙間 [mm]
+    wall_thickness: 0.1 # 壁の厚さ [Angstrom]
+    shaft_radius: 0.3 # シャフトの半径
+    shaft_length: 0.3 # シャフトの長さ
+    stopper_radius: 0.4 # ストッパーの半径
+    stopper_length: 0.2 # ストッパーの長さ
+    shaft_gap_mm: 0.3 # シャフトの隙間 [mm]
+    chamfer_length: 0.1 # 軸の面取りの長さ
+    hole_radius: 0.3 # 軸穴の半径
+    hole_length: 0.3 # 軸穴の長さ
+    taper_angle_deg: [0, 0] # テーパー角度 [度]
+    taper_radius_scale: [1.0, 0.3] # テーパーの半径スケール
+
+  name: Ethanol # 分子の名前
+  # 原子のリスト
+  atoms:
+    - name: C_1 # 原子の名前: 元素名 + '_' + ID
+      position: [-0.9679, 0.4196, 0.0000]
+    - name: H_2
+      position: [-0.4828, -0.2214, 0.7061]
+    - name: H_3
+      position: [-0.3166, 0.5921, -0.8313]
+    - name: H_4
+      position: [-1.8688, -0.0446, -0.3430]
+    - name: O_5
+      position: [-1.2715, 1.6228, 0.6039]
+    - name: C_6
+      position: [-0.1095, 2.2216, 1.0463]
+    - name: H_7
+      position: [0.1119, 3.0685, 0.4310]
+    - name: H_8
+      position: [-0.2361, 2.5404, 2.0598]
+    - name: H_9
+      position: [0.6966, 1.5201, 0.9911]
+  # 結合のリスト
+  bonds:
+    - atoms: [C_1, H_2] # 結合する原子の名前をペアで指定
+      bond_type: single # 単結合、二重結合、三重結合など実際の原子の結合タイプ
+      shaft_type: spin # 軸のタイプ: "spin"（スピン軸）, "fixed"(固定軸), "none"（軸なし）
+    - atoms: [C_1, H_3]
+      bond_type: single
+      shaft_type: spin
+    - atoms: [C_1, H_4]
+      bond_type: single
+      shaft_type: spin
+    - atoms: [C_1, O_5]
+      bond_type: single
+      shaft_type: spin
+    - atoms: [O_5, C_6]
+      bond_type: single
+      shaft_type: spin
+    - atoms: [C_6, H_7]
+      bond_type: single
+      shaft_type: spin
+    - atoms: [C_6, H_8]
+      bond_type: single
+      shaft_type: spin
+    - atoms: [C_6, H_9]
+      bond_type: single
+      shaft_type: spin
+    - atoms: [C_6, C_1]
+      bond_type: none

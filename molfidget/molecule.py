@@ -1,0 +1,151 @@
+import os
+from collections import OrderedDict
+from dataclasses import dataclass
+
+import numpy as np
+import trimesh
+import yaml
+
+from molfidget.atom import Atom
+from molfidget.bond import Bond
+from molfidget.config import (
+    AtomConfig,
+    BondConfig,
+    DefaultAtomConfig,
+    DefaultBondConfig,
+    MoleculeConfig,
+)
+from molfidget.constants import atom_color_table, atom_radius_table
+
+class Molecule:
+    def __init__(self, config: MoleculeConfig):
+        # Load the configuration for the molecule
+        self.name = config.name
+        self.scale = config.scale if config.scale is not None else 1.0
+        self.atoms = {}
+        print(f"Loading configuration for molecule: {self.name}")
+        # Load individual atom configurations
+        for atom_config in config.atoms:
+            name = atom_config.name
+            self.atoms[name] = Atom(atom_config, config.default.atom)
+        # Load individual bond configurations
+        self.bonds = {}
+        for bond_config in config.bonds:
+            atom1_name, atom2_name = bond_config.atom_pair
+            self.bonds[atom1_name, atom2_name] = Bond(bond_config, config.default.bond)
+        # Update atom pairs based on bonds
+        for atom in self.atoms.values():
+            atom.update_bonds(self.bonds)
+        for bond in self.bonds.values():
+            bond.update_atoms(self.atoms)
+
+    def create_pairs(self):
+        # Update the pairs of atoms based on the distance between them
+        for id1, atom1 in self.atoms.items():
+            for id2, atom2 in self.atoms.items():
+                if id1 == id2:
+                    continue
+                if atom_distance(atom1, atom2) < atom1.radius + atom2.radius:
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="none", shaft=id1 < id2)
+
+    def find_bonds(self):
+        # Update the bonds based on the distance between atoms
+        for id1, atom1 in self.atoms.items():
+            for id2, atom2 in self.atoms.items():
+                if id1 == id2:
+                    continue
+                if frozenset([atom1.name, atom2.name]) not in bond_distance_table:
+                    continue
+                # Check if the atoms are within triple bond distance
+                if atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][2]:
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="triple", shaft=id1 < id2)
+                # Check if the atoms are within double bond distance
+                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][1]:
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="double", shaft=id1 < id2)
+                # Check if the atoms are within single bond distance
+                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][0]:
+                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="single", shaft=id1 < id2)
+
+    def __repr__(self):
+        return f"Molecule: {self.name}, {len(self.atoms)} atoms"
+
+    # Access the center of the molecule
+    @property
+    def center(self):
+        # Get the center of the molecule
+        x = np.mean([atom.x for atom in self.atoms.values()])
+        y = np.mean([atom.y for atom in self.atoms.values()])
+        z = np.mean([atom.z for atom in self.atoms.values()])
+        return np.array([x, y, z])
+
+    def create_trimesh_scene(self):
+        # Create a trimesh model for the molecule
+        scene = trimesh.Scene()
+        for atom in self.atoms.values():
+            mesh = atom.create_trimesh_model()
+            #mesh.apply_scale(self.scale)
+        for bond in self.bonds.values():
+            bond.sculpt_atoms()
+        for atom in self.atoms.values():
+            atom.mesh.apply_translation([atom.x, atom.y, atom.z])
+            atom.mesh.visual.vertex_colors = atom_color_table[atom.elem]
+            scene.add_geometry(atom.mesh, geom_name=f"{atom.name}_{atom.id}")
+        # Center the scene
+        scene.apply_translation(-self.center)
+        return scene
+
+    def save_stl_files(self, output_dir: str = "output"):
+        os.makedirs(output_dir, exist_ok=True)
+        for atom in self.atoms.values():
+            mesh = atom.create_trimesh_model()
+            mesh.apply_scale(self.scale)
+            mesh.export(os.path.join(output_dir, f"{atom.name}_{atom.id}.stl"))
+
+    def merge_atoms(self):
+        counter = 0
+        for atom in self.atoms.values():
+            for pair in atom.pairs.values():
+                if pair.type == "none":
+                    continue
+                if pair.atom1.name != pair.atom2.name:
+                    continue
+                # Search group containing atom1 or atom2
+                group = next((g for g in self.atom_groups.values() if pair.atom1.id in g or pair.atom2.id in g), None)
+                if group is None:
+                    # Create a new group if not found
+                    self.atom_groups[f"group_{counter}"] = set()
+                    self.atom_groups[f"group_{counter}"].add(pair.atom1.id)
+                    self.atom_groups[f"group_{counter}"].add(pair.atom2.id)
+                    counter += 1
+                else:
+                    # Add the atoms to the existing group
+                    group.add(pair.atom1.id)
+                    group.add(pair.atom2.id)
+
+        print(f"Merged atoms into {len(self.atom_groups)} groups")
+        print("Groups:", self.atom_groups)
+
+    def save_group_stl_files(self, output_dir: str ='output'):
+        os.makedirs(output_dir, exist_ok=True)
+        for group_name, group in self.atom_groups.items():
+            # Merge the atoms and save as a single file
+            meshes = [self.atoms[id].create_trimesh_model(config) for id in group]
+            merged_mesh = trimesh.util.concatenate(meshes)
+            merged_mesh.apply_scale(config.scale)
+            merged_mesh.export(os.path.join(output_dir, f"{group_name}.stl"))
+
+
+def load_molfidget_file(file_path: str) -> MoleculeConfig:
+    import yaml
+    from yaml.loader import SafeLoader
+
+    with open(file_path, 'r') as file:
+        data = yaml.load(file, Loader=SafeLoader)
+
+    molecule_config = MoleculeConfig(**data.get('molecule', {}))
+    molecule_config.default_atom = DefaultAtomConfig(**data['molecule']['default_atom'])
+    molecule_config.default_bond = DefaultBondConfig(**data['molecule']['default_bond'])
+    molecule_config.atoms = [AtomConfig(**atom) for atom in data['molecule'].get('atoms', [])]
+    molecule_config.bonds = [BondConfig(**bond) for bond in data['molecule'].get('bonds', [])]
+
+    return molecule_config

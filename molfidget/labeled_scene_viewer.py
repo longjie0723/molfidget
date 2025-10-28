@@ -1,9 +1,10 @@
 import numpy as np
-import trimesh
-from trimesh.viewer import SceneViewer
-from pyglet.gl import *
 import pyglet
+import trimesh
+from pyglet.gl import *
 from pyglet.text import Label
+from trimesh.viewer import SceneViewer
+
 
 class LabeledSceneViewer(SceneViewer):
     def __init__(self, scene):
@@ -17,14 +18,14 @@ class LabeledSceneViewer(SceneViewer):
         for name, geom in self.scene.geometry.items():
             label = Label(
                 name,
-                font_name='Arial',
+                font_name="Arial",
                 font_size=16,
                 color=(0, 0, 0, 255),  # 黒、不透明
-                anchor_x='center',
-                anchor_y='center'
+                anchor_x="center",
+                anchor_y="center",
             )
             # 各ジオメトリの中心位置をラベルの位置に設定
-            #position = geom.bounding_box.centroid
+            # position = geom.bounding_box.centroid
             position = geom.centroid
             self.labels[name] = label, position
 
@@ -43,12 +44,18 @@ class LabeledSceneViewer(SceneViewer):
         win_z = GLdouble()
         # 出力変数を渡す
         gluProject(
-            GLdouble(point[0]), GLdouble(point[1]), GLdouble(point[2]),
-            mv, pj, vp,
-            win_x, win_y, win_z
+            GLdouble(point[0]),
+            GLdouble(point[1]),
+            GLdouble(point[2]),
+            mv,
+            pj,
+            vp,
+            win_x,
+            win_y,
+            win_z,
         )
         return win_x.value, win_y.value, win_z.value
-    
+
     def draw_labels(self):
         # 2D描画モードに切り替える前にラベルのスクリーン座標を計算
         label_positions = {}
@@ -84,19 +91,19 @@ class LabeledSceneViewer(SceneViewer):
 if __name__ == "__main__":
     # サンプルシーン作成
     scene = trimesh.Scene()
-    
+
     # サンプルオブジェクト（立方体）
     cube = trimesh.creation.box(extents=(1, 1, 1))
     cube.apply_translation([0, 0, 0])  # 中心に配置
-    scene.add_geometry(cube, geom_name='Cube')
-    
+    scene.add_geometry(cube, geom_name="Cube")
+
     sphere = trimesh.creation.icosphere(subdivisions=2, radius=0.5)
     sphere.apply_translation([1.5, 0, 0])  # 立方体の右側に配置
-    scene.add_geometry(sphere, geom_name='Sphere')
+    scene.add_geometry(sphere, geom_name="Sphere")
 
     cylinder = trimesh.creation.cylinder(radius=0.2, height=1.0)
     cylinder.apply_translation([-1.5, 0, 0])  # 立方体の左側に配置
-    scene.add_geometry(cylinder, geom_name='Cylinder')
+    scene.add_geometry(cylinder, geom_name="Cylinder")
 
     # ビューアー起動
     viewer = LabeledSceneViewer(scene)
