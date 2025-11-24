@@ -33,11 +33,3 @@ class Atom:
         self.mesh = trimesh.primitives.Sphere(
             radius = self.scale * self.radius, center=[0, 0, 0]
         )
-        return self.mesh
-        # Sculpt the sphere to represent bonds
-        for bond in self.pairs.values():
-            bond.update_slice_distance()
-            mesh = bond.sculpt_trimesh_model(mesh)
-        mesh.apply_translation([self.x, self.y, self.z])
-        mesh.visual.vertex_colors = atom_color_table[self.elem]
-        return mesh

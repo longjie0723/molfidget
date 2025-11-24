@@ -20,11 +20,11 @@ from molfidget.constants import atom_color_table, atom_radius_table
 class Molecule:
     def __init__(self, config: MoleculeConfig):
         # Load the configuration for the molecule
+        print(f"Loading configuration for molecule: {config.name}")
         self.name = config.name
         self.scale = config.scale if config.scale is not None else 1.0
-        self.atoms = {}
-        print(f"Loading configuration for molecule: {self.name}")
         # Load individual atom configurations
+        self.atoms = {}
         for atom_config in config.atoms:
             name = atom_config.name
             self.atoms[name] = Atom(atom_config, config.default.atom)
@@ -82,10 +82,9 @@ class Molecule:
         # Create a trimesh model for the molecule
         scene = trimesh.Scene()
         for atom in self.atoms.values():
-            mesh = atom.create_trimesh_model()
-            #mesh.apply_scale(self.scale)
+            atom.create_trimesh_model()
         for bond in self.bonds.values():
-            bond.sculpt_atoms()
+            bond.sculpt_atoms2()
         for atom in self.atoms.values():
             atom.mesh.apply_translation([atom.x, atom.y, atom.z])
             atom.mesh.visual.vertex_colors = atom_color_table[atom.elem]

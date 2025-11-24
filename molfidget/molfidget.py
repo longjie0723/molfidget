@@ -15,7 +15,7 @@ def setup_argparse():
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     convert_parser = subparsers.add_parser("convert", help="Convert molecule file formats to molfidget format")
     convert_parser.add_argument("input_file", type=str, help="Input PDB or MOL file to convert")
-    convert_parser.add_argument("output_file", type=str, help="Output molfidget YAML file")
+    convert_parser.add_argument("output_file", type=str, nargs="?", default=None, help="Output molfidget YAML file (optional, defaults to stdout)")
 
     preview_parser = subparsers.add_parser("preview", help="Preview molecule from molfidget file")
     preview_parser.add_argument("molfidget_file", type=str, help="Input molfidget YAML file to preview")

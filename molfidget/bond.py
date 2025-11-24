@@ -2,18 +2,18 @@ import numpy as np
 import trimesh
 
 from molfidget.atom import Atom
-from molfidget.config import BondConfig, DefaultBondConfig
+from molfidget.shape import Shape
+from molfidget.config import BondConfig, DefaultBondConfig, ShapeConfig
 
 
 class Bond:
     def __init__(self, config: BondConfig, default: DefaultBondConfig):
         self.atom1_name = config.atom_pair[0]
         self.atom2_name = config.atom_pair[1]
-        self.type = config.bond_type if config.bond_type else default.bond_type
-        if self.type == "single":
-            self.shaft_types = ["spin", "hole"]
-        if config.shaft_types is not None:
-            self.shaft_types = config.shaft_types
+        self.atom_name = config.atom_pair
+        
+        self.shape_type = config.shape_type
+        self.bond_type = config.bond_type if config.bond_type else default.bond_type
         self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond_gap_mm
         self.bond_gap = self.bond_gap_mm / 10.0  # Convert mm to angstrom
         self.chamfer_length = config.chamfer_length if config.chamfer_length is not None else default.chamfer_length
@@ -26,13 +26,25 @@ class Bond:
         self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
 
+        if self.bond_type == "single":
+            config.shape_pair[0].shape_type = "spin"
+            config.shape_pair[1].shape_type = "hole"
+        elif self.bond_type == "double" or self.bond_type == "triple":
+            config.shape_pair[0].shape_type = "fixed"
+            config.shape_pair[1].shape_type = "hole"
+        self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default), Shape(self.atom2_name, config.shape_pair[1], default)]
+
     def update_atoms(self, atoms: dict):
         self.atom1 = atoms[self.atom1_name]
         self.atom2 = atoms[self.atom2_name]
+        self.bond_distance = np.linalg.norm(np.array([self.atom2.x - self.atom1.x, self.atom2.y - self.atom1.y, self.atom2.z - self.atom1.z]))
         self.vector = np.array([self.atom2.x - self.atom1.x, self.atom2.y - self.atom1.y, self.atom2.z - self.atom1.z])
         self.atom_distance = np.linalg.norm(self.vector)
         self.vector /= np.linalg.norm(self.vector)
-        
+
+        self.shape_pair[0].update_atom(self.atom1, self.atom2)
+        self.shape_pair[1].update_atom(self.atom2, self.atom1)
+
     def __repr__(self):
         return f"Bond({self.atom1.name}, {self.atom2.name})"
 
@@ -40,11 +52,26 @@ class Bond:
         # Update the slice distance based on the configuration
         r1 = self.atom1.scale * self.atom1.radius
         r2 = self.atom2.scale * self.atom2.radius
-        self.slice_distance = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
+        self.slice_distance1 = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
+        self.slice_distance2 = (r2**2 - r1**2 + self.atom_distance**2) / (2 * self.atom_distance)
+
+    def sculpt_atoms2(self):
+        print(f"Sculpting bond between {self.atom1.name} and {self.atom2.name}")
+        self.slice_atoms_by_bond_plane()
+        for shape in self.shape_pair:
+            if shape.shape_type == "spin":
+                shape.sculpt_trimesh_by_spin()
+            elif shape.shape_type == "fixed":
+                shape.sculpt_trimesh_by_fixed()
+            elif shape.shape_type == "hole":
+                shape.sculpt_trimesh_by_hole()
 
     def sculpt_atoms(self):
+        print(f"Sculpting bond between {self.atom1.name} and {self.atom2.name}")
         self.update_slice_distance()
-        self.atom1.mesh = self.slice_by_bond_plane(self.atom1.mesh)
+        # Slice atom1 and atom2 by the bond plane
+        self.slice_atoms_by_bond_plane()
+        # Create shapes for atom1
         if self.shaft_types[0] == "spin":
             # Create the cavity
             cavity = self.create_cavity_shape()
@@ -71,7 +98,6 @@ class Bond:
             hole.apply_transform(rotation_matrix)
             self.atom1.mesh = trimesh.boolean.difference([self.atom1.mesh, hole], check_volume=False)
 
-        self.atom2.mesh = self.slice_by_bond_plane(self.atom2.mesh)
         if self.shaft_types[1] == "spin":
             # Create the cavity
             cavity = self.create_cavity_shape()
@@ -99,7 +125,7 @@ class Bond:
             self.atom2.mesh = trimesh.boolean.difference([self.atom2.mesh, hole], check_volume=False)
 
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):
-        mesh = self.slice_by_bond_plane(mesh)
+        # mesh = self.slice_by_bond_plane(mesh)
 
         #if self.shaft_types[0] == "taper" or self.shaft_types[1] == "taper":
         #    return mesh
@@ -174,16 +200,23 @@ class Bond:
 
         return mesh
 
-    def slice_by_bond_plane(self, mesh: trimesh.Trimesh):
-        box = trimesh.primitives.Box(
-            extents=[self.atom1.radius * 2, self.atom1.radius * 2, self.atom1.radius * 2]
-        )
-        box.apply_translation([0, 0, self.slice_distance - self.atom1.radius - self.bond_gap])
-        z_axis = np.array([0, 0, 1])
-        rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
-        box.apply_transform(rotation_matrix)
-        mesh = trimesh.boolean.intersection([mesh, box], check_volume=False)
-        return mesh
+    def slice_atoms_by_bond_plane(self):
+        for atom1, atom2 in [(self.atom1, self.atom2), (self.atom2, self.atom1)]:
+            vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
+            distance = np.linalg.norm(vector)
+            vector /= distance
+            r1 = atom1.scale * atom1.radius
+            r2 = atom2.scale * atom2.radius
+            slice_distance = (r1**2 - r2**2 + distance**2) / (2 * distance)
+            # atom1をbond平面でスライスする
+            box = trimesh.primitives.Box(
+                extents=[atom1.radius * 2, atom1.radius * 2, atom1.radius * 2]
+            )
+            box.apply_translation([0, 0, slice_distance - atom1.radius - self.bond_gap / 2])
+            z_axis = np.array([0, 0, 1])
+            rotation_matrix = trimesh.geometry.align_vectors(z_axis, vector)
+            box.apply_transform(rotation_matrix)
+            atom1.mesh = trimesh.boolean.intersection([atom1.mesh, box], check_volume=False)
 
     def create_rotate_shaft(self):
         # Create a shaft

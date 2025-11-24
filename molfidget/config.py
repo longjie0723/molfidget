@@ -49,12 +49,34 @@ class AtomConfig:
 
 
 @dataclass
+class ShapeConfig:
+    shape_type: str = "spin"  # Type of the shape (e.g., spin, fixed, hole)
+    shaft_radius: float = None  # Radius of the shaft [Angstrom]
+    shaft_length: float = None  # Length of the shaft [Angstrom]
+    stopper_radius: float = None  # Radius of the stopper [Angstrom]
+    stopper_length: float = None  # Length of the stopper [Angstrom]
+    hole_radius: float = None  # Radius of the hole [Angstrom]
+    hole_length: float = None  # Length of the hole [Angstrom]
+    chamfer_length: float = None  # Length of the chamfer [Angstrom]
+    wall_thickness: float = None  # Thickness of the wall [Angstrom]
+    shaft_gap: float = None  # Gap between the shaft and the cavity [Angstrom]
+    shaft_gap_mm: float = None  # Gap between the shaft and the cavity [mm]
+    taper_radius_scale: float = None  # Scale factor for the taper radius
+    bond_gap: float = None  # Gap between the bond plane [Angstrom]
+    bond_gap_mm: float = None  # Gap between the bond plane [mm]
+
+
+@dataclass
 class BondConfig:
     atom_pair: List[str] = field(
         default_factory=lambda: ["None", "None"]
     )  # Names of the two atoms forming the bond
+    shape_pair: List[ShapeConfig] = field(
+        default_factory=lambda: [ShapeConfig(), ShapeConfig()]
+    )
     bond_type: str = "none"  # Type of the bond (e.g., single, double, triple)
     shaft_types: List[str] = None  # Types of the two shafts (e.g., spin, fixed, hole)
+    shape_type: List[str] = None  # Types of the two shapes (e.g., spin, fixed, hole)
     shaft_radius: float = None  # Radius of the shaft [Angstrom]
     shaft_length: float = None  # Length of the shaft [Angstrom]
     stopper_radius: float = None  # Radius of the stopper [Angstrom]
@@ -69,6 +91,7 @@ class BondConfig:
     bond_gap_mm: float = None  # Gap between the bond plane [mm]
     taper_angle_deg: List[float] = None  # Taper angle at the two ends in degrees
     taper_radius_scale: List[float] = None  # Scale factor for the taper radius at the two ends
+
 
 
 @dataclass
@@ -93,7 +116,6 @@ def load_molfidget_config(file_path: str) -> MoleculeConfig:
 
 def molecule_config_representer(dumper, data):
     data_dict = data.__dict__
-    print(data_dict)
     return dumper.represent_mapping("tag:yaml.org,2002:map", {"molecule": data_dict})
 
 
@@ -138,7 +160,6 @@ def atom_config_representer(dumper, data):
     """AtomConfigをOrderedDictとして表現し、フィールド順序を保持"""
     field_dict = OrderedDict(asdict(data))
     cmap = CommentedMap()
-    print(field_dict)
 
     for key, value in field_dict.items():
         if value is None:
@@ -150,12 +171,35 @@ def atom_config_representer(dumper, data):
             cmap[key] = value
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
+def shape_config_representer(dumper, data):
+    """ShapeConfigをOrderedDictとして表現し、フィールド順序を保持"""
+    print('shapeconfigrepresenter:', data)
+    field_dict = OrderedDict(asdict(data))
+    cmap = CommentedMap()
+
+    for key, value in field_dict.items():
+        print(key, value)
+        if value is None:
+            continue
+        else:
+            cmap[key] = value
+
+    return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
+
 
 def bond_config_representer(dumper, data, default_config: DefaultBondConfig = None):
     """BondConfigをOrderedDictとして表現し、フィールド順序を保持"""
-    field_dict = OrderedDict(asdict(data))
+    # shape_pairを除外してasdict()を実行
+    field_dict = OrderedDict()
+    for key in data.__dataclass_fields__.keys():
+        value = getattr(data, key)
+        if key == "shape_pair":
+            # shape_pairはオブジェクトのまま保持（辞書に変換しない）
+            field_dict[key] = value
+        else:
+            field_dict[key] = value
+
     cmap = CommentedMap()
-    print(field_dict)
 
     for key, value in field_dict.items():
         if value is None:
@@ -177,7 +221,13 @@ def save_molfidget_config(config: MoleculeConfig, file_path: str):
     yaml.representer.add_representer(DefaultBondConfig, default_bond_config_representer)
     yaml.representer.add_representer(AtomConfig, atom_config_representer)
     yaml.representer.add_representer(BondConfig, bond_config_representer)
+    yaml.representer.add_representer(ShapeConfig, shape_config_representer)
 
+    if not file_path:
+        # 標準出力へ
+        import sys
+        yaml.dump(config, sys.stdout)
+        return
     with open(file_path, "w") as file:
         yaml.dump(config, file)
 
