@@ -1,12 +1,12 @@
 molecule:
   name: file_name
-  scale: 1.0
+  scale: 10.0
   default:
     atom:
       scale: 1.0
       color: [200, 200, 200, 255]
     bond:
-      bond_gap_mm: 0.0
+      bond_gap_mm: 0.1
       shaft_radius: 0.3
       shaft_length: 0.3
       stopper_radius: 0.4

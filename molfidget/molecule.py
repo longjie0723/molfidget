@@ -88,15 +88,13 @@ class Molecule:
         for atom in self.atoms.values():
             atom.mesh.apply_translation([atom.x, atom.y, atom.z])
             atom.mesh.visual.vertex_colors = atom_color_table[atom.elem]
-            scene.add_geometry(atom.mesh, geom_name=f"{atom.name}_{atom.id}")
-        # Center the scene
-        scene.apply_translation(-self.center)
+            scene.add_geometry(atom.mesh, geom_name=f"{atom.name}")
         return scene
 
     def save_stl_files(self, output_dir: str = "output"):
         os.makedirs(output_dir, exist_ok=True)
         for atom in self.atoms.values():
-            atom.mesh.export(os.path.join(output_dir, f"{atom.name}.stl"))
+            atom.mesh.export(os.path.join(output_dir, f"{atom.name}.stl"))    
 
     def merge_atoms(self):
         counter = 0

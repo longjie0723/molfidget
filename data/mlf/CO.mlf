@@ -1,12 +1,12 @@
 molecule:
-  name: H2
+  name: CO
   scale: 10.0
   default:
     atom:
       scale: 1.0
       color: [200, 200, 200, 255]
     bond:
-      bond_gap_mm: 0.0
+      bond_gap_mm: 0.1
       shaft_radius: 0.3
       shaft_length: 0.3
       stopper_radius: 0.4
@@ -16,22 +16,16 @@ molecule:
       chamfer_length: 0.1
       wall_thickness: 0.1
       shaft_gap: 0.03
-      taper_angle_deg:
-      - 0.0
-      - 0.0
-      taper_radius_scale:
-      - 1.0
-      - 1.0
+      taper_angle_deg: [0.0, 0.0]
+      taper_radius_scale: [1.0, 1.0]
   atoms:
-  - name: H_1
-    position: [0.0099, 0.1899, 0.0]
-  - name: H_2
-    position: [-0.7301, 0.1899, 0.0]
+  - name: C_1
+    position: [-0.1396, -0.0518, -0.0014]
+  - name: O_2
+    position: [0.9904, -0.0518, -0.0014]
   bonds:
-  - atom_pair: [H_1, H_2]
+  - atom_pair: [C_1, O_2]
     shape_pair:
     - shape_type: spin
     - shape_type: spin
-    bond_type: single
-    bond_gap: 1.0
-    bond_gap_mm: 0.1
+    bond_type: triple

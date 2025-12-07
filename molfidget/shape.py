@@ -89,7 +89,14 @@ class Shape:
         )
         cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=False)
         cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
-        cylinder1.apply_translation([0, 0, self.shaft_length - self.chamfer_length])
+        # D-cut the shaft
+        box1 = trimesh.creation.box(
+            extents=[2 * self.shaft_radius, 2 * self.shaft_radius, d1])
+        box1.apply_translation([0, 0.3*self.shaft_radius, 0])
+        cylinder1 = trimesh.boolean.intersection(
+            [cylinder1, box1], check_volume=False)
+        cylinder1.apply_translation(
+            [0, 0, self.shaft_length - self.chamfer_length])
         # Create the stopper
         cylinder2 = trimesh.creation.cylinder(
             radius=self.stopper_radius, height=self.stopper_length
@@ -118,7 +125,6 @@ class Shape:
         return mesh
 
     def create_fixed_shaft_shape(self):
-        eps = 0.01  # Small epsilon to avoid numerical issues
         # Create a fixed shaft shape
         d1 = self.shaft_length + self.bond_gap - self.chamfer_length
         cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
@@ -133,15 +139,26 @@ class Shape:
         )
         cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=False)
         cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
-        cylinder1.apply_translation(
-            [0, 0, self.shaft_length + self.bond_gap - self.chamfer_length - eps]
-        )
+        cylinder1.apply_translation([0, 0, d1])
+        # D-cut the shaft
+        box1 = trimesh.creation.box(
+            extents=[2 * self.shaft_radius, 2 * self.shaft_radius, self.shaft_length + self.bond_gap])
+        box1.apply_translation([0, 0.3*self.shaft_radius, (self.shaft_length + self.bond_gap) / 2])
+        cylinder1 = trimesh.boolean.intersection(
+            [cylinder1, box1], check_volume=False)
+
         return cylinder1
 
     def create_hole_shape(self):
         # Create a hole shape for the shaft
-        eps = 0.01  # Small epsilon to avoid numerical issues
-        d1 = self.hole_length + eps
+        d1 = self.hole_length
         cylinder1 = trimesh.creation.cylinder(radius=self.hole_radius, height=d1)
-        cylinder1.apply_translation([0, 0, -d1 / 2 + eps])
+        # D-cut the hole
+        box1 = trimesh.creation.box(
+            extents=[2 * self.hole_radius, 2 * self.hole_radius, d1])
+        box1.apply_translation([0, 0.3*self.hole_radius, 0])
+        cylinder1 = trimesh.boolean.intersection(
+           [cylinder1, box1], check_volume=False)
+        cylinder1.apply_translation([0, 0, -d1 / 2])
+
         return cylinder1

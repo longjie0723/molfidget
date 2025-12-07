@@ -14,7 +14,8 @@ class DefaultAtomConfig:
 
 @dataclass
 class DefaultBondConfig:
-    bond_gap_mm: float = 0.0  # Gap between the bond plane [mm]
+    bond_gap_mm: float = 0.1  # Gap between the bond plane [mm]
+    bond_gap: float = 0.0  # Gap between the bond plane [Angstrom]
     shaft_radius: float = 0.3  # Radius of the shaft [Angstrom]
     shaft_length: float = 0.3  # Length of the shaft [Angstrom]
     stopper_radius: float = 0.4  # Radius of the stopper [Angstrom]
@@ -272,8 +273,9 @@ def load_mol_file(file_name: str) -> MoleculeConfig:
                 bond_type=bond_type,
             )
         )
+    # file_nameから拡張子を除いた名前を設定
     molecle_config = MoleculeConfig(
-        name="file_name", scale=1.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
+        name=file_name.split("/")[-1].split(".")[0], scale=1.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
     )
     return molecle_config
 

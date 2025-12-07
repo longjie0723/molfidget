@@ -8,6 +8,7 @@ from molfidget.config import (
 )
 from molfidget.labeled_scene_viewer import LabeledSceneViewer
 from molfidget.molecule import Molecule
+import os
 
 
 def setup_argparse():
@@ -21,6 +22,9 @@ def setup_argparse():
     preview_parser.add_argument("molfidget_file", type=str, help="Input molfidget YAML file to preview")
 
     generate_parser = subparsers.add_parser("generate", help="Generate STL files from molfidget file")
+    # add parameters for generation
+    # scale parameter
+    generate_parser.add_argument("--scale", type=float, help="Scale factor for the output model")
     generate_parser.add_argument("molfidget_file", type=str, help="Input molfidget YAML file to generate STL files from")
 
     return parser
@@ -52,12 +56,17 @@ def exec_preview(args):
 
 def exec_generate(args):
     molecule_config = load_molfidget_config(args.molfidget_file)
+    molecule_config.scale = args.scale if args.scale is not None else molecule_config.scale
+
     molecule = Molecule(molecule_config)
     print(f"Molecule: {molecule.name}")
     # Create trimesh model
-    molecule.create_trimesh_scene()
+    scene = molecule.create_trimesh_scene()
     molecule.save_stl_files()
 
+    # export the entire molecule as 3MF
+    scene.apply_scale(molecule_config.scale)
+    scene.export(os.path.join("output", f"{molecule.name}.3mf"))
 
 def main():
     parser = setup_argparse()
