@@ -96,9 +96,7 @@ class Molecule:
     def save_stl_files(self, output_dir: str = "output"):
         os.makedirs(output_dir, exist_ok=True)
         for atom in self.atoms.values():
-            mesh = atom.create_trimesh_model()
-            mesh.apply_scale(self.scale)
-            mesh.export(os.path.join(output_dir, f"{atom.name}_{atom.id}.stl"))
+            atom.mesh.export(os.path.join(output_dir, f"{atom.name}.stl"))
 
     def merge_atoms(self):
         counter = 0

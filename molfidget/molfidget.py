@@ -51,8 +51,11 @@ def exec_preview(args):
 
 
 def exec_generate(args):
-    config = load_molfidget_config(args.molfidget_file)
-    molecule = Molecule(config)
+    molecule_config = load_molfidget_config(args.molfidget_file)
+    molecule = Molecule(molecule_config)
+    print(f"Molecule: {molecule.name}")
+    # Create trimesh model
+    molecule.create_trimesh_scene()
     molecule.save_stl_files()
 
 
