@@ -63,6 +63,7 @@ class ShapeConfig:
     shaft_gap: float = None  # Gap between the shaft and the cavity [Angstrom]
     shaft_gap_mm: float = None  # Gap between the shaft and the cavity [mm]
     taper_radius_scale: float = None  # Scale factor for the taper radius
+    taper_angle_deg: float = None  # Taper angle in degrees
     bond_gap: float = None  # Gap between the bond plane [Angstrom]
     bond_gap_mm: float = None  # Gap between the bond plane [mm]
 

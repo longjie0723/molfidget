@@ -40,28 +40,33 @@ molecule:
   - atom_pair: [C_1, H_2]
     bond_type: single
     shape_pair:
-    - taper_height: 0.8
-      taper_distance: 0.5
-    - taper_height: 0.0
-      taper_distance: 0.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
   - atom_pair: [C_1, H_3]
     bond_type: single
+    shape_pair:
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 0.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
   - atom_pair: [C_1, H_4]
     bond_type: single
   - atom_pair: [C_1, O_5]
     bond_type: single
     shape_pair:
-    - taper_height: 0.8
-      taper_distance: 0.5
-    - taper_height: 0.0
-      taper_distance: 0.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
   - atom_pair: [O_5, C_6]
     bond_type: single
     shape_pair:
-    - taper_height: 0.2
-      taper_distance: 1
-    - taper_height: 0.2
-      taper_distance: 1
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
   - atom_pair: [C_6, H_7]
     bond_type: single
   - atom_pair: [C_6, H_8]
@@ -69,7 +74,8 @@ molecule:
   - atom_pair: [C_6, H_9]
     bond_type: single
     shape_pair:
-    - taper_height: 0.8
-      taper_distance: 0.5
-    - taper_height: 0.5
-      taper_distance: 0.8
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+

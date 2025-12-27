@@ -69,7 +69,7 @@ class Bond:
                 shape.sculpt_trimesh_by_fixed()
             elif shape.shape_type == "hole":
                 shape.sculpt_trimesh_by_hole()
-            if shape.taper_height is not None and shape.taper_distance is not None:
+            if shape.taper_radius_scale is not None and shape.taper_angle_deg is not None:
                 shape.sculpt_trimesh_by_taper()
 
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):

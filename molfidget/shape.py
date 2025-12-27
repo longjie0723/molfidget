@@ -8,6 +8,7 @@ class Shape:
         self.atom_name = atom_name
         self.atom = None
         self.slice_distance = None
+        self.slice_radius = None
         self.vector = None
 
         self.shape_type = config.shape_type if config.shape_type is not None else default.shape_type
@@ -22,12 +23,8 @@ class Shape:
         self.stopper_length = config.stopper_length if config.stopper_length is not None else default.stopper_length
         self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
-
-        self.taper_height = config.taper_height if config.taper_height is not None else None
-        self.taper_distance = config.taper_distance if config.taper_distance is not None else None
-
-        print("taper_height:", self.taper_height)
-        print("taper_distance:", self.taper_distance)
+        self.taper_radius_scale = config.taper_radius_scale if config.taper_radius_scale is not None else None
+        self.taper_angle_deg = config.taper_angle_deg if config.taper_angle_deg is not None else None
 
         print(f"shape_type: {self.shape_type}")
         print(f"hole_length: {self.hole_length}")
@@ -47,6 +44,7 @@ class Shape:
         r1 = atom1.scale * atom1.radius
         r2 = atom2.scale * atom2.radius
         self.slice_distance = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
+        self.slice_radius = np.sqrt(r1**2 - self.slice_distance**2)
         #self.slice_distance = (r2**2 - r1**2 + self.atom_distance**2) / (2 * self.atom_distance)
 
 
@@ -79,15 +77,14 @@ class Shape:
         self.atom.mesh = trimesh.boolean.difference([self.atom.mesh, hole], check_volume=False)
 
     def sculpt_trimesh_by_taper(self):
-        print("Creating taper shape")
-        if self.taper_height <= 0:
+        if self.taper_angle_deg <= 0.0:
             return
         taper = self.create_taper_shape()
-        taper.apply_translation([0, 0, - self.atom.radius])
+        taper.apply_translation([0, 0, -self.atom.shape_radius])
         rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
         taper.apply_transform(rotation_matrix)
-        #self.atom.mesh = trimesh.boolean.difference([taper, self.atom.mesh], check_volume=False)
         self.atom.mesh = trimesh.boolean.intersection([taper, self.atom.mesh], check_volume=False)
+        #self.atom.mesh = trimesh.boolean.union([self.atom.mesh, taper], check_volume=False)
     
     def create_rotate_shaft(self):
         # Create a shaft
@@ -182,14 +179,11 @@ class Shape:
         return cylinder1
     
     def create_taper_shape(self):
-        import math
-        # Create a tapered shape for the atom 
-        r = self.atom.radius
-        h = self.taper_height
-        d = self.taper_distance
-        s = math.sqrt(r**2 - d**2)
-        u = s*(h+d+r)/h
-        cone1 = trimesh.creation.cone(
-            radius = u, height = h + d + r, sections=32
-        )
+        r = self.slice_radius * self.taper_radius_scale
+        a = self.taper_angle_deg * np.pi / 180.0
+        d = r / np.cos(a)
+        h = d * np.sin(a)
+        H = h + self.slice_distance + self.atom.shape_radius
+        R = r*H/h
+        cone1 = trimesh.creation.cone(radius = R, height = H, sections = 32)
         return cone1
