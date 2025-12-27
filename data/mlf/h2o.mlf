@@ -1,5 +1,5 @@
 molecule:
-  name: file_name
+  name: h2o
   scale: 10.0
   default:
     atom:
@@ -27,12 +27,6 @@ molecule:
     position: [-0.188, 1.239, 0.0044]
   bonds:
   - atom_pair: [O_1, H_2]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [O_1, H_3]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single

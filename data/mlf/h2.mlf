@@ -1,9 +1,9 @@
 molecule:
-  name: H2
+  name: h2
   scale: 10.0
   default:
     atom:
-      scale: 1.0
+      scale: 0.8
       color: [200, 200, 200, 255]
     bond:
       bond_gap_mm: 0.0
@@ -25,13 +25,15 @@ molecule:
   atoms:
   - name: H_1
     position: [0.0099, 0.1899, 0.0]
+    color: [255, 0, 0, 255]
   - name: H_2
     position: [-0.7301, 0.1899, 0.0]
   bonds:
   - atom_pair: [H_1, H_2]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
-    bond_gap: 1.0
+#    shape_pair:
+#    - taper_height: 1.0
+#      taper_distance: 0.2
+#    - taper_height: 1.0
+#      taper_distance: 0.0
     bond_gap_mm: 0.1

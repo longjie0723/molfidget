@@ -26,12 +26,16 @@ class Bond:
         self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
 
-        if self.bond_type == "single":
+        if config.bond_type == "single":
             config.shape_pair[0].shape_type = "spin"
             config.shape_pair[1].shape_type = "hole"
-        elif self.bond_type == "double" or self.bond_type == "triple":
+        elif config.bond_type == "double":
             config.shape_pair[0].shape_type = "fixed"
             config.shape_pair[1].shape_type = "hole"
+        elif config.bond_type == "triple":
+            config.shape_pair[0].shape_type = "fixed"
+            config.shape_pair[1].shape_type = "hole"
+
         self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default), Shape(self.atom2_name, config.shape_pair[1], default)]
 
     def update_atoms(self, atoms: dict):
@@ -65,64 +69,8 @@ class Bond:
                 shape.sculpt_trimesh_by_fixed()
             elif shape.shape_type == "hole":
                 shape.sculpt_trimesh_by_hole()
-
-    def sculpt_atoms(self):
-        print(f"Sculpting bond between {self.atom1.name} and {self.atom2.name}")
-        self.update_slice_distance()
-        # Slice atom1 and atom2 by the bond plane
-        self.slice_atoms_by_bond_plane()
-        # Create shapes for atom1
-        if self.shaft_types[0] == "spin":
-            # Create the cavity
-            cavity = self.create_cavity_shape()
-            cavity.apply_translation([0, 0, self.slice_distance])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            cavity.apply_transform(rotation_matrix)
-            self.atom1.mesh = trimesh.boolean.difference([self.atom1.mesh, cavity], check_volume=False)
-            # Create the shaft
-            shaft = self.create_rotate_shaft()
-            shaft.apply_translation([0, 0, self.slice_distance])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            shaft.apply_transform(rotation_matrix)
-            self.atom1.mesh = trimesh.boolean.union([self.atom1.mesh, shaft], check_volume=False)
-        elif self.shaft_types[0] == "fixed":            
-            shaft = self.create_fixed_shaft_shape()
-            shaft.apply_translation([0, 0, self.slice_distance - self.bond_gap])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            shaft.apply_transform(rotation_matrix)
-            self.atom1.mesh = trimesh.boolean.union([self.atom1.mesh, shaft], check_volume=False)
-        elif self.shaft_types[0] == "hole":
-            hole = self.create_hole_shape()
-            hole.apply_translation([0, 0, self.slice_distance])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            hole.apply_transform(rotation_matrix)
-            self.atom1.mesh = trimesh.boolean.difference([self.atom1.mesh, hole], check_volume=False)
-
-        if self.shaft_types[1] == "spin":
-            # Create the cavity
-            cavity = self.create_cavity_shape()
-            cavity.apply_translation([0, 0, self.slice_distance - self.atom_distance])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            cavity.apply_transform(rotation_matrix)
-            self.atom2.mesh = trimesh.boolean.difference([self.atom2.mesh, cavity], check_volume=False)
-            # Create the shaft
-            shaft = self.create_rotate_shaft()
-            shaft.apply_translation([0, 0, self.slice_distance - self.atom_distance])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            shaft.apply_transform(rotation_matrix)
-            self.atom2.mesh = trimesh.boolean.union([self.atom2.mesh, shaft], check_volume=False)
-        elif self.shaft_types[1] == "fixed":            
-            shaft = self.create_fixed_shaft_shape()
-            shaft.apply_translation([0, 0, self.slice_distance - self.atom_distance + self.bond_gap])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            shaft.apply_transform(rotation_matrix)
-            self.atom2.mesh = trimesh.boolean.union([self.atom2.mesh, shaft], check_volume=False)
-        elif self.shaft_types[1] == "hole":
-            hole = self.create_hole_shape()
-            hole.apply_translation([0, 0, self.slice_distance - self.atom_distance])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            hole.apply_transform(rotation_matrix)
-            self.atom2.mesh = trimesh.boolean.difference([self.atom2.mesh, hole], check_volume=False)
+            if shape.taper_height is not None and shape.taper_distance is not None:
+                shape.sculpt_trimesh_by_taper()
 
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):
         # mesh = self.slice_by_bond_plane(mesh)

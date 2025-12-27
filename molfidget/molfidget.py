@@ -57,15 +57,17 @@ def exec_preview(args):
 def exec_generate(args):
     molecule_config = load_molfidget_config(args.molfidget_file)
     molecule_config.scale = args.scale if args.scale is not None else molecule_config.scale
+    print(f"Using scale factor: {molecule_config.scale}")
 
     molecule = Molecule(molecule_config)
     print(f"Molecule: {molecule.name}")
     # Create trimesh model
     scene = molecule.create_trimesh_scene()
-    molecule.save_stl_files()
-
-    # export the entire molecule as 3MF
+    # Apply scale
     scene.apply_scale(molecule_config.scale)
+    # Save STL files for each component
+    molecule.save_stl_files()
+    # export the entire molecule as 3MF
     scene.export(os.path.join("output", f"{molecule.name}.3mf"))
 
 def main():

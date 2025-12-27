@@ -87,7 +87,7 @@ class Molecule:
             bond.sculpt_atoms2()
         for atom in self.atoms.values():
             atom.mesh.apply_translation([atom.x, atom.y, atom.z])
-            atom.mesh.visual.vertex_colors = atom_color_table[atom.elem]
+            atom.mesh.visual.vertex_colors = atom.color
             scene.add_geometry(atom.mesh, geom_name=f"{atom.name}")
         return scene
 

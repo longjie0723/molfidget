@@ -16,7 +16,8 @@ class Atom:
         self.scale = config.scale if config.scale is not None else default.scale
         self.x, self.y, self.z = config.position
         self.position = config.position
-        self.color = config.color if config.color else atom_color_table[self.elem]
+        self.color = config.color if config.color is not None else atom_color_table[self.elem]
+        print(f"self.color:", self.color)
         self.pairs = {}
 
     def update_bonds(self, bonds: dict):
@@ -31,5 +32,5 @@ class Atom:
     def create_trimesh_model(self):
         # Sphere mesh for the atom
         self.mesh = trimesh.primitives.Sphere(
-            radius = self.scale * self.radius, center=[0, 0, 0]
+            radius = self.scale*self.radius, center=[0, 0, 0]
         )

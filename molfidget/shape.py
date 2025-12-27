@@ -22,7 +22,12 @@ class Shape:
         self.stopper_length = config.stopper_length if config.stopper_length is not None else default.stopper_length
         self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
-        print(self)
+
+        self.taper_height = config.taper_height if config.taper_height is not None else None
+        self.taper_distance = config.taper_distance if config.taper_distance is not None else None
+
+        print("taper_height:", self.taper_height)
+        print("taper_distance:", self.taper_distance)
 
         print(f"shape_type: {self.shape_type}")
         print(f"hole_length: {self.hole_length}")
@@ -73,10 +78,21 @@ class Shape:
         hole.apply_transform(rotation_matrix)
         self.atom.mesh = trimesh.boolean.difference([self.atom.mesh, hole], check_volume=False)
 
+    def sculpt_trimesh_by_taper(self):
+        print("Creating taper shape")
+        if self.taper_height <= 0:
+            return
+        taper = self.create_taper_shape()
+        taper.apply_translation([0, 0, - self.atom.radius])
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
+        taper.apply_transform(rotation_matrix)
+        #self.atom.mesh = trimesh.boolean.difference([taper, self.atom.mesh], check_volume=False)
+        self.atom.mesh = trimesh.boolean.intersection([taper, self.atom.mesh], check_volume=False)
+    
     def create_rotate_shaft(self):
         # Create a shaft
         # d1: Shaft length including the wall thickness and gap without chamfer
-        d1 = self.shaft_length + self.wall_thickness + self.shaft_gap
+        d1 = self.shaft_length + self.wall_thickness + self.shaft_gap - self.chamfer_length + self.bond_gap / 2
         cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
         cylinder1.apply_translation([0, 0, -d1 / 2])
         # Create the chamfer on the shaft
@@ -85,21 +101,23 @@ class Shape:
         )
         cylinder3.apply_translation([0, 0, self.chamfer_length / 2])
         cone1 = trimesh.creation.cone(
-            radius=self.shaft_radius, height=2 * self.shaft_radius, sections=32
+            radius=self.shaft_radius, height=2*self.shaft_radius, sections=32
         )
         cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=False)
         cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
         # D-cut the shaft
+        d2 = d1 + self.chamfer_length
         box1 = trimesh.creation.box(
-            extents=[2 * self.shaft_radius, 2 * self.shaft_radius, d1])
-        box1.apply_translation([0, 0.3*self.shaft_radius, 0])
+            extents=[2 * self.shaft_radius, 2 * self.shaft_radius, d2])
+        box1.apply_translation([0, 0.3*self.shaft_radius, -d2 / 2 + self.chamfer_length])
         cylinder1 = trimesh.boolean.intersection(
             [cylinder1, box1], check_volume=False)
+        #cylinder1 = trimesh.boolean.union([cylinder1, box1], check_volume=False)
         cylinder1.apply_translation(
             [0, 0, self.shaft_length - self.chamfer_length])
         # Create the stopper
         cylinder2 = trimesh.creation.cylinder(
-            radius=self.stopper_radius, height=self.stopper_length
+           radius=self.stopper_radius, height=self.stopper_length
         )
         cylinder2.apply_translation(
             [0, 0, -self.stopper_length / 2 - self.wall_thickness - self.shaft_gap]
@@ -162,3 +180,16 @@ class Shape:
         cylinder1.apply_translation([0, 0, -d1 / 2])
 
         return cylinder1
+    
+    def create_taper_shape(self):
+        import math
+        # Create a tapered shape for the atom 
+        r = self.atom.radius
+        h = self.taper_height
+        d = self.taper_distance
+        s = math.sqrt(r**2 - d**2)
+        u = s*(h+d+r)/h
+        cone1 = trimesh.creation.cone(
+            radius = u, height = h + d + r, sections=32
+        )
+        return cone1

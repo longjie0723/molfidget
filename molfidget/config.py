@@ -51,7 +51,7 @@ class AtomConfig:
 
 @dataclass
 class ShapeConfig:
-    shape_type: str = "spin"  # Type of the shape (e.g., spin, fixed, hole)
+    shape_type: str = None  # Type of the shape (e.g., spin, fixed, hole)
     shaft_radius: float = None  # Radius of the shaft [Angstrom]
     shaft_length: float = None  # Length of the shaft [Angstrom]
     stopper_radius: float = None  # Radius of the stopper [Angstrom]
@@ -65,6 +65,9 @@ class ShapeConfig:
     taper_radius_scale: float = None  # Scale factor for the taper radius
     bond_gap: float = None  # Gap between the bond plane [Angstrom]
     bond_gap_mm: float = None  # Gap between the bond plane [mm]
+
+    taper_distance: float = None  # Distance for tapering [Angstrom]
+    taper_height: float = None  # Height for tapering [Angstrom]
 
 
 @dataclass
@@ -205,7 +208,7 @@ def bond_config_representer(dumper, data, default_config: DefaultBondConfig = No
     for key, value in field_dict.items():
         if value is None:
             continue
-        if key in ("atom_pair", "shaft_types", "taper_angle_deg", "taper_radius_scale"):
+        if key in ("atom_pair", "shaft_types", "taper_height", "taper_distance", "taper_angle_deg", "taper_radius_scale"):
             cmap[key] = CommentedSeq(value)
             cmap[key].fa.set_flow_style()
         else:
