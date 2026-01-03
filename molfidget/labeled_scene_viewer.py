@@ -83,6 +83,8 @@ class LabeledSceneViewer(SceneViewer):
         glPopMatrix()
 
     def on_draw(self):
+        # wireframeの線の太さを細くしたい
+        glLineWidth(2.0)
         super().on_draw()
         self.draw_labels()
 
