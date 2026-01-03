@@ -149,9 +149,6 @@ def default_bond_config_representer(dumper, data):
     for key, value in data_dict.items():
         if value is None:
             continue
-        if key in ("taper_angle_deg", "taper_radius_scale"):
-            cmap[key] = CommentedSeq(value)
-            cmap[key].fa.set_flow_style()
         else:
             cmap[key] = value
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
