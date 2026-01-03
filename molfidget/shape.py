@@ -23,8 +23,8 @@ class Shape:
         self.stopper_length = config.stopper_length if config.stopper_length is not None else default.stopper_length
         self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
-        self.taper_radius_scale = config.taper_radius_scale if config.taper_radius_scale is not None else None
-        self.taper_angle_deg = config.taper_angle_deg if config.taper_angle_deg is not None else None
+        self.taper_radius_scale = config.taper_radius_scale if config.taper_radius_scale is not None else default.taper_radius_scale
+        self.taper_angle_deg = config.taper_angle_deg if config.taper_angle_deg is not None else default.taper_angle_deg
 
         print(f"shape_type: {self.shape_type}")
         print(f"hole_length: {self.hole_length}")

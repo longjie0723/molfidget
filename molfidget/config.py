@@ -25,12 +25,8 @@ class DefaultBondConfig:
     chamfer_length: float = 0.1  # Length of the chamfer [Angstrom]
     wall_thickness: float = 0.1  # Thickness of the wall [Angstrom]
     shaft_gap: float = 0.03  # Gap between the shaft and the cavity [Angstrom]
-    taper_angle_deg: List[float] = field(
-        default_factory=lambda: [0.0, 0.0]
-    )  # Taper angle at the two ends in degrees
-    taper_radius_scale: List[float] = field(
-        default_factory=lambda: [1.0, 1.0]
-    )  # Scale factor for the taper radius at the two ends
+    taper_angle_deg: float = 0.0 # Taper angle in degrees
+    taper_radius_scale: float = 1.0 # Scale factor for the taper radius
 
 
 @dataclass
