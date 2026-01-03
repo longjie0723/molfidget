@@ -19,6 +19,9 @@ from molfidget.constants import atom_color_table, atom_radius_table
 
 class Molecule:
     def __init__(self, config: MoleculeConfig):
+        # Group of atoms that can be merged
+        self.atom_groups = OrderedDict()
+
         # Load the configuration for the molecule
         print(f"Loading configuration for molecule: {config.name}")
         self.name = config.name
@@ -88,46 +91,50 @@ class Molecule:
         for atom in self.atoms.values():
             atom.mesh.apply_translation([atom.x, atom.y, atom.z])
             atom.mesh.visual.vertex_colors = atom.color
+            atom.mesh.visual.face_colors = atom.color
+            atom.mesh.visual.main_color = atom.color
             scene.add_geometry(atom.mesh, geom_name=f"{atom.name}")
         return scene
 
-    def save_stl_files(self, output_dir: str = "output"):
-        os.makedirs(output_dir, exist_ok=True)
+    def save_stl_files(self, scale, output_dir: str = "output"):
         for atom in self.atoms.values():
-            atom.mesh.export(os.path.join(output_dir, f"{atom.name}.stl"))    
+            mesh = atom.mesh.copy()
+            mesh.apply_scale(scale)
+            mesh.export(os.path.join(output_dir, f"{atom.name}.stl"))    
 
     def merge_atoms(self):
         counter = 0
         for atom in self.atoms.values():
             for pair in atom.pairs.values():
-                if pair.type == "none":
+                if pair.bond_type == "none":
                     continue
-                if pair.atom1.name != pair.atom2.name:
+                if pair.atom1.elem != pair.atom2.elem:
                     continue
                 # Search group containing atom1 or atom2
-                group = next((g for g in self.atom_groups.values() if pair.atom1.id in g or pair.atom2.id in g), None)
+                group = next((g for g in self.atom_groups.values() if pair.atom1 in g or pair.atom2 in g), None)
                 if group is None:
                     # Create a new group if not found
                     self.atom_groups[f"group_{counter}"] = set()
-                    self.atom_groups[f"group_{counter}"].add(pair.atom1.id)
-                    self.atom_groups[f"group_{counter}"].add(pair.atom2.id)
+                    self.atom_groups[f"group_{counter}"].add(pair.atom1)
+                    self.atom_groups[f"group_{counter}"].add(pair.atom2)
                     counter += 1
                 else:
                     # Add the atoms to the existing group
-                    group.add(pair.atom1.id)
-                    group.add(pair.atom2.id)
+                    group.add(pair.atom1)
+                    group.add(pair.atom2)
 
         print(f"Merged atoms into {len(self.atom_groups)} groups")
         print("Groups:", self.atom_groups)
 
-    def save_group_stl_files(self, output_dir: str ='output'):
+    def save_group_stl_files(self, scale, output_dir: str ='output'):
         os.makedirs(output_dir, exist_ok=True)
         for group_name, group in self.atom_groups.items():
             # Merge the atoms and save as a single file
-            meshes = [self.atoms[id].create_trimesh_model(config) for id in group]
+            meshes = [atom.mesh.copy().apply_scale(scale) for atom in group]
             merged_mesh = trimesh.util.concatenate(meshes)
-            merged_mesh.apply_scale(config.scale)
-            merged_mesh.export(os.path.join(output_dir, f"{group_name}.stl"))
+            atom_list = sorted(group, key=lambda a: a.id)
+            file_name = f"{atom_list[0].elem}_" + "_".join([atom.id for atom in atom_list]) + ".stl"
+            merged_mesh.export(os.path.join(output_dir, file_name))
 
 
 def load_molfidget_file(file_path: str) -> MoleculeConfig:
