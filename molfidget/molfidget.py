@@ -10,6 +10,12 @@ from molfidget.labeled_scene_viewer import LabeledSceneViewer
 from molfidget.molecule import Molecule
 import os
 
+try:
+    import argcomplete
+    ARGCOMPLETE_AVAILABLE = True
+except ImportError:
+    ARGCOMPLETE_AVAILABLE = False
+
 
 def setup_argparse():
     parser = argparse.ArgumentParser(description="Molecule visualization and manipulation")
@@ -25,6 +31,7 @@ def setup_argparse():
     # add parameters for generation
     # scale parameter
     generate_parser.add_argument("--scale", type=float, help="Scale factor for the output model")
+    generate_parser.add_argument("--output-dir", type=str, default="output", help="Output directory for STL files")
     generate_parser.add_argument("molfidget_file", type=str, help="Input molfidget YAML file to generate STL files from")
 
     return parser
@@ -65,13 +72,25 @@ def exec_generate(args):
     scene = molecule.create_trimesh_scene()
     # Apply scale
     scene.apply_scale(molecule_config.scale)
-    # Save STL files for each component
-    molecule.save_stl_files()
+
+    output_dir = args.output_dir
+    os.makedirs(output_dir, exist_ok=True)
+
     # export the entire molecule as 3MF
-    scene.export(os.path.join("output", f"{molecule.name}.3mf"))
+    scene.export(os.path.join(output_dir, f"{molecule.name}.3mf"))
+    # Save STL files for each component
+    molecule.save_stl_files(scale=molecule_config.scale, output_dir=output_dir)
+    # Merge atoms into groups and save group STL files
+    molecule.merge_atoms()
+    molecule.save_group_stl_files(molecule_config.scale, output_dir=output_dir)
 
 def main():
     parser = setup_argparse()
+
+    # Enable argcomplete if available
+    if ARGCOMPLETE_AVAILABLE:
+        argcomplete.autocomplete(parser)
+
     args = parser.parse_args()
 
     if not args.command:
