@@ -63,14 +63,14 @@ class Bond:
         print(f"Sculpting bond between {self.atom1.name} and {self.atom2.name}")
         self.slice_atoms_by_bond_plane()
         for shape in self.shape_pair:
+            if shape.taper_radius_scale is not None and shape.taper_angle_deg is not None:
+                shape.sculpt_trimesh_by_taper()
             if shape.shape_type == "spin":
                 shape.sculpt_trimesh_by_spin()
             elif shape.shape_type == "fixed":
                 shape.sculpt_trimesh_by_fixed()
             elif shape.shape_type == "hole":
                 shape.sculpt_trimesh_by_hole()
-            if shape.taper_radius_scale is not None and shape.taper_angle_deg is not None:
-                shape.sculpt_trimesh_by_taper()
 
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):
         # mesh = self.slice_by_bond_plane(mesh)
