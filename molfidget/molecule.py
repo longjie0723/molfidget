@@ -92,7 +92,6 @@ class Molecule:
             atom.mesh.apply_translation([atom.x, atom.y, atom.z])
             atom.mesh.visual.vertex_colors = atom.color
             atom.mesh.visual.face_colors = atom.color
-            atom.mesh.visual.main_color = atom.color
             scene.add_geometry(atom.mesh, geom_name=f"{atom.name}")
         return scene
 
