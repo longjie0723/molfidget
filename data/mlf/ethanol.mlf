@@ -5,7 +5,7 @@ molecule:
     atom:
       scale: 0.8
     bond:
-      bond_gap_mm: 0.3    # 結合平面の隙間 [mm]
+      bond_gap_mm: 0.0    # 結合平面の隙間 [mm]
       wall_thickness: 0.1 # 壁の厚さ [Angstrom]
       shaft_radius: 0.3   # シャフトの半径
       shaft_length: 0.3   # シャフトの長さ
@@ -14,9 +14,9 @@ molecule:
       shaft_gap_mm: 0.3   # シャフトの隙間 [mm]
       chamfer_length: 0.1 # 軸の面取りの長さ
       hole_radius: 0.3    # 軸穴の半径
-      hole_length: 0.3        # 軸穴の長さ
-      taper_angle_deg: [0, 0]         # テーパー角度 [度]
-      taper_radius_scale: [1.0, 0.3]  # テーパーの半径スケール
+      hole_length: 0.3    # 軸穴の長さ
+      taper_angle_deg: 0.0 # テーパー角度 [度]
+      taper_radius_scale: 1.0  # テーパーの半径スケール
 
   # 原子のリスト
   atoms:
@@ -35,10 +35,8 @@ molecule:
     - name: H_7
       position: [-0.9790, -2.9510, -6.5690]
     - name: H_8
-      color: [0, 0, 50]
       position: [-0.9620, -1.3190, -6.5010]
     - name: H_9
-      #scale: 0.9 # この水素だけ大きくする
       position: [0.2020, -2.1140, -7.3250]
   # 結合のリスト
   bonds:
@@ -47,17 +45,12 @@ molecule:
     - atom_pair: [C_1, H_3]
       bond_type: single
     - atom_pair: [C_1, O_4]
-      #bond_type: single
-      shape_pair:
-        - shape_type: hole
-          taper_angle_deg: 10
-          hole_length: 0.5
-        - shape_type: fixed
-          taper_angle_deg: 5
+      bond_type: single
     - atom_pair: [O_4, H_5]
       bond_type: single
     - atom_pair: [C_1, C_6]
       bond_type: single
+      bond_gap_mm: 0.2
     - atom_pair: [C_6, H_7]
       bond_type: single
     - atom_pair: [C_6, H_8]

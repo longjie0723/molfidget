@@ -1,12 +1,11 @@
 molecule:
-  name: file_name
-  scale: 1.0
+  name: cyclohexane
+  scale: 10.0
   default:
     atom:
-      scale: 1.0
-      color: [200, 200, 200, 255]
+      scale: 0.8
     bond:
-      bond_gap_mm: 0.0
+      bond_gap_mm: 0.02
       shaft_radius: 0.3
       shaft_length: 0.3
       stopper_radius: 0.4
@@ -16,8 +15,8 @@ molecule:
       chamfer_length: 0.1
       wall_thickness: 0.1
       shaft_gap: 0.03
-      taper_angle_deg: [0.0, 0.0]
-      taper_radius_scale: [1.0, 1.0]
+      taper_angle_deg: 30.0
+      taper_radius_scale: 0.9
   atoms:
   - name: C_1
     position: [-2.434, -1.385, 0.0]
@@ -57,92 +56,38 @@ molecule:
     position: [-0.636, 0.531, -0.964]
   bonds:
   - atom_pair: [C_1, C_2]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_1, C_6]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_1, H_11]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_1, H_10]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_2, C_3]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_2, H_8]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_2, H_9]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_3, C_4]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_3, H_7]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_3, H_18]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_4, C_5]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_4, H_12]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_4, H_13]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_5, C_6]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_5, H_14]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_5, H_15]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_6, H_17]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
   - atom_pair: [C_6, H_16]
-    shape_pair:
-    - shape_type: spin
-    - shape_type: spin
     bond_type: single
