@@ -46,4 +46,4 @@ poetry run molfidget --scale 10.0 --shaft-gap 0.2 pdb/ethanol.pdb
 ### モデリング
 
 軸、穴部分の形状とパラメータの名前はこのようになっている。
-![モデリング図解](image/modeling-1.png)
+![モデリング図解](docs/images/modeling-2.png)
