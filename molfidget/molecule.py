@@ -35,7 +35,7 @@ class Molecule:
         self.bonds = {}
         for bond_config in config.bonds:
             atom1_name, atom2_name = bond_config.atom_pair
-            self.bonds[atom1_name, atom2_name] = Bond(bond_config, config.default.bond)
+            self.bonds[atom1_name, atom2_name] = Bond(bond_config, config.default.bond, self.scale)
         # Update atom pairs based on bonds
         for atom in self.atoms.values():
             atom.update_bonds(self.bonds)

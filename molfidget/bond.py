@@ -7,7 +7,7 @@ from molfidget.config import BondConfig, DefaultBondConfig, ShapeConfig
 
 
 class Bond:
-    def __init__(self, config: BondConfig, default: DefaultBondConfig):
+    def __init__(self, config: BondConfig, default: DefaultBondConfig, scale: float):
         self.atom1_name = config.atom_pair[0]
         self.atom2_name = config.atom_pair[1]
         self.atom_name = config.atom_pair
@@ -15,7 +15,7 @@ class Bond:
         self.shape_type = config.shape_type
         self.bond_type = config.bond_type if config.bond_type else default.bond_type
         self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond_gap_mm
-        self.bond_gap = self.bond_gap_mm / 10.0  # Convert mm to angstrom
+        self.bond_gap = self.bond_gap_mm / scale  # Convert mm to angstrom
         self.chamfer_length = config.chamfer_length if config.chamfer_length is not None else default.chamfer_length
         self.hole_length = config.hole_length if config.hole_length is not None else default.hole_length
         self.hole_radius = config.hole_radius if config.hole_radius is not None else default.hole_radius
@@ -36,7 +36,7 @@ class Bond:
             config.shape_pair[0].shape_type = "shaft_dcut"
             config.shape_pair[1].shape_type = "hole_dcut"
 
-        self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default), Shape(self.atom2_name, config.shape_pair[1], default)]
+        self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default, scale), Shape(self.atom2_name, config.shape_pair[1], default, scale)]
 
     def update_atoms(self, atoms: dict):
         self.atom1 = atoms[self.atom1_name]

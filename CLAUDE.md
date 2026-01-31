@@ -158,11 +158,17 @@ bonds:
 - `bond_gap_mm`: 結合平面の隙間 [mm]
 - `shaft_radius`: 軸半径 [Angstrom]
 - `shaft_length`: 軸長 [Angstrom]
+- `shaft_radius_mm`: 軸半径 [mm] ※指定時はshaft_radiusより優先
+- `shaft_length_mm`: 軸長 [mm] ※指定時はshaft_lengthより優先
 - `shaft_chamfer`: 面取り長 [Angstrom]
 - `shaft_spin_stopper_radius`: ストッパー半径 [Angstrom]
 - `stopper_length`: ストッパー長 [Angstrom]
 - `hole_radius`: 穴半径 [Angstrom]
-- `hole_depth`: 穴深さ [Angstrom]
+- `hole_length`: 穴深さ [Angstrom]
+- `hole_radius_mm`: 穴半径 [mm] ※指定時はhole_radiusより優先
+- `hole_length_mm`: 穴深さ [mm] ※指定時はhole_lengthより優先
+
+**mm単位のパラメータが指定されている場合、Å単位より優先されます。**
 
 詳細は[docs/images/modeling-2.png](docs/images/modeling-2.png)を参照。
 

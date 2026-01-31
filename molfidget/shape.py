@@ -4,7 +4,7 @@ from molfidget.config import ShapeConfig, DefaultBondConfig
 import numpy as np
 
 class Shape:
-    def __init__(self, atom_name: str, config: ShapeConfig, default: DefaultBondConfig):
+    def __init__(self, atom_name: str, config: ShapeConfig, default: DefaultBondConfig, scale: float):
         self.atom_name = atom_name
         self.atom = None
         self.slice_distance = None
@@ -13,15 +13,44 @@ class Shape:
 
         self.shape_type = config.shape_type if config.shape_type is not None else default.shape_type
         self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond_gap_mm
-        self.bond_gap = self.bond_gap_mm / 10.0  # Convert mm to angstrom
+        self.bond_gap = self.bond_gap_mm / scale  # Convert mm to angstrom
         self.chamfer_length = config.chamfer_length if config.chamfer_length is not None else default.chamfer_length
-        self.hole_length = config.hole_length if config.hole_length is not None else default.hole_length
-        self.hole_radius = config.hole_radius if config.hole_radius is not None else default.hole_radius
-        self.shaft_radius = config.shaft_radius if config.shaft_radius is not None else default.shaft_radius
+
+        # shaft_length: mm単位が指定されていればそちらを優先
+        if config.shaft_length_mm is not None:
+            self.shaft_length = config.shaft_length_mm / scale  # mm to Angstrom
+        elif default.shaft_length_mm is not None:
+            self.shaft_length = default.shaft_length_mm / scale
+        else:
+            self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
+
+        # shaft_radius: mm単位が指定されていればそちらを優先
+        if config.shaft_radius_mm is not None:
+            self.shaft_radius = config.shaft_radius_mm / scale  # mm to Angstrom
+        elif default.shaft_radius_mm is not None:
+            self.shaft_radius = default.shaft_radius_mm / scale
+        else:
+            self.shaft_radius = config.shaft_radius if config.shaft_radius is not None else default.shaft_radius
+
+        # hole_length: mm単位が指定されていればそちらを優先
+        if config.hole_length_mm is not None:
+            self.hole_length = config.hole_length_mm / scale  # mm to Angstrom
+        elif default.hole_length_mm is not None:
+            self.hole_length = default.hole_length_mm / scale
+        else:
+            self.hole_length = config.hole_length if config.hole_length is not None else default.hole_length
+
+        # hole_radius: mm単位が指定されていればそちらを優先
+        if config.hole_radius_mm is not None:
+            self.hole_radius = config.hole_radius_mm / scale  # mm to Angstrom
+        elif default.hole_radius_mm is not None:
+            self.hole_radius = default.hole_radius_mm / scale
+        else:
+            self.hole_radius = config.hole_radius if config.hole_radius is not None else default.hole_radius
+
         self.shaft_gap = config.shaft_gap if config.shaft_gap is not None else default.shaft_gap
         self.stopper_radius = config.stopper_radius if config.stopper_radius is not None else default.stopper_radius
         self.stopper_length = config.stopper_length if config.stopper_length is not None else default.stopper_length
-        self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
         self.taper_radius_scale = config.taper_radius_scale if config.taper_radius_scale is not None else default.taper_radius_scale
         self.taper_angle_deg = config.taper_angle_deg if config.taper_angle_deg is not None else default.taper_angle_deg
