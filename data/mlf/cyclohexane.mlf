@@ -1,0 +1,129 @@
+molecule:
+  name: cyclohexane
+  scale: 10.0
+  default:
+    atom:
+      scale: 0.8
+    bond:
+      bond_gap_mm: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.03
+      taper_angle_deg: 0.0
+      taper_radius_scale: 1.0
+  atoms:
+  - name: C_1
+    position: [-2.434, -1.385, 0.0]
+  - name: C_2
+    position: [-0.919, -1.385, 0.0]
+  - name: C_3
+    position: [-0.367, 0.026, 0.0]
+  - name: C_4
+    position: [-0.917, 0.83, 1.161]
+  - name: C_5
+    position: [-2.432, 0.831, 1.161]
+  - name: C_6
+    position: [-2.985, -0.58, 1.159]
+  - name: H_7
+    position: [0.751, -0.008, 0.063]
+  - name: H_8
+    position: [-0.547, -1.931, 0.907]
+  - name: H_9
+    position: [-0.544, -1.935, -0.902]
+  - name: H_10
+    position: [-2.807, -0.952, -0.965]
+  - name: H_11
+    position: [-2.81, -2.44, 0.064]
+  - name: H_12
+    position: [-0.544, 0.395, 2.126]
+  - name: H_13
+    position: [-0.541, 1.884, 1.099]
+  - name: H_14
+    position: [-2.807, 1.38, 2.063]
+  - name: H_15
+    position: [-2.804, 1.378, 0.254]
+  - name: H_16
+    position: [-2.719, -1.085, 2.125]
+  - name: H_17
+    position: [-4.103, -0.545, 1.094]
+  - name: H_18
+    position: [-0.636, 0.531, -0.964]
+  bonds:
+  - atom_pair: [C_1, C_2]
+    bond_type: single
+    bond_gap_mm: 0.3
+    shape_pair:
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+  - atom_pair: [C_1, C_6]
+    bond_type: single
+    bond_gap_mm: 0.3
+    shape_pair:
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+  - atom_pair: [C_1, H_11]
+    bond_type: single
+  - atom_pair: [C_1, H_10]
+    bond_type: single
+  - atom_pair: [C_2, C_3]
+    bond_type: single
+    bond_gap_mm: 0.3
+    shape_pair:
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+  - atom_pair: [C_2, H_8]
+    bond_type: single
+  - atom_pair: [C_2, H_9]
+    bond_type: single
+  - atom_pair: [C_3, C_4]
+    bond_type: single
+    bond_gap_mm: 0.3
+    shape_pair:
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+  - atom_pair: [C_3, H_7]
+    bond_type: single
+  - atom_pair: [C_3, H_18]
+    bond_type: single
+  - atom_pair: [C_4, C_5]
+    bond_type: single
+    bond_gap_mm: 0.3
+    shape_pair:
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+  - atom_pair: [C_4, H_12]
+    bond_type: single
+  - atom_pair: [C_4, H_13]
+    bond_type: single
+  - atom_pair: [C_5, C_6]
+    bond_type: single
+    bond_gap_mm: 0.3
+    shape_pair:
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+    - taper_radius_scale: 0.3
+      taper_angle_deg: 5.0
+  - atom_pair: [C_5, H_14]
+    bond_type: single
+  - atom_pair: [C_5, H_15]
+    bond_type: single
+  - atom_pair: [C_6, H_17]
+    bond_type: single
+  - atom_pair: [C_6, H_16]
+    bond_type: single

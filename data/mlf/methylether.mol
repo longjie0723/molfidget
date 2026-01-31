@@ -1,0 +1,81 @@
+molecule:
+  name: methylether
+  scale: 10.0
+  default:
+    atom:
+      scale: 0.8
+      color: [200, 200, 200, 255]
+    bond:
+      bond_gap_mm: 0.1
+      bond_gap: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.03
+  atoms:
+  - name: C_1
+    position: [-0.9679, 0.4196, 0.0]
+  - name: H_2
+    position: [-0.4828, -0.2214, 0.7061]
+  - name: H_3
+    position: [-0.3166, 0.5921, -0.8313]
+  - name: H_4
+    position: [-1.8688, -0.0446, -0.343]
+  - name: O_5
+    position: [-1.2715, 1.6228, 0.6039]
+  - name: C_6
+    position: [-0.1095, 2.2216, 1.0463]
+  - name: H_7
+    position: [0.1119, 3.0685, 0.431]
+  - name: H_8
+    position: [-0.2361, 2.5404, 2.0598]
+  - name: H_9
+    position: [0.6966, 1.5201, 0.9911]
+  bonds:
+  - atom_pair: [C_1, H_2]
+    bond_type: single
+    shape_pair:
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+  - atom_pair: [C_1, H_3]
+    bond_type: single
+    shape_pair:
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 0.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
+  - atom_pair: [C_1, H_4]
+    bond_type: single
+  - atom_pair: [C_1, O_5]
+    bond_type: single
+    shape_pair:
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
+  - atom_pair: [O_5, C_6]
+    bond_type: single
+    shape_pair:
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 20.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+  - atom_pair: [C_6, H_7]
+    bond_type: single
+  - atom_pair: [C_6, H_8]
+    bond_type: single
+  - atom_pair: [C_6, H_9]
+    bond_type: single
+    shape_pair:
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 45.0
+

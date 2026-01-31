@@ -1,16 +1,20 @@
 [tool.poetry]
 name = "molfidget"
-version = "0.1.1"
+version = "1.0.0"
 description = "A molecular modeler of 3D printable models from the MOL/PDB format."
 authors = ["Ryosuke Tajima <tajima.ryosuke@techmagic.co.jp>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 scipy = "^1.15.3"
 trimesh = "^4.6.9"
 manifold3d = "^3.1.0"
 pyglet = "<2"
 pyyaml = "^6.0.1"
+ruamel-yaml = "^0.18.16"
+from-dict = "^0.5.0"
+dacite = "^1.9.2"
+argcomplete = "^3.1.0"
 
 [tool.poetry.dev-dependencies]
 

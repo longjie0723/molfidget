@@ -1,0 +1,31 @@
+molecule:
+  name: carbon_dioxide
+  scale: 10.0
+  default:
+    atom:
+      scale: 0.8
+    bond:
+      bond_gap_mm: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.02
+      taper_angle_deg: 0.0
+      taper_radius_scale: 1.0
+  atoms:
+  - name: C_1
+    position: [-0.9274, 0.1152, 0.0]
+  - name: O_2
+    position: [0.2356, 0.1152, 0.0]
+  - name: O_3
+    position: [-2.0904, 0.1152, 0.0]
+  bonds:
+  - atom_pair: [C_1, O_2]
+    bond_type: double
+  - atom_pair: [C_1, O_3]
+    bond_type: double
