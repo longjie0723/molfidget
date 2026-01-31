@@ -62,15 +62,33 @@ class Shape:
         shaft.apply_transform(rotation_matrix)
         self.atom.mesh = trimesh.boolean.union([self.atom.mesh, shaft], check_volume=False)
 
-    def sculpt_trimesh_by_fixed(self):
-        shaft = self.create_fixed_shaft_shape()
+    def sculpt_trimesh_by_shaft(self):
+        """固定軸（Dカット無し）を作成"""
+        shaft = self.create_shaft_shape()
+        shaft.apply_translation([0, 0, self.slice_distance - self.bond_gap])
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
+        shaft.apply_transform(rotation_matrix)
+        self.atom.mesh = trimesh.boolean.union([self.atom.mesh, shaft], check_volume=False)
+
+    def sculpt_trimesh_by_shaft_dcut(self):
+        """固定軸（Dカット有り）を作成"""
+        shaft = self.create_shaft_dcut_shape()
         shaft.apply_translation([0, 0, self.slice_distance - self.bond_gap])
         rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
         shaft.apply_transform(rotation_matrix)
         self.atom.mesh = trimesh.boolean.union([self.atom.mesh, shaft], check_volume=False)
 
     def sculpt_trimesh_by_hole(self):
+        """丸穴（Dカット無し）を作成"""
         hole = self.create_hole_shape()
+        hole.apply_translation([0, 0, self.slice_distance])
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
+        hole.apply_transform(rotation_matrix)
+        self.atom.mesh = trimesh.boolean.difference([self.atom.mesh, hole], check_volume=False)
+
+    def sculpt_trimesh_by_hole_dcut(self):
+        """Dカット穴を作成"""
+        hole = self.create_hole_dcut_shape()
         hole.apply_translation([0, 0, self.slice_distance])
         rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
         hole.apply_transform(rotation_matrix)
@@ -87,6 +105,37 @@ class Shape:
         #self.atom.mesh = trimesh.boolean.union([self.atom.mesh, taper], check_volume=False)
     
     def create_rotate_shaft(self):
+        """回転軸（Dカット無し、ストッパー付き）を作成"""
+        # Create a shaft
+        # d1: Shaft length including the wall thickness and gap without chamfer
+        d1 = self.shaft_length + self.wall_thickness + self.shaft_gap - self.chamfer_length + self.bond_gap / 2
+        cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
+        cylinder1.apply_translation([0, 0, -d1 / 2])
+        # Create the chamfer on the shaft
+        cylinder3 = trimesh.creation.cylinder(
+            radius=self.shaft_radius, height=self.chamfer_length
+        )
+        cylinder3.apply_translation([0, 0, self.chamfer_length / 2])
+        cone1 = trimesh.creation.cone(
+            radius=self.shaft_radius, height=2*self.shaft_radius, sections=32
+        )
+        cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=False)
+        cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
+        # 面取り後の位置に移動
+        cylinder1.apply_translation(
+            [0, 0, self.shaft_length - self.chamfer_length])
+        # Create the stopper
+        cylinder2 = trimesh.creation.cylinder(
+           radius=self.stopper_radius, height=self.stopper_length
+        )
+        cylinder2.apply_translation(
+            [0, 0, -self.stopper_length / 2 - self.wall_thickness - self.shaft_gap]
+        )
+        mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
+        return mesh
+
+    def create_rotate_shaft_dcut(self):
+        """回転軸（Dカット有り、ストッパー付き）を作成"""
         # Create a shaft
         # d1: Shaft length including the wall thickness and gap without chamfer
         d1 = self.shaft_length + self.wall_thickness + self.shaft_gap - self.chamfer_length + self.bond_gap / 2
@@ -109,7 +158,6 @@ class Shape:
         box1.apply_translation([0, 0.3*self.shaft_radius, -d2 / 2 + self.chamfer_length])
         cylinder1 = trimesh.boolean.intersection(
             [cylinder1, box1], check_volume=False)
-        #cylinder1 = trimesh.boolean.union([cylinder1, box1], check_volume=False)
         cylinder1.apply_translation(
             [0, 0, self.shaft_length - self.chamfer_length])
         # Create the stopper
@@ -139,8 +187,8 @@ class Shape:
         mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
         return mesh
 
-    def create_fixed_shaft_shape(self):
-        # Create a fixed shaft shape
+    def create_shaft_shape(self):
+        """固定軸（Dカット無し）を作成"""
         d1 = self.shaft_length + self.bond_gap - self.chamfer_length
         cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
         cylinder1.apply_translation([0, 0, -d1 / 2])
@@ -155,17 +203,29 @@ class Shape:
         cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=False)
         cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
         cylinder1.apply_translation([0, 0, d1])
+        return cylinder1
+
+    def create_shaft_dcut_shape(self):
+        """固定軸（Dカット有り）を作成"""
+        # まずDカット無し軸を作成
+        cylinder1 = self.create_shaft_shape()
         # D-cut the shaft
         box1 = trimesh.creation.box(
             extents=[2 * self.shaft_radius, 2 * self.shaft_radius, self.shaft_length + self.bond_gap])
         box1.apply_translation([0, 0.3*self.shaft_radius, (self.shaft_length + self.bond_gap) / 2])
         cylinder1 = trimesh.boolean.intersection(
             [cylinder1, box1], check_volume=False)
-
         return cylinder1
 
     def create_hole_shape(self):
-        # Create a hole shape for the shaft
+        """丸穴（Dカット無し）を作成"""
+        d1 = self.hole_length
+        cylinder1 = trimesh.creation.cylinder(radius=self.hole_radius, height=d1)
+        cylinder1.apply_translation([0, 0, -d1 / 2])
+        return cylinder1
+
+    def create_hole_dcut_shape(self):
+        """Dカット穴を作成"""
         d1 = self.hole_length
         cylinder1 = trimesh.creation.cylinder(radius=self.hole_radius, height=d1)
         # D-cut the hole
@@ -175,7 +235,6 @@ class Shape:
         cylinder1 = trimesh.boolean.intersection(
            [cylinder1, box1], check_volume=False)
         cylinder1.apply_translation([0, 0, -d1 / 2])
-
         return cylinder1
     
     def create_taper_shape(self):

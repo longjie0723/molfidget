@@ -27,14 +27,14 @@ class Bond:
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
 
         if config.bond_type == "single":
-            config.shape_pair[0].shape_type = "spin"
+            config.shape_pair[0].shape_type = "shaft_spin"
             config.shape_pair[1].shape_type = "hole"
         elif config.bond_type == "double":
-            config.shape_pair[0].shape_type = "fixed"
-            config.shape_pair[1].shape_type = "hole"
+            config.shape_pair[0].shape_type = "shaft_dcut"
+            config.shape_pair[1].shape_type = "hole_dcut"
         elif config.bond_type == "triple":
-            config.shape_pair[0].shape_type = "fixed"
-            config.shape_pair[1].shape_type = "hole"
+            config.shape_pair[0].shape_type = "shaft_dcut"
+            config.shape_pair[1].shape_type = "hole_dcut"
 
         self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default), Shape(self.atom2_name, config.shape_pair[1], default)]
 
@@ -65,12 +65,18 @@ class Bond:
         for shape in self.shape_pair:
             if shape.taper_radius_scale is not None and shape.taper_angle_deg is not None:
                 shape.sculpt_trimesh_by_taper()
-            if shape.shape_type == "spin":
+            if shape.shape_type == "shaft_spin":
                 shape.sculpt_trimesh_by_spin()
-            elif shape.shape_type == "fixed":
-                shape.sculpt_trimesh_by_fixed()
+            elif shape.shape_type == "shaft":
+                shape.sculpt_trimesh_by_shaft()
+            elif shape.shape_type == "shaft_dcut":
+                shape.sculpt_trimesh_by_shaft_dcut()
             elif shape.shape_type == "hole":
                 shape.sculpt_trimesh_by_hole()
+            elif shape.shape_type == "hole_dcut":
+                shape.sculpt_trimesh_by_hole_dcut()
+            elif shape.shape_type == "none":
+                pass  # 形状なし
 
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):
         # mesh = self.slice_by_bond_plane(mesh)

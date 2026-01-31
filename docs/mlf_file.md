@@ -48,7 +48,7 @@ single, double, tripleなどの化学結合を表す
 デフォルトの形状が決まっている
 
 singleの場合、最初に来たatom側にshaft_spin、後に来たatom側にholeを作成
-double, tripleの場合、前に来たatom側にshaft、後に来たatom側にholeを作成
+double, tripleの場合、前に来たatom側にshaft_dcut、後に来たatom側にhole_dcutを作成
 
 これらのデフォルトの形状はshape_typeなどで上書きされる
 
@@ -82,10 +82,11 @@ shape_d_cut: [False, False]: Dカットの抑制
 ### shape_types
 形状のタイプ
 
-- shaft_fixed (円筒の固定軸)
-- shaft_spin（円筒のスピン軸）
-- shaft_ball（ボールジョイント軸）
-- hole（円筒の穴）
+- shaft_spin（回転軸、Dカット無し）
+- shaft（固定軸、Dカット無し）
+- shaft_dcut（固定軸、Dカット有り）
+- hole（丸穴）
+- hole_dcut（Dカット穴）
 - none（形状なし）
 
-軸の組み立て方向を決めるためにDカットを入れるといいと思う。その場合、Dカットの有無の指定はよっぽど必要ないので、オプションでいいかも。
+軸の組み立て方向を指定したい場合は、shaft_dcutとhole_dcutを使用する。
