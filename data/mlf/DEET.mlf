@@ -1,0 +1,252 @@
+molecule:
+  name: DEET
+  scale: 10.0
+  default:
+    atom:
+      scale: 0.8
+      color: [200, 200, 200, 255]
+    bond:
+      bond_gap_mm: 0.0
+      bond_gap: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.03
+      taper_angle_deg: 0.0
+      taper_radius_scale: 1.0
+      magnetic_hole_radius_mm: 3.525
+      magnetic_hole_length_mm: 2.0
+  atoms:
+  - name: C_1
+    position: [-1.927, -1.8095, 1.3452]
+  - name: C_2
+    position: [-0.5277, -1.7384, 1.3165]
+  - name: C_3
+    position: [0.1103, -0.8257, 0.4657]
+  - name: C_4
+    position: [-0.6511, 0.0159, -0.3565]
+  - name: C_5
+    position: [-2.0504, -0.0552, -0.3278]
+  - name: C_6
+    position: [-2.6883, -0.9679, 0.523]
+  - name: H_7
+    position: [-2.4141, -2.5064, 1.9948]
+  - name: H_8
+    position: [0.0536, -2.381, 1.9443]
+  - name: H_9
+    position: [-0.164, 0.7128, -1.0061]
+  - name: H_10
+    position: [-3.7567, -1.0222, 0.5449]
+  - name: C_11
+    position: [-2.887, 0.8696, -1.2313]
+  - name: H_12
+    position: [-3.8039, 0.3821, -1.4893]
+  - name: H_13
+    position: [-3.1012, 1.7792, -0.71]
+  - name: H_14
+    position: [-2.3374, 1.0903, -2.1224]
+  - name: C_15
+    position: [1.648, -0.7475, 0.4342]
+  - name: O_16
+    position: [2.2208, 0.072, -0.3298]
+  - name: N_17
+    position: [2.4466, -1.6303, 1.2966]
+  - name: C_18
+    position: [3.3307, -2.4592, 0.4647]
+  - name: C_19
+    position: [4.1673, -3.3841, 1.3682]
+  - name: H_20
+    position: [3.9833, -1.8277, -0.1012]
+  - name: H_21
+    position: [2.7403, -3.0515, -0.2028]
+  - name: H_22
+    position: [4.8109, -3.9874, 0.7626]
+  - name: H_23
+    position: [4.7577, -2.7918, 2.0357]
+  - name: H_24
+    position: [3.5147, -4.0156, 1.934]
+  - name: C_25
+    position: [3.2577, -0.8166, 2.2137]
+  - name: C_26
+    position: [2.3315, 0.0517, 3.0852]
+  - name: H_27
+    position: [3.9103, -0.1851, 1.6478]
+  - name: H_28
+    position: [3.839, -1.4592, 2.8414]
+  - name: H_29
+    position: [2.9219, 0.644, 3.7527]
+  - name: H_30
+    position: [1.7502, 0.6943, 2.4575]
+  - name: H_31
+    position: [1.6788, -0.5798, 3.6511]
+  bonds:
+  - atom_pair: [C_1, C_2]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: '1.5'
+  - atom_pair: [C_1, C_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: '1.5'
+  - atom_pair: [C_1, H_7]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_2, C_3]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: '1.5'
+  - atom_pair: [C_2, H_8]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_3, C_4]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: '1.5'
+  - atom_pair: [C_3, C_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.3
+  - atom_pair: [C_4, C_5]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: '1.5'
+  - atom_pair: [C_4, H_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_5, C_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: '1.5'
+  - atom_pair: [C_5, C_11]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.3
+  - atom_pair: [C_6, H_10]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_11, H_12]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_11, H_13]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_11, H_14]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_15, O_16]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_15, N_17]
+    shape_pair:
+    - taper_radius_scale: 0.85
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [N_17, C_18]
+    shape_pair:
+    - taper_radius_scale: 0.85
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [N_17, C_25]
+    shape_pair:
+    - taper_radius_scale: 0.85
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.8
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_18, C_19]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.3
+  - atom_pair: [C_18, H_20]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_18, H_21]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_19, H_22]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_19, H_23]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_19, H_24]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_25, C_26]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.3
+  - atom_pair: [C_25, H_27]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_25, H_28]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_26, H_29]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_26, H_30]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_26, H_31]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
