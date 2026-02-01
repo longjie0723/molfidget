@@ -1,3 +1,4 @@
+from logging import config
 import numpy as np
 import trimesh
 
@@ -25,6 +26,8 @@ class Bond:
         self.stopper_length = config.stopper_length if config.stopper_length is not None else default.stopper_length
         self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
+        self.magnetic_hole_radius_mm = config.magnetic_hole_radius_mm if config.magnetic_hole_radius_mm is not None else default.magnetic_hole_radius_mm
+        self.magnetic_hole_length_mm = config.magnetic_hole_length_mm if config.magnetic_hole_length_mm is not None else default.magnetic_hole_length_mm
 
         if config.bond_type == "single":
             config.shape_pair[0].shape_type = "shaft_spin"
@@ -35,6 +38,16 @@ class Bond:
         elif config.bond_type == "triple":
             config.shape_pair[0].shape_type = "shaft_dcut"
             config.shape_pair[1].shape_type = "hole_dcut"
+        elif config.bond_type == "1.5":
+            config.shape_pair[0].shape_type = "shaft_dcut"
+            config.shape_pair[1].shape_type = "hole_dcut"
+        elif config.bond_type == "magnetic":
+            config.shape_pair[0].shape_type = "hole"
+            config.shape_pair[0].hole_radius_mm = self.magnetic_hole_radius_mm
+            config.shape_pair[0].hole_length_mm = self.magnetic_hole_length_mm
+            config.shape_pair[1].shape_type = "hole"
+            config.shape_pair[1].hole_radius_mm = self.magnetic_hole_radius_mm
+            config.shape_pair[1].hole_length_mm = self.magnetic_hole_length_mm
 
         self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default, scale), Shape(self.atom2_name, config.shape_pair[1], default, scale)]
 
