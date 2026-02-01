@@ -4,7 +4,7 @@ from molfidget.config import ShapeConfig, DefaultBondConfig
 import numpy as np
 
 class Shape:
-    def __init__(self, atom_name: str, config: ShapeConfig, default: DefaultBondConfig):
+    def __init__(self, atom_name: str, config: ShapeConfig, default: DefaultBondConfig, scale: float):
         self.atom_name = atom_name
         self.atom = None
         self.slice_distance = None
@@ -13,15 +13,44 @@ class Shape:
 
         self.shape_type = config.shape_type if config.shape_type is not None else default.shape_type
         self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond_gap_mm
-        self.bond_gap = self.bond_gap_mm / 10.0  # Convert mm to angstrom
+        self.bond_gap = self.bond_gap_mm / scale  # Convert mm to angstrom
         self.chamfer_length = config.chamfer_length if config.chamfer_length is not None else default.chamfer_length
-        self.hole_length = config.hole_length if config.hole_length is not None else default.hole_length
-        self.hole_radius = config.hole_radius if config.hole_radius is not None else default.hole_radius
-        self.shaft_radius = config.shaft_radius if config.shaft_radius is not None else default.shaft_radius
+
+        # shaft_length: mm単位が指定されていればそちらを優先
+        if config.shaft_length_mm is not None:
+            self.shaft_length = config.shaft_length_mm / scale  # mm to Angstrom
+        elif default.shaft_length_mm is not None:
+            self.shaft_length = default.shaft_length_mm / scale
+        else:
+            self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
+
+        # shaft_radius: mm単位が指定されていればそちらを優先
+        if config.shaft_radius_mm is not None:
+            self.shaft_radius = config.shaft_radius_mm / scale  # mm to Angstrom
+        elif default.shaft_radius_mm is not None:
+            self.shaft_radius = default.shaft_radius_mm / scale
+        else:
+            self.shaft_radius = config.shaft_radius if config.shaft_radius is not None else default.shaft_radius
+
+        # hole_length: mm単位が指定されていればそちらを優先
+        if config.hole_length_mm is not None:
+            self.hole_length = config.hole_length_mm / scale  # mm to Angstrom
+        elif default.hole_length_mm is not None:
+            self.hole_length = default.hole_length_mm / scale
+        else:
+            self.hole_length = config.hole_length if config.hole_length is not None else default.hole_length
+
+        # hole_radius: mm単位が指定されていればそちらを優先
+        if config.hole_radius_mm is not None:
+            self.hole_radius = config.hole_radius_mm / scale  # mm to Angstrom
+        elif default.hole_radius_mm is not None:
+            self.hole_radius = default.hole_radius_mm / scale
+        else:
+            self.hole_radius = config.hole_radius if config.hole_radius is not None else default.hole_radius
+
         self.shaft_gap = config.shaft_gap if config.shaft_gap is not None else default.shaft_gap
         self.stopper_radius = config.stopper_radius if config.stopper_radius is not None else default.stopper_radius
         self.stopper_length = config.stopper_length if config.stopper_length is not None else default.stopper_length
-        self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
         self.taper_radius_scale = config.taper_radius_scale if config.taper_radius_scale is not None else default.taper_radius_scale
         self.taper_angle_deg = config.taper_angle_deg if config.taper_angle_deg is not None else default.taper_angle_deg
@@ -62,15 +91,33 @@ class Shape:
         shaft.apply_transform(rotation_matrix)
         self.atom.mesh = trimesh.boolean.union([self.atom.mesh, shaft], check_volume=False)
 
-    def sculpt_trimesh_by_fixed(self):
-        shaft = self.create_fixed_shaft_shape()
+    def sculpt_trimesh_by_shaft(self):
+        """固定軸（Dカット無し）を作成"""
+        shaft = self.create_shaft_shape()
+        shaft.apply_translation([0, 0, self.slice_distance - self.bond_gap])
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
+        shaft.apply_transform(rotation_matrix)
+        self.atom.mesh = trimesh.boolean.union([self.atom.mesh, shaft], check_volume=False)
+
+    def sculpt_trimesh_by_shaft_dcut(self):
+        """固定軸（Dカット有り）を作成"""
+        shaft = self.create_shaft_dcut_shape()
         shaft.apply_translation([0, 0, self.slice_distance - self.bond_gap])
         rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
         shaft.apply_transform(rotation_matrix)
         self.atom.mesh = trimesh.boolean.union([self.atom.mesh, shaft], check_volume=False)
 
     def sculpt_trimesh_by_hole(self):
+        """丸穴（Dカット無し）を作成"""
         hole = self.create_hole_shape()
+        hole.apply_translation([0, 0, self.slice_distance])
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
+        hole.apply_transform(rotation_matrix)
+        self.atom.mesh = trimesh.boolean.difference([self.atom.mesh, hole], check_volume=False)
+
+    def sculpt_trimesh_by_hole_dcut(self):
+        """Dカット穴を作成"""
+        hole = self.create_hole_dcut_shape()
         hole.apply_translation([0, 0, self.slice_distance])
         rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
         hole.apply_transform(rotation_matrix)
@@ -87,6 +134,37 @@ class Shape:
         #self.atom.mesh = trimesh.boolean.union([self.atom.mesh, taper], check_volume=False)
     
     def create_rotate_shaft(self):
+        """回転軸（Dカット無し、ストッパー付き）を作成"""
+        # Create a shaft
+        # d1: Shaft length including the wall thickness and gap without chamfer
+        d1 = self.shaft_length + self.wall_thickness + self.shaft_gap - self.chamfer_length + self.bond_gap / 2
+        cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
+        cylinder1.apply_translation([0, 0, -d1 / 2])
+        # Create the chamfer on the shaft
+        cylinder3 = trimesh.creation.cylinder(
+            radius=self.shaft_radius, height=self.chamfer_length
+        )
+        cylinder3.apply_translation([0, 0, self.chamfer_length / 2])
+        cone1 = trimesh.creation.cone(
+            radius=self.shaft_radius, height=2*self.shaft_radius, sections=32
+        )
+        cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=False)
+        cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
+        # 面取り後の位置に移動
+        cylinder1.apply_translation(
+            [0, 0, self.shaft_length - self.chamfer_length])
+        # Create the stopper
+        cylinder2 = trimesh.creation.cylinder(
+           radius=self.stopper_radius, height=self.stopper_length
+        )
+        cylinder2.apply_translation(
+            [0, 0, -self.stopper_length / 2 - self.wall_thickness - self.shaft_gap]
+        )
+        mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
+        return mesh
+
+    def create_rotate_shaft_dcut(self):
+        """回転軸（Dカット有り、ストッパー付き）を作成"""
         # Create a shaft
         # d1: Shaft length including the wall thickness and gap without chamfer
         d1 = self.shaft_length + self.wall_thickness + self.shaft_gap - self.chamfer_length + self.bond_gap / 2
@@ -109,7 +187,6 @@ class Shape:
         box1.apply_translation([0, 0.3*self.shaft_radius, -d2 / 2 + self.chamfer_length])
         cylinder1 = trimesh.boolean.intersection(
             [cylinder1, box1], check_volume=False)
-        #cylinder1 = trimesh.boolean.union([cylinder1, box1], check_volume=False)
         cylinder1.apply_translation(
             [0, 0, self.shaft_length - self.chamfer_length])
         # Create the stopper
@@ -139,8 +216,8 @@ class Shape:
         mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
         return mesh
 
-    def create_fixed_shaft_shape(self):
-        # Create a fixed shaft shape
+    def create_shaft_shape(self):
+        """固定軸（Dカット無し）を作成"""
         d1 = self.shaft_length + self.bond_gap - self.chamfer_length
         cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
         cylinder1.apply_translation([0, 0, -d1 / 2])
@@ -155,17 +232,29 @@ class Shape:
         cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=False)
         cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
         cylinder1.apply_translation([0, 0, d1])
+        return cylinder1
+
+    def create_shaft_dcut_shape(self):
+        """固定軸（Dカット有り）を作成"""
+        # まずDカット無し軸を作成
+        cylinder1 = self.create_shaft_shape()
         # D-cut the shaft
         box1 = trimesh.creation.box(
             extents=[2 * self.shaft_radius, 2 * self.shaft_radius, self.shaft_length + self.bond_gap])
         box1.apply_translation([0, 0.3*self.shaft_radius, (self.shaft_length + self.bond_gap) / 2])
         cylinder1 = trimesh.boolean.intersection(
             [cylinder1, box1], check_volume=False)
-
         return cylinder1
 
     def create_hole_shape(self):
-        # Create a hole shape for the shaft
+        """丸穴（Dカット無し）を作成"""
+        d1 = self.hole_length
+        cylinder1 = trimesh.creation.cylinder(radius=self.hole_radius, height=d1)
+        cylinder1.apply_translation([0, 0, -d1 / 2])
+        return cylinder1
+
+    def create_hole_dcut_shape(self):
+        """Dカット穴を作成"""
         d1 = self.hole_length
         cylinder1 = trimesh.creation.cylinder(radius=self.hole_radius, height=d1)
         # D-cut the hole
@@ -175,7 +264,6 @@ class Shape:
         cylinder1 = trimesh.boolean.intersection(
            [cylinder1, box1], check_volume=False)
         cylinder1.apply_translation([0, 0, -d1 / 2])
-
         return cylinder1
     
     def create_taper_shape(self):

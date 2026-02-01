@@ -78,10 +78,11 @@ STL/3MF出力
 #### [bond.py](molfidget/bond.py)
 - `Bond`クラス: 原子間の結合と機械的ジョイントを表現
 - ジョイントタイプ:
-  - `spin`: 回転軸（単結合用、ストッパー付き）
-  - `fixed`: 固定軸（二重・三重結合用）
-  - `shaft_ball`: ボールジョイント
-  - `hole`: 軸受け穴
+  - `shaft_spin`: 回転軸（単結合用、Dカット無し、ストッパー付き）
+  - `shaft`: 固定軸（Dカット無し）
+  - `shaft_dcut`: 固定軸（Dカット有り、二重・三重結合のデフォルト）
+  - `hole`: 丸穴
+  - `hole_dcut`: Dカット穴（二重・三重結合のデフォルト）
   - `none`: 形状なし
 - `sculpt_atoms2()`: 原子形状にジョイント形状を切り出す
 
@@ -134,10 +135,11 @@ bonds:
 ```
 
 ### 形状タイプ
-- `shaft_fixed`: 固定軸
-- `shaft_spin`: 回転軸（ストッパー付き）
-- `shaft_ball`: ボールジョイント
-- `hole`: 軸穴
+- `shaft_spin`: 回転軸（Dカット無し、ストッパー付き）
+- `shaft`: 固定軸（Dカット無し）
+- `shaft_dcut`: 固定軸（Dカット有り）
+- `hole`: 丸穴
+- `hole_dcut`: Dカット穴
 - `none`: 形状なし
 
 ## 重要パラメータ
@@ -156,11 +158,17 @@ bonds:
 - `bond_gap_mm`: 結合平面の隙間 [mm]
 - `shaft_radius`: 軸半径 [Angstrom]
 - `shaft_length`: 軸長 [Angstrom]
+- `shaft_radius_mm`: 軸半径 [mm] ※指定時はshaft_radiusより優先
+- `shaft_length_mm`: 軸長 [mm] ※指定時はshaft_lengthより優先
 - `shaft_chamfer`: 面取り長 [Angstrom]
 - `shaft_spin_stopper_radius`: ストッパー半径 [Angstrom]
 - `stopper_length`: ストッパー長 [Angstrom]
 - `hole_radius`: 穴半径 [Angstrom]
-- `hole_depth`: 穴深さ [Angstrom]
+- `hole_length`: 穴深さ [Angstrom]
+- `hole_radius_mm`: 穴半径 [mm] ※指定時はhole_radiusより優先
+- `hole_length_mm`: 穴深さ [mm] ※指定時はhole_lengthより優先
+
+**mm単位のパラメータが指定されている場合、Å単位より優先されます。**
 
 詳細は[docs/images/modeling-2.png](docs/images/modeling-2.png)を参照。
 
@@ -183,8 +191,8 @@ output/
 
 ### デフォルト動作
 - 単結合（single）: 最初の原子に`shaft_spin`、次の原子に`hole`
-- 二重・三重結合（double/triple）: 最初の原子に`shaft_fixed`、次の原子に`hole`
-- これらはMLFファイルの`shape_types`で上書き可能
+- 二重・三重結合（double/triple）: 最初の原子に`shaft_dcut`、次の原子に`hole_dcut`
+- これらはMLFファイルの`shape_pair`内の`shape_type`で上書き可能
 
 ### trimeshとmanifold3d
 - `trimesh`: 3Dメッシュ操作ライブラリ（v4.6.9）

@@ -48,7 +48,7 @@ single, double, tripleなどの化学結合を表す
 デフォルトの形状が決まっている
 
 singleの場合、最初に来たatom側にshaft_spin、後に来たatom側にholeを作成
-double, tripleの場合、前に来たatom側にshaft、後に来たatom側にholeを作成
+double, tripleの場合、前に来たatom側にshaft_dcut、後に来たatom側にhole_dcutを作成
 
 これらのデフォルトの形状はshape_typeなどで上書きされる
 
@@ -59,20 +59,25 @@ atom_pairに個別に形状のパラメータを設定する場合のオプシ�
 - 形状に関係ないパラメータは無視される
 
 おしりにmmとあるのはmm単位。何もないのはÅ単位。
+**mm単位のパラメータが指定されている場合、Å単位より優先されます。**
 
 bond_gap_mm: # 結合平面の隙間 [mm]
 
 wall_thickness: 0.1 # 壁の厚さ [Angstrom] どこ？
-shaft_radius: 0.3   # シャフトの半径
-shaft_length: 0.3   # シャフトの長さ
+shaft_radius: 0.3   # シャフトの半径 [Angstrom]
+shaft_length: 0.3   # シャフトの長さ [Angstrom]
+shaft_radius_mm: 3.0   # シャフトの半径 [mm] ※指定時はshaft_radiusより優先
+shaft_length_mm: 3.0   # シャフトの長さ [mm] ※指定時はshaft_lengthより優先
 shaft_chamfer: 0.1 # 軸の面取り
 shaft_spin_gap_mm: 0.3   # スピン軸の隙間 [mm]
 shaft_key_thickness: キー付き軸のキーの厚み
 
 shaft_spin_stopper_radius: 0.4 # ストッパーの半径
 stopper_length: 0.2 # ストッパーの長さ
-hole_radius: 軸穴の半径
-hole_depth: 軸穴の深さ
+hole_radius: 軸穴の半径 [Angstrom]
+hole_length: 軸穴の深さ [Angstrom]
+hole_radius_mm: 3.0 # 軸穴の半径 [mm] ※指定時はhole_radiusより優先
+hole_length_mm: 3.0 # 軸穴の深さ [mm] ※指定時はhole_lengthより優先
 
 shaft_ball_stopper_radius: ボールの半径
 shaft_ball_gap_mm: ボールと空間の隙間 [mm]
@@ -82,10 +87,11 @@ shape_d_cut: [False, False]: Dカットの抑制
 ### shape_types
 形状のタイプ
 
-- shaft_fixed (円筒の固定軸)
-- shaft_spin（円筒のスピン軸）
-- shaft_ball（ボールジョイント軸）
-- hole（円筒の穴）
+- shaft_spin（回転軸、Dカット無し）
+- shaft（固定軸、Dカット無し）
+- shaft_dcut（固定軸、Dカット有り）
+- hole（丸穴）
+- hole_dcut（Dカット穴）
 - none（形状なし）
 
-軸の組み立て方向を決めるためにDカットを入れるといいと思う。その場合、Dカットの有無の指定はよっぽど必要ないので、オプションでいいかも。
+軸の組み立て方向を指定したい場合は、shaft_dcutとhole_dcutを使用する。

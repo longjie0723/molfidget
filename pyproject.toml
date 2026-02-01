@@ -15,6 +15,9 @@ ruamel-yaml = "^0.18.16"
 from-dict = "^0.5.0"
 dacite = "^1.9.2"
 argcomplete = "^3.1.0"
+networkx = "3.5"
+lxml = "^6.0.2"
+lib3mf = "^2.4.1.post1"
 
 [tool.poetry.dev-dependencies]
 
