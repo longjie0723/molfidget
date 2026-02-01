@@ -16,6 +16,134 @@ try:
 except ImportError:
     ARGCOMPLETE_AVAILABLE = False
 
+import numpy as np
+
+def _normalize_rgba_u8(rgba):
+    rgba = np.asarray(rgba).reshape(-1)
+    if rgba.size == 3:
+        rgba = np.concatenate([rgba, [255]])
+    rgba = rgba[:4]
+    if rgba.dtype != np.uint8:
+        if np.issubdtype(rgba.dtype, np.floating) and rgba.max() <= 1.0:
+            rgba = (rgba * 255.0).round()
+        rgba = rgba.astype(np.uint8)
+    return rgba
+
+def export_scene_as_colored_3mf(scene, out_path, libpath=None, debug=False):
+    # import
+    try:
+        import lib3mf as Lib3MF
+        wrapper = Lib3MF.Wrapper()
+    except Exception:
+        import Lib3MF
+        if libpath is None:
+            raise RuntimeError("Lib3MF SDK版を使うなら libpath（lib3mf共有ライブラリの場所）が必要です")
+        wrapper = Lib3MF.Wrapper(libpath)
+
+    def rgba_u8_to_lib3mf_color(rgba_u8):
+        c = Lib3MF.Color()
+        c.Red   = int(rgba_u8[0])
+        c.Green = int(rgba_u8[1])
+        c.Blue  = int(rgba_u8[2])
+        c.Alpha = int(rgba_u8[3])
+        return c
+
+    def make_triangle_props(resource_id, property_id):
+        tp = Lib3MF.TriangleProperties()
+        try:
+            for k in range(3):
+                tp.ResourceID[k] = int(resource_id)
+                tp.PropertyID[k] = int(property_id)
+        except Exception:
+            tp.ResourceID1 = int(resource_id); tp.PropertyID1 = int(property_id)
+            tp.ResourceID2 = int(resource_id); tp.PropertyID2 = int(property_id)
+            tp.ResourceID3 = int(resource_id); tp.PropertyID3 = int(property_id)
+        return tp
+
+    model = wrapper.CreateModel()
+
+    # mm単位
+    try:
+        model.SetUnit(Lib3MF.ModelUnit.Millimeter)
+    except Exception:
+        pass
+
+    # ColorGroup（色定義）
+    color_group = model.AddColorGroup()
+    color_group_uid = color_group.GetUniqueResourceID()
+
+    # RGBA -> ColorGroup内のPropertyID
+    color2pid = {}
+
+    if debug:
+        print("ColorGroup UID:", color_group_uid)
+
+    for geom_name, tri in scene.geometry.items():
+        tri2 = tri.copy()
+
+        # Scene graph transform を焼く（サイズ/配置対策）
+        try:
+            mat, _ = scene.graph.get(geom_name)
+            tri2.apply_transform(mat)
+        except Exception as e:
+            if debug:
+                print("scene.graph.get failed:", geom_name, e)
+
+        vertices = np.asarray(tri2.vertices, dtype=float)
+        faces    = np.asarray(tri2.faces, dtype=np.int64)
+
+        mesh_obj = model.AddMeshObject()
+
+        # vertices
+        for v in vertices:
+            p = Lib3MF.Position()
+            p.Coordinates[0] = float(v[0])
+            p.Coordinates[1] = float(v[1])
+            p.Coordinates[2] = float(v[2])
+            mesh_obj.AddVertex(p)
+
+        # triangles
+        for f in faces:
+            t = Lib3MF.Triangle()
+            t.Indices[0] = int(f[0])
+            t.Indices[1] = int(f[1])
+            t.Indices[2] = int(f[2])
+            mesh_obj.AddTriangle(t)
+
+        # 色抽出（単色）
+        vc = getattr(tri.visual, "vertex_colors", None)
+        fc = getattr(tri.visual, "face_colors", None)
+        if fc is not None and len(fc) > 0:
+            rgba = _normalize_rgba_u8(fc[0])
+        elif vc is not None and len(vc) > 0:
+            rgba = _normalize_rgba_u8(vc[0])
+        else:
+            rgba = np.array([200, 200, 200, 255], dtype=np.uint8)
+
+        key = tuple(int(x) for x in rgba[:4])
+        if key not in color2pid:
+            pid = color_group.AddColor(rgba_u8_to_lib3mf_color(rgba))
+            color2pid[key] = pid
+
+        pid_main = color2pid[key]
+
+        # 1) triangle properties（試す：writerが出してくれればラッキー）
+        tp_main = make_triangle_props(color_group_uid, pid_main)
+        try:
+            mesh_obj.SetAllTriangleProperties(tp_main)
+        except TypeError:
+            n = mesh_obj.GetTriangleCount()
+            for i in range(n):
+                mesh_obj.SetTriangleProperties(i, tp_main)
+
+        # 2) ★重要：object-level も必ず付ける（pid/pindex を確実に出す）
+        # Bambuが triangle-level を読まない/出力されない場合の保険
+        mesh_obj.SetObjectLevelProperty(color_group_uid, pid_main)
+
+        model.AddBuildItem(mesh_obj, Lib3MF.Transform())
+
+    writer = model.QueryWriter("3mf")
+    writer.WriteToFile(out_path)
 
 def setup_argparse():
     parser = argparse.ArgumentParser(description="Molecule visualization and manipulation")
@@ -77,7 +205,9 @@ def exec_generate(args):
     os.makedirs(output_dir, exist_ok=True)
 
     # export the entire molecule as 3MF
-    scene.export(os.path.join(output_dir, f"{molecule.name}.3mf"))
+    # scene.export(os.path.join(output_dir, f"{molecule.name}.3mf"))
+    export_scene_as_colored_3mf(scene, os.path.join(output_dir, f"{molecule.name}.3mf"), libpath=None, debug=False)
+
     # Save STL files for each component
     molecule.save_stl_files(scale=molecule_config.scale, output_dir=output_dir)
     # Merge atoms into groups and save group STL files
