@@ -38,9 +38,11 @@ class Bond:
         elif config.bond_type == "triple":
             config.shape_pair[0].shape_type = "shaft_dcut"
             config.shape_pair[1].shape_type = "hole_dcut"
-        elif config.bond_type == "1.5":
-            config.shape_pair[0].shape_type = "shaft_dcut"
-            config.shape_pair[1].shape_type = "hole_dcut"
+        elif config.bond_type == "aromatic":
+            config.shape_pair[0].shape_type = "shaft"
+            config.shape_pair[1].shape_type = "hole"
+            config.shape_pair[0].shaft_radius = 0.8
+            config.shape_pair[1].hole_radius = 0.8
         elif config.bond_type == "magnetic":
             config.shape_pair[0].shape_type = "hole"
             config.shape_pair[0].hole_radius_mm = self.magnetic_hole_radius_mm

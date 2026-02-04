@@ -1,0 +1,585 @@
+molecule:
+  name: self-threading
+  scale: 8.0
+  default:
+    atom:
+      scale: 0.8
+      color: [200, 200, 200, 255]
+    bond:
+      bond_gap_mm: 0.1
+      bond_gap: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.03
+      taper_angle_deg: 0.0
+      taper_radius_scale: 1.0
+      magnetic_hole_radius_mm: 3.525
+      magnetic_hole_length_mm: 2.0
+  atoms:
+  - name: S_1
+    position: [1.5904, 4.4916, 5.3107]
+  - name: S_2
+    position: [4.2145, 1.8316, 2.9654]
+  - name: O_3
+    position: [3.5316, 6.3295, 3.2607]
+  - name: O_4
+    position: [2.6244, 0.1331, 5.3817]
+  - name: O_5
+    position: [0.0291, 1.6202, 1.7113]
+  - name: O_6
+    position: [5.4806, 4.0455, 6.7963]
+  - name: C_7
+    position: [1.4081, 0.8914, 3.5363]
+  - name: C_8
+    position: [1.2316, 2.1917, 4.2347]
+  - name: C_9
+    position: [2.2263, 3.1269, 4.4355]
+  - name: C_10
+    position: [-0.0207, 2.5954, 4.7684]
+  - name: H_11
+    position: [-0.7939, 2.0813, 4.7056]
+  - name: C_12
+    position: [4.6219, 4.0191, 4.2325]
+  - name: C_13
+    position: [0.8377, 0.6499, 2.292]
+  - name: C_14
+    position: [2.1379, -0.1531, 4.1428]
+  - name: C_15
+    position: [3.6141, 3.1155, 3.9812]
+  - name: C_16
+    position: [5.852, 3.6574, 3.6275]
+  - name: H_17
+    position: [6.6298, 4.1595, 3.7121]
+  - name: C_18
+    position: [3.9534, 6.4248, 4.5489]
+  - name: C_19
+    position: [4.9598, 5.2353, 6.3842]
+  - name: C_20
+    position: [2.3202, -1.3596, 3.4909]
+  - name: H_21
+    position: [2.8115, -2.0398, 3.8925]
+  - name: C_22
+    position: [5.7848, 2.5098, 2.9141]
+  - name: H_23
+    position: [6.5019, 2.1363, 2.4534]
+  - name: C_24
+    position: [4.4982, 5.2438, 5.067]
+  - name: C_25
+    position: [1.2485, 5.705, 1.6548]
+  - name: H_26
+    position: [1.7557, 5.0256, 2.1274]
+  - name: H_27
+    position: [0.5212, 5.9805, 2.2349]
+  - name: C_28
+    position: [0.6563, 5.0792, 0.4075]
+  - name: H_29
+    position: [1.3704, 4.8589, -0.2115]
+  - name: H_30
+    position: [0.0721, 5.7205, -0.026]
+  - name: C_31
+    position: [0.0248, 3.8054, 5.3787]
+  - name: H_32
+    position: [-0.7064, 4.213, 5.7841]
+  - name: C_33
+    position: [4.0019, -0.2474, 7.2858]
+  - name: H_34
+    position: [4.52, -0.9239, 7.7485]
+  - name: H_35
+    position: [3.2523, -0.0119, 7.8543]
+  - name: C_36
+    position: [2.1541, 6.9018, 1.4198]
+  - name: H_37
+    position: [2.8636, 6.6509, 0.808]
+  - name: H_38
+    position: [1.6414, 7.6139, 1.0056]
+  - name: C_39
+    position: [4.8651, 6.3753, 7.1809]
+  - name: H_40
+    position: [5.1701, 6.3691, 8.0589]
+  - name: C_41
+    position: [0.7713, 2.6481, 1.0316]
+  - name: H_42
+    position: [1.1358, 2.2961, 0.2046]
+  - name: H_43
+    position: [1.5097, 2.9412, 1.5882]
+  - name: C_44
+    position: [5.4811, 1.4615, 8.4096]
+  - name: H_45
+    position: [5.8795, 0.6958, 8.8512]
+  - name: H_46
+    position: [4.7611, 1.7789, 8.9761]
+  - name: C_47
+    position: [1.0215, -0.5567, 1.6307]
+  - name: H_48
+    position: [0.6484, -0.6966, 0.7906]
+  - name: C_49
+    position: [2.7597, 7.4082, 2.7022]
+  - name: H_50
+    position: [3.3288, 8.173, 2.5262]
+  - name: H_51
+    position: [2.0626, 7.6781, 3.3203]
+  - name: C_52
+    position: [3.8521, 7.5661, 5.3347]
+  - name: H_53
+    position: [3.4845, 8.3464, 4.9882]
+  - name: C_54
+    position: [4.8738, 0.9862, 7.0971]
+  - name: H_55
+    position: [4.3388, 1.7005, 6.7151]
+  - name: H_56
+    position: [5.5865, 0.7811, 6.4724]
+  - name: C_57
+    position: [6.5341, 2.5592, 8.325]
+  - name: H_58
+    position: [7.0514, 2.5483, 9.146]
+  - name: H_59
+    position: [7.1388, 2.3444, 7.5977]
+  - name: C_60
+    position: [-0.1368, 3.8151, 0.7327]
+  - name: H_61
+    position: [-0.7064, 3.9833, 1.4998]
+  - name: H_62
+    position: [-0.7072, 3.5919, -0.0191]
+  - name: C_63
+    position: [3.4688, -0.8406, 6.0102]
+  - name: H_64
+    position: [4.2022, -1.0754, 5.42]
+  - name: H_65
+    position: [2.962, -1.6443, 6.2037]
+  - name: C_66
+    position: [6.0161, 3.9543, 8.1133]
+  - name: H_67
+    position: [5.3268, 4.1536, 8.7663]
+  - name: H_68
+    position: [6.7363, 4.5952, 8.2236]
+  - name: C_69
+    position: [4.3047, 7.5228, 6.6316]
+  - name: H_70
+    position: [4.2334, 8.2851, 7.159]
+  - name: C_71
+    position: [1.766, -1.5459, 2.2398]
+  - name: H_72
+    position: [1.8971, -2.3539, 1.7997]
+  bonds:
+  - atom_pair: [S_1, C_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [S_1, C_31]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [S_2, C_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [S_2, C_22]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [O_3, C_18]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_3, C_49]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_4, C_14]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_4, C_63]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_5, C_13]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_5, C_41]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_6, C_19]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_6, C_66]
+    shape_pair:
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.80
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_7, C_8]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_7, C_13]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_7, C_14]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_8, C_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_8, C_10]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_9, C_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_10, H_11]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_10, C_31]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_12, C_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_12, C_16]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_12, C_24]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_13, C_47]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_14, C_20]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_16, H_17]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_16, C_22]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_18, C_24]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_18, C_52]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_19, C_24]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_19, C_39]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_20, H_21]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_20, C_71]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_22, H_23]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_25, H_26]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_25, H_27]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_25, C_28]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_25, C_36]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_28, H_29]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_28, H_30]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_28, C_60]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_31, H_32]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_33, H_34]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_33, H_35]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_33, C_54]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_33, C_63]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_36, H_37]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_36, H_38]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_36, C_49]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_39, H_40]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_39, C_69]
+    shape_pair:
+    - {}
+    - {}
+    bond_gap_mm: 0.1
+    bond_type: aromatic
+  - atom_pair: [C_41, H_42]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_41, H_43]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_41, C_60]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_44, H_45]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_44, H_46]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_44, C_54]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_44, C_57]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_47, H_48]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_47, C_71]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_49, H_50]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_49, H_51]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_52, H_53]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_52, C_69]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_54, H_55]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_54, H_56]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_57, H_58]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_57, H_59]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_57, C_66]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_gap_mm: 0.1
+  - atom_pair: [C_60, H_61]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_60, H_62]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_63, H_64]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_63, H_65]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_66, H_67]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_66, H_68]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_69, H_70]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_71, H_72]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single

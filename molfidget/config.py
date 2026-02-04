@@ -271,7 +271,7 @@ def load_mol_file(file_name: str) -> MoleculeConfig:
         elif type == 3:
             bond_type = "triple"
         elif type == 4:
-            bond_type = "1.5"
+            bond_type = "aromatic"
         elif type == 9:
             bond_type = "magnetic"
         else:
