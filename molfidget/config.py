@@ -4,6 +4,12 @@ from dataclasses import asdict, dataclass, field
 from dacite import from_dict
 from ruamel.yaml import YAML, CommentedMap, CommentedSeq
 from typing import List
+import os
+
+from Bio.PDB import PDBParser, NeighborSearch
+
+from molfidget.constants import bond_distance_table, hydrogen_bond_params
+import numpy as np
 
 
 @dataclass
@@ -291,37 +297,239 @@ def load_mol_file(file_name: str) -> MoleculeConfig:
 
 def load_pdb_file(file_name: str) -> MoleculeConfig:
     # Load a PDB file and populate the molecule with atoms and bonds
-    with open(file_name, "r") as file:
-        lines = file.readlines()
+    parser = PDBParser(QUIET=True)
+    structure = parser.get_structure("pdb", file_name)
 
-    atoms = []
+    # Determine molecule name from header or fallback to filename
+    header = getattr(structure, "header", {}) or {}
+    name = header.get("name") or None
+    if not name:
+        compound = header.get("compound")
+        if isinstance(compound, dict):
+            for key in ("1", "2", "3"):
+                if key in compound and isinstance(compound[key], dict):
+                    name = compound[key].get("molecule") or compound[key].get("MOLECULE")
+                    if name:
+                        break
+            if not name and isinstance(compound.get("molecule"), str):
+                name = compound.get("molecule")
+        elif isinstance(compound, list):
+            for entry in compound:
+                if isinstance(entry, dict):
+                    name = entry.get("molecule") or entry.get("MOLECULE")
+                    if name:
+                        break
+    if not name:
+        name = os.path.basename(file_name).split(".")[0]
+
+    # Build atom list and mappings
+    atoms_by_serial = {}
+    atom_config_by_atom = {}
+    element_by_atom = {}
+    elem_counts = {}
+
+    for atom in structure.get_atoms():
+        serial = atom.get_serial_number()
+        if serial is None:
+            continue
+        residue = atom.get_parent()
+        if residue is not None:
+            resname = residue.get_resname()
+            if isinstance(resname, str) and resname.strip().upper() == "HOH":
+                continue
+
+        elem = getattr(atom, "element", "") or ""
+        elem = str(elem).strip()
+        if elem.lower().endswith("new"):
+            elem = elem[:-3].strip()
+
+        if not elem:
+            # Fallback to atom name if element is missing
+            atom_name = atom.get_name().strip()
+            if atom_name.lower().endswith("new"):
+                atom_name = atom_name[:-3].strip()
+            atom_name = atom_name.lstrip("0123456789")
+            elem = atom_name[:2].strip().capitalize()
+            if len(elem) == 2 and elem[1].isalpha():
+                elem = elem[0].upper() + elem[1].lower()
+            else:
+                elem = elem[0].upper()
+
+        # Name atoms as Element_#
+        elem_counts[elem] = elem_counts.get(elem, 0) + 1
+        x, y, z = atom.get_coord().tolist()
+        atom_config = AtomConfig(name=f"{elem}_{elem_counts[elem]}", position=[x, y, z])
+
+        # Map by atom object for distance-based bonds
+        atom_config_by_atom[atom] = atom_config
+        element_by_atom[atom] = elem
+
+        # Map by serial if possible (for CONECT)
+        if int(serial) not in atoms_by_serial:
+            atoms_by_serial[int(serial)] = atom_config
+
+    atoms = [atom_config_by_atom[a] for a in atom_config_by_atom.keys()]
+
+    # Build bonds by distance (fallback to CONECT when present)
     bonds = []
-    for line in lines:
-        # Do we have the name of the molecule somewhere?
-        if line.startswith("COMPND"):
-            name = line[10:].strip()
-        # Parse ATOM and HETATM lines to extract atom information
-        if line.startswith("ATOM") or line.startswith("HETATM"):
-            id = int(line[6:11].strip())
-            name = line[12:16].strip()
-            x = float(line[30:38])
-            y = float(line[38:46])
-            z = float(line[46:54])
-            atoms.append(AtomConfig(name=name + f"_{id}", position=[x, y, z]))
-        if line.startswith("CONECT"):
-            parts = line.split()
-            id1 = int(parts[1])
-            for id2_str in parts[2:]:
-                id2 = int(id2_str)
-                # Avoid duplicate bonds
-                if id1 < id2:
+    seen = set()
+    # 1) Try distance-based bonding using Bio.PDB NeighborSearch
+    atoms_list = list(atom_config_by_atom.keys())
+    if atoms_list:
+        ns = NeighborSearch(atoms_list)
+        # Global max search radius (covers typical covalent bond lengths)
+        max_radius = 2.2
+        for atom in atoms_list:
+            id1 = atom.get_serial_number()
+            if id1 is None:
+                continue
+            elem1 = element_by_atom.get(atom)
+            if not elem1:
+                continue
+            for nb in ns.search(atom.get_coord(), max_radius, level="A"):
+                id2 = nb.get_serial_number()
+                if id2 is None:
+                    continue
+                if id1 == id2:
+                    continue
+                pair = tuple(sorted((id(atom), id(nb))))
+                if pair in seen:
+                    continue
+                elem2 = element_by_atom.get(nb)
+                if not elem2:
+                    continue
+                dist = atom - nb
+                # Determine cutoff and bond type
+                key = frozenset([elem1, elem2])
+                bond_type = "single"
+                if key in bond_distance_table:
+                    single_d, double_d, triple_d = bond_distance_table[key]
+                    cutoff = 1.1 * single_d
+                    if triple_d > 0 and dist <= 1.05 * triple_d:
+                        bond_type = "triple"
+                    elif double_d > 0 and dist <= 1.05 * double_d:
+                        bond_type = "double"
+                    else:
+                        bond_type = "single"
+                elif "H" in (elem1, elem2):
+                    cutoff = 1.2
+                else:
+                    cutoff = 1.9
+                if dist <= cutoff:
+                    a1 = atom_config_by_atom.get(atom)
+                    a2 = atom_config_by_atom.get(nb)
+                    if a1 is None or a2 is None:
+                        continue
+                    seen.add(pair)
                     bonds.append(
                         BondConfig(
-                            atom_pair=[atoms[id1 - 1].name, atoms[id2 - 1].name],
-                            bond_type="single",
+                            atom_pair=[a1.name, a2.name],
+                            bond_type=bond_type,
                         )
                     )
+
+    # 2) Parse CONECT records and add any missing bonds
+    with open(file_name, "r") as file:
+        for line in file:
+            if not line.startswith("CONECT"):
+                continue
+            parts = line.split()
+            if len(parts) < 3:
+                continue
+            try:
+                id1 = int(parts[1])
+            except ValueError:
+                continue
+            for id2_str in parts[2:]:
+                try:
+                    id2 = int(id2_str)
+                except ValueError:
+                    continue
+                if id1 == id2:
+                    continue
+                pair = (min(id1, id2), max(id1, id2))
+                if pair in seen:
+                    continue
+                a1 = atoms_by_serial.get(pair[0])
+                a2 = atoms_by_serial.get(pair[1])
+                if a1 is None or a2 is None:
+                    continue
+                seen.add(pair)
+                bonds.append(
+                    BondConfig(
+                        atom_pair=[a1.name, a2.name],
+                        bond_type="single",
+                    )
+                )
+
+    # Detect hydrogen bonds and add as magnetic bonds
+    name_to_config = {cfg.name: cfg for cfg in atom_config_by_atom.values()}
+    elem_by_name = {cfg.name: element_by_atom[atom] for atom, cfg in atom_config_by_atom.items()}
+    adjacency = {name: set() for name in name_to_config.keys()}
+    for bond in bonds:
+        if bond.bond_type == "magnetic":
+            continue
+        a1, a2 = bond.atom_pair
+        if a1 in adjacency and a2 in adjacency:
+            adjacency[a1].add(a2)
+            adjacency[a2].add(a1)
+
+    hydrogen_names = [n for n, e in elem_by_name.items() if e == "H"]
+    acceptor_names = [n for n, e in elem_by_name.items() if e in ("O", "N", "S")]
+    magnetic_seen = set()
+
+    for h_name in hydrogen_names:
+        h_cfg = name_to_config.get(h_name)
+        if h_cfg is None:
+            continue
+        h_pos = np.array(h_cfg.position, dtype=float)
+        donors = [n for n in adjacency.get(h_name, []) if elem_by_name.get(n) in ("O", "N")]
+        if not donors:
+            continue
+        for d_name in donors:
+            d_cfg = name_to_config.get(d_name)
+            if d_cfg is None:
+                continue
+            d_pos = np.array(d_cfg.position, dtype=float)
+            dh_vec = d_pos - h_pos
+            dh_norm = np.linalg.norm(dh_vec)
+            if dh_norm == 0.0:
+                continue
+            for a_name in acceptor_names:
+                if a_name == h_name or a_name == d_name:
+                    continue
+                if a_name in adjacency.get(h_name, set()):
+                    continue
+                a_cfg = name_to_config.get(a_name)
+                if a_cfg is None:
+                    continue
+                a_pos = np.array(a_cfg.position, dtype=float)
+                ha_vec = a_pos - h_pos
+                da_vec = a_pos - d_pos
+                ha_dist = np.linalg.norm(ha_vec)
+                da_dist = np.linalg.norm(da_vec)
+                if ha_dist > hydrogen_bond_params["HA_max"] or da_dist > hydrogen_bond_params["DA_max"]:
+                    continue
+                ha_norm = ha_dist
+                if ha_norm == 0.0:
+                    continue
+                cos_angle = float(np.dot(dh_vec, ha_vec) / (dh_norm * ha_norm))
+                cos_angle = max(-1.0, min(1.0, cos_angle))
+                angle_deg = np.degrees(np.arccos(cos_angle))
+                if angle_deg < hydrogen_bond_params["DHA_min_deg"]:
+                    continue
+                pair = frozenset([h_name, a_name])
+                if pair in magnetic_seen:
+                    continue
+                magnetic_seen.add(pair)
+                bonds.append(
+                    BondConfig(
+                        atom_pair=[h_name, a_name],
+                        bond_type="magnetic",
+                    )
+                )
+
     molecle_config = MoleculeConfig(
-        name="file_name", scale=10.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
+        name=name, scale=10.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
     )
     return molecle_config

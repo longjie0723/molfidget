@@ -206,3 +206,10 @@ bond_distance_table = {
     frozenset(["H", "N"]): (1.01, 0.00, 0.00),
     frozenset(["N", "N"]): (1.45, 1.25, 1.10),
 }
+
+# Hydrogen bond detection parameters
+hydrogen_bond_params = {
+    "HA_max": 2.5,       # H-A distance max (Angstrom)
+    "DA_max": 3.5,       # D-A distance max (Angstrom)
+    "DHA_min_deg": 150.0 # D-H-A angle min (degrees)
+}
