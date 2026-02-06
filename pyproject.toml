@@ -18,6 +18,7 @@ argcomplete = "^3.1.0"
 networkx = "3.5"
 lxml = "^6.0.2"
 lib3mf = "^2.4.1.post1"
+biopython = "^1.84"
 
 [tool.poetry.dev-dependencies]
 
