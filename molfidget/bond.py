@@ -46,9 +46,11 @@ class Bond:
             config.shape_pair[0].shape_type = "hole"
             config.shape_pair[0].hole_radius_mm = self.magnetic_hole_radius_mm
             config.shape_pair[0].hole_length_mm = self.magnetic_hole_length_mm
+            config.shape_pair[0].bond_gap_mm = 0
             config.shape_pair[1].shape_type = "hole"
             config.shape_pair[1].hole_radius_mm = self.magnetic_hole_radius_mm
             config.shape_pair[1].hole_length_mm = self.magnetic_hole_length_mm
+            config.shape_pair[1].bond_gap_mm = 0
 
         self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default, scale), Shape(self.atom2_name, config.shape_pair[1], default, scale)]
 
