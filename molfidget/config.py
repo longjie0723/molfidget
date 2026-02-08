@@ -8,7 +8,7 @@ from typing import List
 
 @dataclass
 class DefaultAtomConfig:
-    scale: float = 1.0  # Scale factor for van der Waals radius
+    vdw_scale: float = 1.0  # Scale factor for van der Waals radius
     color: List[int] = None
 
 
@@ -50,7 +50,7 @@ class AtomConfig:
     position: List[float] = field(
         default=None
     )  # Position of the atom [x, y, z] in Angstrom
-    scale: float = None  # Scale factor for van der Waals radius
+    vdw_scale: float = None  # Scale factor for van der Waals radius
     color: List[int] = None  # Color of the atom in RGBA format [R, G, B, A]
 
 

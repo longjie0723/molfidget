@@ -3,21 +3,23 @@ from dataclasses import dataclass
 import numpy as np
 import trimesh
 
-from molfidget.config import AtomConfig, DefaultConfig
+from molfidget.config import AtomConfig, MolfidgetConfig
 from molfidget.constants import atom_radius_table, atom_color_table
 
 class Atom:
-    def __init__(self, config: AtomConfig, default: DefaultConfig):
-        self.name = config.name
+    def __init__(self, atom_config: AtomConfig, molfidget_config: MolfidgetConfig):
+        default = molfidget_config.default
+
+        self.name = atom_config.name
         self.elem, self.id = self.name.split('_')
         if self.elem not in atom_radius_table:
             raise ValueError(f"Unknown atom {self.elem}: name: {self.name}")
         self.radius = atom_radius_table[self.elem]
-        self.scale = config.scale if config.scale is not None else default.atom.scale
-        self.shape_radius = self.scale * self.radius
-        self.x, self.y, self.z = config.position
-        self.position = config.position
-        self.color = config.color if config.color is not None else atom_color_table[self.elem]
+        self.vdw_scale = atom_config.vdw_scale if atom_config.vdw_scale is not None else default.atom.vdw_scale
+        self.shape_radius = self.vdw_scale * self.radius
+        self.x, self.y, self.z = atom_config.position
+        self.position = atom_config.position
+        self.color = atom_config.color if atom_config.color is not None else atom_color_table[self.elem]
         print(f"self.color:", self.color)
         self.pairs = {}
 

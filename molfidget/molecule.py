@@ -15,7 +15,6 @@ class Molecule:
 
         # Load the configuration for the molecule
         molecule = config.molecule
-        default = config.default
 
         print(f"Loading configuration for molecule: {molecule.name}")
         self.name = molecule.name
@@ -24,13 +23,13 @@ class Molecule:
         self.atoms = {}
         for atom_config in molecule.atoms:
             name = atom_config.name
-            self.atoms[name] = Atom(atom_config, default)
+            self.atoms[name] = Atom(atom_config, config)
         # Load individual bond configurations
         self.bonds = {}
         for bond_config in molecule.bonds:
             atom1_name, atom2_name = bond_config.atom_pair
             self.bonds[atom1_name, atom2_name] = Bond(
-                bond_config, default, self.scale
+                bond_config, config, self.scale
             )
         # Update atom pairs based on bonds
         for atom in self.atoms.values():

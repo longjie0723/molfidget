@@ -3,31 +3,36 @@ import trimesh
 
 from molfidget.atom import Atom
 from molfidget.shape import Shape
-from molfidget.config import BondConfig, DefaultConfig
+from molfidget.config import BondConfig, MolfidgetConfig
 
 
 class Bond:
-    def __init__(self, config: BondConfig, default: DefaultConfig, scale: float):
-        self.atom1_name = config.atom_pair[0]
-        self.atom2_name = config.atom_pair[1]
-        self.atom_name = config.atom_pair
+    def __init__(self, bond_config: BondConfig, molfidget_config: MolfidgetConfig, scale: float):
+        default = molfidget_config.default
 
-        self.shape_type = config.shape_type
-        self.bond_type = config.bond_type if config.bond_type else "single"
-        self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond.bond_gap_mm
+        self.atom1_name = bond_config.atom_pair[0]
+        self.atom2_name = bond_config.atom_pair[1]
+        self.atom_name = bond_config.atom_pair
+
+        self.shape_type = bond_config.shape_type
+        self.bond_type = bond_config.bond_type if bond_config.bond_type else "single"
+        self.bond_gap_mm = bond_config.bond_gap_mm if bond_config.bond_gap_mm is not None else default.bond.bond_gap_mm
         self.bond_gap = self.bond_gap_mm / scale  # Convert mm to angstrom
 
-        if config.bond_type == "single":
-            config.shape_pair[0].shape_type = "shaft_spin"
-            config.shape_pair[1].shape_type = "hole"
-        elif config.bond_type == "double":
-            config.shape_pair[0].shape_type = "shaft_dcut"
-            config.shape_pair[1].shape_type = "hole_dcut"
-        elif config.bond_type == "triple":
-            config.shape_pair[0].shape_type = "shaft_dcut"
-            config.shape_pair[1].shape_type = "hole_dcut"
+        if bond_config.bond_type == "single":
+            bond_config.shape_pair[0].shape_type = "shaft_spin"
+            bond_config.shape_pair[1].shape_type = "hole"
+        elif bond_config.bond_type == "double":
+            bond_config.shape_pair[0].shape_type = "shaft_dcut"
+            bond_config.shape_pair[1].shape_type = "hole_dcut"
+        elif bond_config.bond_type == "triple":
+            bond_config.shape_pair[0].shape_type = "shaft_dcut"
+            bond_config.shape_pair[1].shape_type = "hole_dcut"
 
-        self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default, scale), Shape(self.atom2_name, config.shape_pair[1], default, scale)]
+        self.shape_pair = [
+            Shape(self.atom1_name, bond_config.shape_pair[0], molfidget_config, scale),
+            Shape(self.atom2_name, bond_config.shape_pair[1], molfidget_config, scale)
+        ]
 
     def update_atoms(self, atoms: dict):
         self.atom1 = atoms[self.atom1_name]
@@ -45,8 +50,8 @@ class Bond:
 
     def update_slice_distance(self):
         # Update the slice distance based on the configuration
-        r1 = self.atom1.scale * self.atom1.radius
-        r2 = self.atom2.scale * self.atom2.radius
+        r1 = self.atom1.vdw_scale * self.atom1.radius
+        r2 = self.atom2.vdw_scale * self.atom2.radius
         self.slice_distance1 = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
         self.slice_distance2 = (r2**2 - r1**2 + self.atom_distance**2) / (2 * self.atom_distance)
 
@@ -123,7 +128,7 @@ class Bond:
         taper_distance = 0.3
         if taper_distance > self.slice_distance:
             taper_distance = self.slice_distance
-        atom_radius = self.atom1.radius * self.atom1.scale
+        atom_radius = self.atom1.radius * self.atom1.vdw_scale
         # r2 は上円錐の半径
         r2 = math.sqrt(atom_radius**2 - self.slice_distance**2)
         # r1 は下円錐の半径
@@ -150,8 +155,8 @@ class Bond:
             vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
             distance = np.linalg.norm(vector)
             vector /= distance
-            r1 = atom1.scale * atom1.radius
-            r2 = atom2.scale * atom2.radius
+            r1 = atom1.vdw_scale * atom1.radius
+            r2 = atom2.vdw_scale * atom2.radius
             slice_distance = (r1**2 - r2**2 + distance**2) / (2 * distance)
             # atom1をbond平面でスライスする
             box = trimesh.primitives.Box(

@@ -1,61 +1,63 @@
 import trimesh
 from molfidget.atom import Atom
-from molfidget.config import ShapeConfig, DefaultConfig
+from molfidget.config import ShapeConfig, MolfidgetConfig
 import numpy as np
 
 
 class Shape:
-    def __init__(self, atom_name: str, config: ShapeConfig, default: DefaultConfig, scale: float):
+    def __init__(self, atom_name: str, shape_config: ShapeConfig, molfidget_config: MolfidgetConfig, scale: float):
+        default = molfidget_config.default
+
         self.atom_name = atom_name
         self.atom = None
         self.slice_distance = None
         self.slice_radius = None
         self.vector = None
 
-        self.shape_type = config.shape_type if config.shape_type is not None else None
+        self.shape_type = shape_config.shape_type if shape_config.shape_type is not None else None
         # bond_gap_mmはShapeConfigにはあるがDefaultShapeConfigにはないので、デフォルト値を直接指定
-        self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else 0.0
+        self.bond_gap_mm = shape_config.bond_gap_mm if shape_config.bond_gap_mm is not None else 0.0
         self.bond_gap = self.bond_gap_mm / scale  # Convert mm to angstrom
-        self.chamfer_length = config.chamfer_length if config.chamfer_length is not None else default.shape.chamfer_length
+        self.chamfer_length = shape_config.chamfer_length if shape_config.chamfer_length is not None else default.shape.chamfer_length
 
         # shaft_length: mm単位が指定されていればそちらを優先
-        if config.shaft_length_mm is not None:
-            self.shaft_length = config.shaft_length_mm / scale  # mm to Angstrom
+        if shape_config.shaft_length_mm is not None:
+            self.shaft_length = shape_config.shaft_length_mm / scale  # mm to Angstrom
         elif default.shape.shaft_length_mm is not None:
             self.shaft_length = default.shape.shaft_length_mm / scale
         else:
-            self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shape.shaft_length
+            self.shaft_length = shape_config.shaft_length if shape_config.shaft_length is not None else default.shape.shaft_length
 
         # shaft_radius: mm単位が指定されていればそちらを優先
-        if config.shaft_radius_mm is not None:
-            self.shaft_radius = config.shaft_radius_mm / scale  # mm to Angstrom
+        if shape_config.shaft_radius_mm is not None:
+            self.shaft_radius = shape_config.shaft_radius_mm / scale  # mm to Angstrom
         elif default.shape.shaft_radius_mm is not None:
             self.shaft_radius = default.shape.shaft_radius_mm / scale
         else:
-            self.shaft_radius = config.shaft_radius if config.shaft_radius is not None else default.shape.shaft_radius
+            self.shaft_radius = shape_config.shaft_radius if shape_config.shaft_radius is not None else default.shape.shaft_radius
 
         # hole_length: mm単位が指定されていればそちらを優先
-        if config.hole_length_mm is not None:
-            self.hole_length = config.hole_length_mm / scale  # mm to Angstrom
+        if shape_config.hole_length_mm is not None:
+            self.hole_length = shape_config.hole_length_mm / scale  # mm to Angstrom
         elif default.shape.hole_length_mm is not None:
             self.hole_length = default.shape.hole_length_mm / scale
         else:
-            self.hole_length = config.hole_length if config.hole_length is not None else default.shape.hole_length
+            self.hole_length = shape_config.hole_length if shape_config.hole_length is not None else default.shape.hole_length
 
         # hole_radius: mm単位が指定されていればそちらを優先
-        if config.hole_radius_mm is not None:
-            self.hole_radius = config.hole_radius_mm / scale  # mm to Angstrom
+        if shape_config.hole_radius_mm is not None:
+            self.hole_radius = shape_config.hole_radius_mm / scale  # mm to Angstrom
         elif default.shape.hole_radius_mm is not None:
             self.hole_radius = default.shape.hole_radius_mm / scale
         else:
-            self.hole_radius = config.hole_radius if config.hole_radius is not None else default.shape.hole_radius
+            self.hole_radius = shape_config.hole_radius if shape_config.hole_radius is not None else default.shape.hole_radius
 
-        self.shaft_gap = config.shaft_gap if config.shaft_gap is not None else default.shape.shaft_gap
-        self.stopper_radius = config.stopper_radius if config.stopper_radius is not None else default.shape.stopper_radius
-        self.stopper_length = config.stopper_length if config.stopper_length is not None else default.shape.stopper_length
-        self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.shape.wall_thickness
-        self.taper_radius_scale = config.taper_radius_scale if config.taper_radius_scale is not None else default.shape.taper_radius_scale
-        self.taper_angle_deg = config.taper_angle_deg if config.taper_angle_deg is not None else default.shape.taper_angle_deg
+        self.shaft_gap = shape_config.shaft_gap if shape_config.shaft_gap is not None else default.shape.shaft_gap
+        self.stopper_radius = shape_config.stopper_radius if shape_config.stopper_radius is not None else default.shape.stopper_radius
+        self.stopper_length = shape_config.stopper_length if shape_config.stopper_length is not None else default.shape.stopper_length
+        self.wall_thickness = shape_config.wall_thickness if shape_config.wall_thickness is not None else default.shape.wall_thickness
+        self.taper_radius_scale = shape_config.taper_radius_scale if shape_config.taper_radius_scale is not None else default.shape.taper_radius_scale
+        self.taper_angle_deg = shape_config.taper_angle_deg if shape_config.taper_angle_deg is not None else default.shape.taper_angle_deg
 
         print(f"shape_type: {self.shape_type}")
         print(f"hole_length: {self.hole_length}")
@@ -72,8 +74,8 @@ class Shape:
         self.vector /= np.linalg.norm(self.vector)
 
         # Update the slice distance based on the configuration
-        r1 = atom1.scale * atom1.radius
-        r2 = atom2.scale * atom2.radius
+        r1 = atom1.vdw_scale * atom1.radius
+        r2 = atom2.vdw_scale * atom2.radius
         self.slice_distance = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
         self.slice_radius = np.sqrt(r1**2 - self.slice_distance**2)
         #self.slice_distance = (r2**2 - r1**2 + self.atom_distance**2) / (2 * self.atom_distance)
