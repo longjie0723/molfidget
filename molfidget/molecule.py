@@ -15,10 +15,11 @@ class Molecule:
 
         # Load the configuration for the molecule
         molecule = config.molecule
+        default = config.default
 
         print(f"Loading configuration for molecule: {molecule.name}")
         self.name = molecule.name
-        self.scale = molecule.scale if molecule.scale is not None else 1.0
+        self.scale = molecule.scale if molecule.scale is not None else default.molecule.scale
         # Load individual atom configurations
         self.atoms = {}
         for atom_config in molecule.atoms:

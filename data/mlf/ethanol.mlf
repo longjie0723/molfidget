@@ -1,6 +1,8 @@
 default:
+  molecule:
+    scale: 10.0
   atom:
-    scale: 1.0
+    vdw_scale: 1.0
   bond:
     bond_gap_mm: 0.1
     bond_gap: 0.0
@@ -18,7 +20,6 @@ default:
     taper_radius_scale: 1.0
 molecule:
   name: ethanol
-  scale: 10.0
   atoms:
   - name: C_1
     position: [0.445, -2.202, -5.28]

@@ -38,7 +38,13 @@ class DefaultShapeConfig:
 
 
 @dataclass
+class DefaultMoleculeConfig:
+    scale: float = 10.0  # Scale factor for the whole model [mm/Angstrom]
+
+
+@dataclass
 class DefaultConfig:
+    molecule: DefaultMoleculeConfig = field(default_factory=lambda: DefaultMoleculeConfig())
     atom: DefaultAtomConfig = field(default_factory=lambda: DefaultAtomConfig())
     bond: DefaultBondConfig = field(default_factory=lambda: DefaultBondConfig())
     shape: DefaultShapeConfig = field(default_factory=lambda: DefaultShapeConfig())
@@ -111,9 +117,9 @@ class BondConfig:
 @dataclass
 class MoleculeConfig:
     name: str  # Name of the molecule
-    scale: float  # Scale factor for the whole model
-    atoms: List[AtomConfig]
-    bonds: List[BondConfig]
+    scale: float = None  # Scale factor for the whole model
+    atoms: List[AtomConfig] = field(default_factory=list)
+    bonds: List[BondConfig] = field(default_factory=list)
 
 
 @dataclass
@@ -147,6 +153,7 @@ def molecule_config_representer(dumper, data):
 
 def default_config_representer(dumper, data):
     cmap = CommentedMap()
+    cmap["molecule"] = data.molecule
     cmap["atom"] = data.atom
     cmap["bond"] = data.bond
     cmap["shape"] = data.shape
@@ -181,6 +188,17 @@ def default_bond_config_representer(dumper, data):
 
 
 def default_shape_config_representer(dumper, data):
+    data_dict = OrderedDict(asdict(data))
+    cmap = CommentedMap()
+    for key, value in data_dict.items():
+        if value is None:
+            continue
+        else:
+            cmap[key] = value
+    return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
+
+
+def default_molecule_config_representer(dumper, data):
     data_dict = OrderedDict(asdict(data))
     cmap = CommentedMap()
     for key, value in data_dict.items():
@@ -253,6 +271,7 @@ def save_molfidget_config(config: MolfidgetConfig, file_path: str):
     yaml.representer.add_representer(MolfidgetConfig, molfidget_config_representer)
     yaml.representer.add_representer(MoleculeConfig, molecule_config_representer)
     yaml.representer.add_representer(DefaultConfig, default_config_representer)
+    yaml.representer.add_representer(DefaultMoleculeConfig, default_molecule_config_representer)
     yaml.representer.add_representer(DefaultAtomConfig, default_atom_config_representer)
     yaml.representer.add_representer(DefaultBondConfig, default_bond_config_representer)
     yaml.representer.add_representer(DefaultShapeConfig, default_shape_config_representer)
@@ -309,9 +328,10 @@ def load_mol_file(file_name: str) -> MolfidgetConfig:
                 bond_type=bond_type,
             )
         )
+    default_config = DefaultConfig()
     # file_nameから拡張子を除いた名前を設定
     molecule_config = MoleculeConfig(
-        name=file_name.split("/")[-1].split(".")[0], scale=1.0, atoms=atoms, bonds=bonds
+        name=file_name.split("/")[-1].split(".")[0], scale=default_config.molecule.scale, atoms=atoms, bonds=bonds
     )
     molfidget_config = MolfidgetConfig(
         default=DefaultConfig(), molecule=molecule_config

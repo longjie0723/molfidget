@@ -191,7 +191,13 @@ def exec_preview(args):
 
 def exec_generate(args):
     molfidget_config = load_molfidget_config(args.molfidget_file)
-    scale = args.scale if args.scale is not None else molfidget_config.molecule.scale
+    # Determine scale: command line > molecule config > default config
+    if args.scale is not None:
+        scale = args.scale
+    elif molfidget_config.molecule.scale is not None:
+        scale = molfidget_config.molecule.scale
+    else:
+        scale = molfidget_config.default.molecule.scale
     molfidget_config.molecule.scale = scale
     print(f"Using scale factor: {scale}")
 
