@@ -3,28 +3,19 @@ import trimesh
 
 from molfidget.atom import Atom
 from molfidget.shape import Shape
-from molfidget.config import BondConfig, DefaultBondConfig, ShapeConfig
+from molfidget.config import BondConfig, DefaultConfig
 
 
 class Bond:
-    def __init__(self, config: BondConfig, default: DefaultBondConfig, scale: float):
+    def __init__(self, config: BondConfig, default: DefaultConfig, scale: float):
         self.atom1_name = config.atom_pair[0]
         self.atom2_name = config.atom_pair[1]
         self.atom_name = config.atom_pair
-        
+
         self.shape_type = config.shape_type
-        self.bond_type = config.bond_type if config.bond_type else default.bond_type
-        self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond_gap_mm
+        self.bond_type = config.bond_type if config.bond_type else "single"
+        self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond.bond_gap_mm
         self.bond_gap = self.bond_gap_mm / scale  # Convert mm to angstrom
-        self.chamfer_length = config.chamfer_length if config.chamfer_length is not None else default.chamfer_length
-        self.hole_length = config.hole_length if config.hole_length is not None else default.hole_length
-        self.hole_radius = config.hole_radius if config.hole_radius is not None else default.hole_radius
-        self.shaft_radius = config.shaft_radius if config.shaft_radius is not None else default.shaft_radius
-        self.shaft_gap = config.shaft_gap if config.shaft_gap is not None else default.shaft_gap
-        self.stopper_radius = config.stopper_radius if config.stopper_radius is not None else default.stopper_radius
-        self.stopper_length = config.stopper_length if config.stopper_length is not None else default.stopper_length
-        self.shaft_length = config.shaft_length if config.shaft_length is not None else default.shaft_length
-        self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else default.wall_thickness
 
         if config.bond_type == "single":
             config.shape_pair[0].shape_type = "shaft_spin"

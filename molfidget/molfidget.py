@@ -190,16 +190,17 @@ def exec_preview(args):
 
 
 def exec_generate(args):
-    molecule_config = load_molfidget_config(args.molfidget_file)
-    molecule_config.scale = args.scale if args.scale is not None else molecule_config.scale
-    print(f"Using scale factor: {molecule_config.scale}")
+    molfidget_config = load_molfidget_config(args.molfidget_file)
+    scale = args.scale if args.scale is not None else molfidget_config.molecule.scale
+    molfidget_config.molecule.scale = scale
+    print(f"Using scale factor: {scale}")
 
-    molecule = Molecule(molecule_config)
+    molecule = Molecule(molfidget_config)
     print(f"Molecule: {molecule.name}")
     # Create trimesh model
     scene = molecule.create_trimesh_scene()
     # Apply scale
-    scene.apply_scale(molecule_config.scale)
+    scene.apply_scale(scale)
 
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
@@ -209,10 +210,10 @@ def exec_generate(args):
     export_scene_as_colored_3mf(scene, os.path.join(output_dir, f"{molecule.name}.3mf"), libpath=None, debug=False)
 
     # Save STL files for each component
-    molecule.save_stl_files(scale=molecule_config.scale, output_dir=output_dir)
+    molecule.save_stl_files(scale=scale, output_dir=output_dir)
     # Merge atoms into groups and save group STL files
     molecule.merge_atoms()
-    molecule.save_group_stl_files(molecule_config.scale, output_dir=output_dir)
+    molecule.save_group_stl_files(scale, output_dir=output_dir)
 
 def main():
     parser = setup_argparse()

@@ -3,17 +3,17 @@ from dataclasses import dataclass
 import numpy as np
 import trimesh
 
-from molfidget.config import AtomConfig, DefaultAtomConfig
+from molfidget.config import AtomConfig, DefaultConfig
 from molfidget.constants import atom_radius_table, atom_color_table
 
 class Atom:
-    def __init__(self, config: AtomConfig, default: DefaultAtomConfig):
+    def __init__(self, config: AtomConfig, default: DefaultConfig):
         self.name = config.name
         self.elem, self.id = self.name.split('_')
         if self.elem not in atom_radius_table:
             raise ValueError(f"Unknown atom {self.elem}: name: {self.name}")
         self.radius = atom_radius_table[self.elem]
-        self.scale = config.scale if config.scale is not None else default.scale
+        self.scale = config.scale if config.scale is not None else default.atom.scale
         self.shape_radius = self.scale * self.radius
         self.x, self.y, self.z = config.position
         self.position = config.position

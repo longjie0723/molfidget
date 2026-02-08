@@ -1,41 +1,37 @@
 import os
 from collections import OrderedDict
-from dataclasses import dataclass
 
 import numpy as np
 import trimesh
-import yaml
 
 from molfidget.atom import Atom
 from molfidget.bond import Bond
-from molfidget.config import (
-    AtomConfig,
-    BondConfig,
-    DefaultAtomConfig,
-    DefaultBondConfig,
-    MoleculeConfig,
-)
-from molfidget.constants import atom_color_table, atom_radius_table
+from molfidget.config import MolfidgetConfig
 
 class Molecule:
-    def __init__(self, config: MoleculeConfig):
+    def __init__(self, config: MolfidgetConfig):
         # Group of atoms that can be merged
         self.atom_groups = OrderedDict()
 
         # Load the configuration for the molecule
-        print(f"Loading configuration for molecule: {config.name}")
-        self.name = config.name
-        self.scale = config.scale if config.scale is not None else 1.0
+        molecule = config.molecule
+        default = config.default
+
+        print(f"Loading configuration for molecule: {molecule.name}")
+        self.name = molecule.name
+        self.scale = molecule.scale if molecule.scale is not None else 1.0
         # Load individual atom configurations
         self.atoms = {}
-        for atom_config in config.atoms:
+        for atom_config in molecule.atoms:
             name = atom_config.name
-            self.atoms[name] = Atom(atom_config, config.default.atom)
+            self.atoms[name] = Atom(atom_config, default)
         # Load individual bond configurations
         self.bonds = {}
-        for bond_config in config.bonds:
+        for bond_config in molecule.bonds:
             atom1_name, atom2_name = bond_config.atom_pair
-            self.bonds[atom1_name, atom2_name] = Bond(bond_config, config.default.bond, self.scale)
+            self.bonds[atom1_name, atom2_name] = Bond(
+                bond_config, default, self.scale
+            )
         # Update atom pairs based on bonds
         for atom in self.atoms.values():
             atom.update_bonds(self.bonds)
@@ -134,19 +130,3 @@ class Molecule:
             atom_list = sorted(group, key=lambda a: a.id)
             file_name = f"{atom_list[0].elem}_" + "_".join([atom.id for atom in atom_list]) + ".stl"
             merged_mesh.export(os.path.join(output_dir, file_name))
-
-
-def load_molfidget_file(file_path: str) -> MoleculeConfig:
-    import yaml
-    from yaml.loader import SafeLoader
-
-    with open(file_path, 'r') as file:
-        data = yaml.load(file, Loader=SafeLoader)
-
-    molecule_config = MoleculeConfig(**data.get('molecule', {}))
-    molecule_config.default_atom = DefaultAtomConfig(**data['molecule']['default_atom'])
-    molecule_config.default_bond = DefaultBondConfig(**data['molecule']['default_bond'])
-    molecule_config.atoms = [AtomConfig(**atom) for atom in data['molecule'].get('atoms', [])]
-    molecule_config.bonds = [BondConfig(**bond) for bond in data['molecule'].get('bonds', [])]
-
-    return molecule_config
