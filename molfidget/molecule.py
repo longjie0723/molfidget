@@ -33,9 +33,11 @@ class Molecule:
             self.atoms[name] = Atom(atom_config, config.default.atom)
         # Load individual bond configurations
         self.bonds = {}
-        for bond_config in config.bonds:
+        for idx, bond_config in enumerate(config.bonds, start=1):
             atom1_name, atom2_name = bond_config.atom_pair
-            self.bonds[atom1_name, atom2_name] = Bond(bond_config, config.default.bond, self.scale)
+            bond = Bond(bond_config, config.default.bond, self.scale)
+            bond.index = idx  # bond番号を付与（定義順）
+            self.bonds[atom1_name, atom2_name] = bond
         # Update atom pairs based on bonds
         for atom in self.atoms.values():
             atom.update_bonds(self.bonds)

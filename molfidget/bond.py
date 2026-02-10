@@ -1,5 +1,6 @@
 import numpy as np
 import trimesh
+from trimesh import creation as tm_creation
 
 from molfidget.atom import Atom
 from molfidget.shape import Shape
@@ -11,7 +12,9 @@ class Bond:
         self.atom1_name = config.atom_pair[0]
         self.atom2_name = config.atom_pair[1]
         self.atom_name = config.atom_pair
-        
+        self.index = None  # Molecule側で定義順をセット
+        self.bond_marker = config.bond_marker if config.bond_marker is not None else default.bond_marker
+
         self.shape_type = config.shape_type
         self.bond_type = config.bond_type if config.bond_type else default.bond_type
         self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond_gap_mm
@@ -171,6 +174,8 @@ class Bond:
         return mesh
 
     def slice_atoms_by_bond_plane(self):
+        # decide once per bond whether to engrave marker
+        mark = self._should_apply_marker()
         for atom1, atom2 in [(self.atom1, self.atom2), (self.atom2, self.atom1)]:
             vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
             distance = np.linalg.norm(vector)
@@ -187,6 +192,71 @@ class Bond:
             rotation_matrix = trimesh.geometry.align_vectors(z_axis, vector)
             box.apply_transform(rotation_matrix)
             atom1.mesh = trimesh.boolean.intersection([atom1.mesh, box], check_volume=False)
+            plane_distance = slice_distance - self.bond_gap / 2
+            if mark:
+                self._engrave_bond_pattern(atom1, vector, plane_distance, r1, slice_distance)
+
+    def _should_apply_marker(self) -> bool:
+        marker = (self.bond_marker or "").lower()
+        if marker == "none":
+            return False
+        if marker == "all":
+            return True
+        if marker == "hetero-only":
+            return self.atom1.elem != self.atom2.elem
+        return True
+
+    def _engrave_bond_pattern(self, atom: Atom, normal_vec: np.ndarray, plane_distance: float, r1: float, slice_distance: float):
+        """時計12方向にビットを割り当てた穴パターンでボンド番号を表現"""
+        if self.index is None:
+            return
+
+        hole_radius = atom.scale * atom.radius * 0.05
+        hole_depth = max(atom.scale * atom.radius * 0.05, self.bond_gap * 0.8)
+
+        # スライス円の半径（安全マージンを引いて内側に配置）
+        slice_radius_sq = r1**2 - slice_distance**2
+        if slice_radius_sq <= 0:
+            return
+        slice_radius = np.sqrt(slice_radius_sq)
+        ring_radius = slice_radius * 0.6  # bit dots at 70% of slice radius
+
+        # 面内の直交基底を作る
+        ref = np.array([1, 0, 0]) if abs(normal_vec[0]) < 0.9 else np.array([0, 1, 0])
+        u = np.cross(normal_vec, ref)
+        u /= np.linalg.norm(u)
+        v = np.cross(normal_vec, u)
+
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], normal_vec)
+        lift = atom.scale * atom.radius * 0.02  # raise top surface slightly to stay flush
+        holes = []
+        for bit in range(12):  # 12 o'clock -> bit0, then clockwise
+            if ((self.index >> bit) & 1) == 0:
+                continue
+            angle = np.pi / 2 - bit * (2 * np.pi / 12)  # 12時=+Y, 時計回り
+            direction = np.cos(angle) * u + np.sin(angle) * v
+            center_on_plane = direction * ring_radius + normal_vec * (plane_distance + lift - hole_depth / 2)
+            cyl = trimesh.creation.cylinder(radius=hole_radius, height=hole_depth, sections=24)
+            cyl.apply_translation([0, 0, -hole_depth / 2])  # base at z=0
+            cyl.apply_transform(rotation_matrix)
+            cyl.apply_translation(center_on_plane)
+            holes.append(cyl)
+
+        # constant reference mark slightly outside the ring at 12 o'clock
+        angle_ref = np.pi / 2
+        direction_ref = np.cos(angle_ref) * u + np.sin(angle_ref) * v
+        ref_radius = slice_radius * 0.8  # reference dot at 90% of slice radius
+        center_ref = direction_ref * ref_radius + normal_vec * (plane_distance + lift - hole_depth / 2)
+        ref_cyl = trimesh.creation.cylinder(radius=hole_radius, height=hole_depth, sections=24)
+        ref_cyl.apply_translation([0, 0, -hole_depth / 2])
+        ref_cyl.apply_transform(rotation_matrix)
+        ref_cyl.apply_translation(center_ref)
+        holes.append(ref_cyl)
+
+        if not holes:
+            return
+        holes_mesh = trimesh.boolean.union(holes, check_volume=False)
+        atom.mesh = trimesh.boolean.difference([atom.mesh, holes_mesh], check_volume=False)
 
     def create_rotate_shaft(self):
         # Create a shaft

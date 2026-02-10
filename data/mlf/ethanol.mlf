@@ -19,6 +19,7 @@ molecule:
       shaft_gap: 0.03
       taper_angle_deg: 0.0
       taper_radius_scale: 1.0
+      bond_marker: hetero-only
   atoms:
   - name: C_1
     position: [0.445, -2.202, -5.28]
