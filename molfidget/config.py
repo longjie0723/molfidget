@@ -39,6 +39,7 @@ class DefaultBondConfig:
     taper_radius_scale: float = 1.0 # Scale factor for the taper radius
     magnetic_hole_radius_mm: float = 3.525  # Radius of the magnetic hole [mm]
     magnetic_hole_length_mm: float = 2.0  # Length of the magnetic hole [mm]
+    bond_marker: str = "hetero-only" # Option for bond number marker display (e.g., none, all, hetero-only)
 
 @dataclass
 class DefaultConfig:
@@ -109,7 +110,7 @@ class BondConfig:
     taper_radius_scale: List[float] = None  # Scale factor for the taper radius at the two ends
     magnetic_hole_radius_mm: float = None  # Radius of the magnetic hole [mm]
     magnetic_hole_length_mm: float = None  # Length of the magnetic hole [mm]
-
+    bond_marker: str = None # Option for bond number marker display (inherits default when None)
 
 @dataclass
 class MoleculeConfig:
