@@ -15,7 +15,11 @@ class Bond:
         self.atom_name = config.atom_pair
         self.index = None  # Molecule側で定義順をセット
         self.bond_marker = config.bond_marker if config.bond_marker is not None else default.bond_marker
-
+        self.bond_marker_size_mm = config.bond_marker_size_mm if config.bond_marker_size_mm is not None else default.bond_marker_size_mm
+        self.bond_marker_depth_mm = config.bond_marker_depth_mm if config.bond_marker_depth_mm is not None else default.bond_marker_depth_mm
+        # Convert marker dimensions from mm to internal model units
+        self.bond_marker_size = self.bond_marker_size_mm / scale if self.bond_marker_size_mm is not None else None
+        self.bond_marker_depth = self.bond_marker_depth_mm / scale if self.bond_marker_depth_mm is not None else None
         self.shape_type = config.shape_type
         self.bond_type = config.bond_type if config.bond_type else default.bond_type
         self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default.bond_gap_mm
@@ -217,15 +221,17 @@ class Bond:
         if self.index is None:
             return
 
-        hole_radius = atom.scale * atom.radius * 0.05
-        hole_depth = max(atom.scale * atom.radius * 0.05, self.bond_gap * 0.8)
+        hole_radius = self.bond_marker_size / 2
+        hole_depth = self.bond_marker_depth
+        if hole_radius is None or hole_depth is None:
+            return
 
         # スライス円の半径（安全マージンを引いて内側に配置）
         slice_radius_sq = r1**2 - slice_distance**2
         if slice_radius_sq <= 0:
             return
         slice_radius = np.sqrt(slice_radius_sq)
-        ring_radius = slice_radius * 0.6  # bit dots at 70% of slice radius
+        ring_radius = slice_radius * 0.50  # bit dots at 50% of slice radius
 
         # 面内の直交基底を作る
         ref = np.array([1, 0, 0]) if abs(normal_vec[0]) < 0.9 else np.array([0, 1, 0])
@@ -241,7 +247,8 @@ class Bond:
                 continue
             angle = np.pi / 2 - bit * (2 * np.pi / 12)  # 12時=+Y, 時計回り
             direction = np.cos(angle) * u + np.sin(angle) * v
-            center_on_plane = direction * ring_radius + normal_vec * (plane_distance + lift - hole_depth / 2)
+            #center_on_plane = direction * ring_radius + normal_vec * (plane_distance + lift - hole_depth / 2)
+            center_on_plane = direction * ring_radius + normal_vec * (plane_distance + hole_depth / 2 - lift)
             cyl = trimesh.creation.cylinder(radius=hole_radius, height=hole_depth, sections=24)
             cyl.apply_translation([0, 0, -hole_depth / 2])  # base at z=0
             cyl.apply_transform(rotation_matrix)
@@ -251,8 +258,9 @@ class Bond:
         # constant reference mark slightly outside the ring at 12 o'clock
         angle_ref = np.pi / 2
         direction_ref = np.cos(angle_ref) * u + np.sin(angle_ref) * v
-        ref_radius = slice_radius * 0.8  # reference dot at 90% of slice radius
-        center_ref = direction_ref * ref_radius + normal_vec * (plane_distance + lift - hole_depth / 2)
+        ref_radius = slice_radius * 0.8  # reference dot at 80% of slice radius
+        #center_ref = direction_ref * ref_radius + normal_vec * (plane_distance + lift - hole_depth / 2)
+        center_ref = direction_ref * ref_radius + normal_vec * (plane_distance + hole_depth / 2 - lift)
         ref_cyl = trimesh.creation.cylinder(radius=hole_radius, height=hole_depth, sections=24)
         ref_cyl.apply_translation([0, 0, -hole_depth / 2])
         ref_cyl.apply_transform(rotation_matrix)
