@@ -39,7 +39,7 @@ class DefaultBondConfig:
     taper_radius_scale: float = 1.0 # Scale factor for the taper radius
     magnetic_hole_radius_mm: float = 3.525  # Radius of the magnetic hole [mm]
     magnetic_hole_length_mm: float = 2.0  # Length of the magnetic hole [mm]
-    bond_marker: str = "hetero-only" # Option for bond number marker display (e.g., none, all, hetero-only)
+    bond_marker: str = "hetero-only-exept-H" # Option for bond number marker display (e.g., on, off, hetero-only, hetero-only-except-H)
 
 @dataclass
 class DefaultConfig:
@@ -334,14 +334,14 @@ def load_pdb_file(file_name: str) -> MoleculeConfig:
         if serial is None:
             continue
         residue = atom.get_parent()
-        if residue is not None:
+        if residue is not None: # 水分子をスキップ
             resname = residue.get_resname()
             if isinstance(resname, str) and resname.strip().upper() == "HOH":
                 continue
 
         elem = getattr(atom, "element", "") or ""
         elem = str(elem).strip()
-        if elem.lower().endswith("new"):
+        if elem.lower().endswith("new"): #　reduceでつけられたHの接尾辞を削除
             elem = elem[:-3].strip()
 
         if not elem:
@@ -531,6 +531,6 @@ def load_pdb_file(file_name: str) -> MoleculeConfig:
                 )
 
     molecle_config = MoleculeConfig(
-        name=name, scale=10.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
+        name=name, scale=8.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
     )
     return molecle_config
