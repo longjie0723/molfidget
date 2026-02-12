@@ -198,13 +198,18 @@ class Bond:
 
     def _should_apply_marker(self) -> bool:
         marker = (self.bond_marker or "").lower()
-        if marker == "none":
+        if marker == "off":
             return False
-        if marker == "all":
+        if marker == "on":
             return True
         if marker == "hetero-only":
             return self.atom1.elem != self.atom2.elem
-        return True
+        if marker == "hetero-only-except-h":
+            if self.atom1.elem == "H" or self.atom2.elem == "H":
+                return False
+            if self.atom1.elem != self.atom2.elem:
+                return True
+        return False
 
     def _engrave_bond_pattern(self, atom: Atom, normal_vec: np.ndarray, plane_distance: float, r1: float, slice_distance: float):
         """時計12方向にビットを割り当てた穴パターンでボンド番号を表現"""
