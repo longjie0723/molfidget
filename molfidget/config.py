@@ -111,6 +111,8 @@ class BondConfig:
     magnetic_hole_radius_mm: float = None  # Radius of the magnetic hole [mm]
     magnetic_hole_length_mm: float = None  # Length of the magnetic hole [mm]
     bond_marker: str = None # Option for bond number marker display (inherits default when None)
+    bond_marker_size_mm: float = None # Size of bond number marker [mm] (inherits default when None)
+    bond_marker_depth_mm: float = None # Depth of bond number marker [mm] (inherits default when None)
 
 @dataclass
 class MoleculeConfig:
