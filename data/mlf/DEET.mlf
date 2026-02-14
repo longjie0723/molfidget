@@ -1,12 +1,12 @@
 molecule:
   name: DEET
-  scale: 10.0
+  scale: 8.0
   default:
     atom:
       scale: 0.8
       color: [200, 200, 200, 255]
     bond:
-      bond_gap_mm: 0.0
+      bond_gap_mm: 0.1
       bond_gap: 0.0
       shaft_radius: 0.3
       shaft_length: 0.3
@@ -89,12 +89,12 @@ molecule:
     shape_pair:
     - {}
     - {}
-    bond_type: '1.5'
+    bond_type: aromatic
   - atom_pair: [C_1, C_6]
     shape_pair:
     - {}
     - {}
-    bond_type: '1.5'
+    bond_type: aromatic
   - atom_pair: [C_1, H_7]
     shape_pair:
     - {}
@@ -104,7 +104,7 @@ molecule:
     shape_pair:
     - {}
     - {}
-    bond_type: '1.5'
+    bond_type: aromatic
   - atom_pair: [C_2, H_8]
     shape_pair:
     - {}
@@ -114,18 +114,17 @@ molecule:
     shape_pair:
     - {}
     - {}
-    bond_type: '1.5'
+    bond_type: aromatic
   - atom_pair: [C_3, C_15]
     shape_pair:
     - {}
     - {}
     bond_type: single
-    bond_gap_mm: 0.3
   - atom_pair: [C_4, C_5]
     shape_pair:
     - {}
     - {}
-    bond_type: '1.5'
+    bond_type: aromatic
   - atom_pair: [C_4, H_9]
     shape_pair:
     - {}
@@ -135,13 +134,12 @@ molecule:
     shape_pair:
     - {}
     - {}
-    bond_type: '1.5'
+    bond_type: aromatic
   - atom_pair: [C_5, C_11]
     shape_pair:
     - {}
     - {}
     bond_type: single
-    bond_gap_mm: 0.3
   - atom_pair: [C_6, H_10]
     shape_pair:
     - {}
@@ -193,7 +191,6 @@ molecule:
     - {}
     - {}
     bond_type: single
-    bond_gap_mm: 0.3
   - atom_pair: [C_18, H_20]
     shape_pair:
     - {}
@@ -224,7 +221,6 @@ molecule:
     - {}
     - {}
     bond_type: single
-    bond_gap_mm: 0.3
   - atom_pair: [C_25, H_27]
     shape_pair:
     - {}
