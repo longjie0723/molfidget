@@ -58,11 +58,14 @@ class LabeledSceneViewer(SceneViewer):
 
     def draw_labels(self):
         # 2D描画モードに切り替える前にラベルのスクリーン座標を計算
-        label_positions = {}
+        visible_labels = []
         for name, (label, position) in self.labels.items():
-            screen_x, screen_y, _ = self.world_to_screen(position)
+            screen_x, screen_y, screen_z = self.world_to_screen(position)
+            if not self._is_label_visible(screen_x, screen_y, screen_z):
+                continue
             label.x = screen_x
             label.y = screen_y
+            visible_labels.append(label)
 
         # 2D描画モードに切り替え
         glMatrixMode(GL_PROJECTION)
@@ -73,7 +76,7 @@ class LabeledSceneViewer(SceneViewer):
         glPushMatrix()
         glLoadIdentity()
         # ラベル描画
-        for name, (label, _) in self.labels.items():
+        for label in visible_labels:
             label.draw()
 
         # 3D描画モードに戻す
@@ -87,6 +90,23 @@ class LabeledSceneViewer(SceneViewer):
         glLineWidth(2.0)
         super().on_draw()
         self.draw_labels()
+
+    def _is_label_visible(self, screen_x: float, screen_y: float, screen_z: float) -> bool:
+        """
+        ラベル位置の深度と深度バッファを比較し、前面オブジェクトに隠れていない時だけTrue。
+        """
+        x = int(round(screen_x))
+        y = int(round(screen_y))
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
+            return False
+
+        depth = (GLfloat * 1)()
+        glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, depth)
+        scene_depth = float(depth[0])
+
+        # depthは0.0(近)〜1.0(遠)。screen_zがscene_depthより大きい場合は奥にある。
+        epsilon = 1e-4
+        return screen_z <= scene_depth + epsilon
 
 
 # 使用例
