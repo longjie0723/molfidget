@@ -58,7 +58,15 @@ class Bond:
             config.shape_pair[1].hole_radius_mm = self.magnetic_hole_radius_mm
             config.shape_pair[1].hole_length_mm = self.magnetic_hole_length_mm
             config.shape_pair[1].bond_gap_mm = 0
-
+        elif config.bond_type == "plane":
+            config.shape_pair[0].shape_type = "none"
+            config.shape_pair[1].shape_type = "none"
+        else:
+            valid_bond_types = ("single", "double", "triple", "aromatic", "magnetic", "plane")
+            raise ValueError(
+                f"Unsupported bond_type: {config.bond_type!r} between {self.atom1_name} and {self.atom2_name}. "
+                f"Supported bond_type values are: {', '.join(valid_bond_types)}."
+            )
         self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default, scale), Shape(self.atom2_name, config.shape_pair[1], default, scale)]
 
     def update_atoms(self, atoms: dict):
@@ -208,8 +216,8 @@ class Bond:
             return True
         if marker == "hetero-only":
             return self.atom1.elem != self.atom2.elem
-        if marker == "hetero-only-except-h":
-            if self.atom1.elem == "H" or self.atom2.elem == "H":
+        if marker == "hetero-only-except-ch":
+            if (self.atom1.elem == "C" and self.atom2.elem == "H") or (self.atom1.elem == "H" and self.atom2.elem == "C"):
                 return False
             if self.atom1.elem != self.atom2.elem:
                 return True
