@@ -1,6 +1,6 @@
 molecule:
   name: ethanol
-  scale: 10.0
+  scale: 8.0
   default:
     atom:
       scale: 0.8
@@ -19,7 +19,7 @@ molecule:
       shaft_gap: 0.03
       taper_angle_deg: 0.0
       taper_radius_scale: 1.0
-      bond_marker: hetero-only-except-h
+      bond_marker: hetero-only-except-ch
   atoms:
   - name: C_1
     position: [0.445, -2.202, -5.28]
