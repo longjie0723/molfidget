@@ -39,7 +39,7 @@ class DefaultBondConfig:
     taper_radius_scale: float = 1.0 # Scale factor for the taper radius
     magnetic_hole_radius_mm: float = 3.525  # Radius of the magnetic hole [mm]
     magnetic_hole_length_mm: float = 2.0  # Length of the magnetic hole [mm]
-    bond_marker: str = "hetero-only-exept-CH" # Option for bond number marker display (e.g., on, off, hetero-only, hetero-only-except-CH)
+    bond_marker: str = "hetero-only-except-ch" # Option for bond number marker display (e.g., on, off, hetero-only, hetero-only-except-ch)
     bond_marker_size_mm: float = 1.5 # Size of bond number marker [mm] (inherits default when None)
     bond_marker_depth_mm: float = 0.5 # Depth of bond number marker [mm] (inherits default when None)
 @dataclass

@@ -221,7 +221,12 @@ class Bond:
                 return False
             if self.atom1.elem != self.atom2.elem:
                 return True
-        return False
+            return False
+        valid_bond_types = ("off", "on", "hetero-only", "hetero-only-except-ch")
+        raise ValueError(
+            f"Unsupported bond_marker: {marker!r} between {self.atom1_name} and {self.atom2_name}. "
+            f"Supported bond_marker values are: {', '.join(valid_bond_types)}."
+            )
 
     def _engrave_bond_pattern(self, atom: Atom, normal_vec: np.ndarray, plane_distance: float, r1: float, slice_distance: float):
         """時計12方向にビットを割り当てた穴パターンでボンド番号を表現"""
