@@ -38,6 +38,9 @@ class Bond:
         if config.bond_type == "single":
             config.shape_pair[0].shape_type = "shaft_spin"
             config.shape_pair[1].shape_type = "hole"
+        elif config.bond_type in ("notch_1", "notch_2", "notch_3"):
+            config.shape_pair[0].shape_type = "shaft_spin"
+            config.shape_pair[1].shape_type = "hole"
         elif config.bond_type == "double":
             config.shape_pair[0].shape_type = "shaft_dcut"
             config.shape_pair[1].shape_type = "hole_dcut"
@@ -62,7 +65,7 @@ class Bond:
             config.shape_pair[0].shape_type = "none"
             config.shape_pair[1].shape_type = "none"
         else:
-            valid_bond_types = ("single", "double", "triple", "aromatic", "magnetic", "plane")
+            valid_bond_types = ("single", "notch_1", "notch_2", "notch_3", "double", "triple", "aromatic", "magnetic", "plane")
             raise ValueError(
                 f"Unsupported bond_type: {config.bond_type!r} between {self.atom1_name} and {self.atom2_name}. "
                 f"Supported bond_type values are: {', '.join(valid_bond_types)}."
@@ -108,6 +111,9 @@ class Bond:
                 shape.sculpt_trimesh_by_hole_dcut()
             elif shape.shape_type == "none":
                 pass  # 形状なし
+        notch_counts = {"notch_1": 1, "notch_2": 2, "notch_3": 3}
+        if self.bond_type in notch_counts:
+            self._apply_notches(notch_counts[self.bond_type])
 
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):
         # mesh = self.slice_by_bond_plane(mesh)
@@ -283,6 +289,67 @@ class Bond:
             return
         holes_mesh = trimesh.boolean.union(holes, check_volume=False)
         atom.mesh = trimesh.boolean.difference([atom.mesh, holes_mesh], check_volume=False)
+
+    def _apply_notches(self, notch_count: int):
+        """notch_N: slice面上に半球突起（shaft側）と半球穴（hole側）をN組追加"""
+        if notch_count <= 0:
+            return
+        shaft_shape = self.shape_pair[0]
+        hole_shape = self.shape_pair[1]
+        normal_vec = self.vector
+        base_radial = self._pick_plane_direction(normal_vec)
+        tangent_world = np.cross(normal_vec, base_radial)
+        tangent_norm = np.linalg.norm(tangent_world)
+        if tangent_norm <= 0:
+            return
+        tangent_world /= tangent_norm
+
+        scale_factor = 2.0 # Adjust this factor to increase/decrease notch size
+        notch_radius = (shaft_shape.bond_gap + shaft_shape.shaft_gap) * scale_factor
+        if notch_radius <= 0:
+            return
+        clearance_factor = 0.1 # smaller value means tighter fit, larger value means looser fit 
+        notch_clearance = max(shaft_shape.shaft_gap, 0.01) * clearance_factor
+        hole_notch_radius = notch_radius + notch_clearance
+        notch_offset1 = shaft_shape.slice_radius * 0.8
+        notch_offset2 = hole_shape.slice_radius * 0.8
+
+        # Coplanar placement on the cut plane is unstable in boolean ops.
+        # Place centers from the actual cut plane and embed into each atom body.
+        embed = max(notch_radius * 0.20, shaft_shape.bond_gap * 0.60, 0.01)
+        plane1 = shaft_shape.slice_distance - shaft_shape.bond_gap / 2
+        plane2 = hole_shape.slice_distance - hole_shape.bond_gap / 2
+        for i in range(notch_count):
+            angle = i * (2.0 * np.pi / notch_count)
+            radial_world = np.cos(angle) * base_radial + np.sin(angle) * tangent_world
+
+            center1 = radial_world * notch_offset1 + shaft_shape.vector * (plane1 - embed)
+            center2 = radial_world * notch_offset2 + hole_shape.vector * (plane2 + embed)
+
+            protrusion = self._create_hemisphere(notch_radius, direction=shaft_shape.vector)
+            protrusion.apply_translation(center1)
+            self.atom1.mesh = trimesh.boolean.union([self.atom1.mesh, protrusion], check_volume=False)
+
+            notch_hole = self._create_hemisphere(hole_notch_radius, direction=-hole_shape.vector)
+            notch_hole.apply_translation(center2)
+            self.atom2.mesh = trimesh.boolean.difference([self.atom2.mesh, notch_hole], check_volume=False)
+
+    def _pick_plane_direction(self, normal_vec: np.ndarray) -> np.ndarray:
+        ref = np.array([1.0, 0.0, 0.0]) if abs(normal_vec[0]) < 0.9 else np.array([0.0, 1.0, 0.0])
+        axis = np.cross(normal_vec, ref)
+        axis_norm = np.linalg.norm(axis)
+        if axis_norm <= 0:
+            return np.array([0.0, 1.0, 0.0])
+        return axis / axis_norm
+
+    def _create_hemisphere(self, radius: float, direction: np.ndarray) -> trimesh.Trimesh:
+        sphere = trimesh.creation.icosphere(subdivisions=3, radius=radius)
+        cap = trimesh.creation.box(extents=[4 * radius, 4 * radius, 2 * radius])
+        cap.apply_translation([0, 0, radius])
+        hemisphere = trimesh.boolean.intersection([sphere, cap], check_volume=False)
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], direction)
+        hemisphere.apply_transform(rotation_matrix)
+        return hemisphere
 
     def create_rotate_shaft(self):
         # Create a shaft
