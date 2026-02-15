@@ -1,0 +1,83 @@
+molecule:
+  name: ethanol
+  scale: 10.0
+  default:
+    atom:
+      scale: 0.8
+      color: [200, 200, 200, 255]
+    bond:
+      bond_gap_mm: 0.1
+      bond_gap: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.03
+      taper_angle_deg: 0.0
+      taper_radius_scale: 1.0
+      bond_marker: hetero-only-except-ch
+  atoms:
+  - name: C_1
+    position: [0.445, -2.202, -5.28]
+  - name: H_2
+    position: [1.032, -1.394, -5.234]
+  - name: H_3
+    position: [-0.151, -2.228, -4.477]
+  - name: O_4
+    position: [1.295, -3.437, -5.31]
+  - name: H_5
+    position: [1.85, -3.479, -4.479]
+  - name: C_6
+    position: [-0.394, -2.141, -6.522]
+  - name: H_7
+    position: [-0.979, -2.951, -6.569]
+  - name: H_8
+    position: [-0.962, -1.319, -6.501]
+  - name: H_9
+    position: [0.202, -2.114, -7.325]
+  bonds:
+  - atom_pair: [C_1, H_2]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_1, H_3]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_1, O_4]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_1, C_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: notch_3
+    bond_gap_mm: 0.1
+  - atom_pair: [O_4, H_5]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_6, H_7]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_6, H_8]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_6, H_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
