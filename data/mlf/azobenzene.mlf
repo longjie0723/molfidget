@@ -1,0 +1,207 @@
+molecule:
+  name: azobenzene
+  scale: 10.0
+  default:
+    atom:
+      scale: 0.8
+      color: [200, 200, 200, 255]
+    bond:
+      bond_gap_mm: 0.1
+      bond_gap: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.03
+      taper_angle_deg: 0.0
+      taper_radius_scale: 1.0
+      magnetic_hole_radius_mm: 3.525
+      magnetic_hole_length_mm: 2.0
+      bond_marker: hetero-only-except-ch
+      bond_marker_size_mm: 1.5
+      bond_marker_depth_mm: 0.5
+  atoms:
+  - name: C_1
+    position: [-3.6712, -1.3036, -0.0]
+  - name: C_2
+    position: [-2.2937, -1.1192, -0.0]
+  - name: C_3
+    position: [-1.768, 0.1845, -0.0]
+  - name: C_4
+    position: [-2.6334, 1.2865, 0.0]
+  - name: C_5
+    position: [-4.0141, 1.0945, 0.0001]
+  - name: C_6
+    position: [-4.535, -0.2005, 0.0]
+  - name: H_7
+    position: [-4.0806, -2.3106, -0.0001]
+  - name: H_8
+    position: [-1.6083, -1.9593, -0.0001]
+  - name: H_9
+    position: [-2.1979, 2.2812, 0.0001]
+  - name: H_10
+    position: [-4.6814, 1.952, 0.0001]
+  - name: H_11
+    position: [-5.6108, -0.3547, 0.0]
+  - name: N_12
+    position: [-0.3847, 0.4994, -0.0]
+  - name: N_13
+    position: [0.3847, -0.4993, -0.0]
+  - name: C_14
+    position: [1.768, -0.1845, -0.0]
+  - name: C_15
+    position: [2.2938, 1.1192, -0.0001]
+  - name: C_16
+    position: [2.6333, -1.2865, 0.0001]
+  - name: C_17
+    position: [3.6713, 1.3036, -0.0]
+  - name: H_18
+    position: [1.6083, 1.9593, -0.0001]
+  - name: C_19
+    position: [4.0141, -1.0945, 0.0]
+  - name: H_20
+    position: [2.1979, -2.2812, 0.0001]
+  - name: C_21
+    position: [4.535, 0.2005, 0.0]
+  - name: H_22
+    position: [4.0807, 2.3105, -0.0]
+  - name: H_23
+    position: [4.6813, -1.952, 0.0001]
+  - name: H_24
+    position: [5.6108, 0.3547, 0.0]
+  bonds:
+  - atom_pair: [C_1, C_2]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_1, C_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_1, H_7]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_2, C_3]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_2, H_8]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_3, C_4]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_3, N_12]
+    shape_pair:
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_4, C_5]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_4, H_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_5, C_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_5, H_10]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_6, H_11]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [N_12, N_13]
+    shape_pair:
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    bond_type: notch_2
+  - atom_pair: [N_13, C_14]
+    shape_pair:
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_14, C_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_14, C_16]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_15, C_17]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_15, H_18]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_16, C_19]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_16, H_20]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_17, C_21]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_17, H_22]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_19, C_21]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_19, H_23]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_21, H_24]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
