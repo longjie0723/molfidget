@@ -91,8 +91,10 @@ molecule:
     bond_type: single
   - atom_pair: [C_2, C_3]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
     bond_type: aromatic
   - atom_pair: [C_2, H_8]
     shape_pair:
@@ -101,13 +103,15 @@ molecule:
     bond_type: single
   - atom_pair: [C_3, C_4]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
     bond_type: aromatic
   - atom_pair: [C_3, N_12]
     shape_pair:
     - taper_radius_scale: 0.89
-      taper_angle_deg: 35.0
+      taper_angle_deg: 65.0
     - taper_radius_scale: 0.89
       taper_angle_deg: 35.0
     bond_type: single
@@ -138,27 +142,29 @@ molecule:
     bond_type: single
   - atom_pair: [N_12, N_13]
     shape_pair:
-    - taper_radius_scale: 0.89
-      taper_angle_deg: 35.0
-    - taper_radius_scale: 0.89
-      taper_angle_deg: 35.0
+    - {}
+    - {}
     bond_type: notch_2
-  - atom_pair: [N_13, C_14]
+  - atom_pair: [C_14, N_13]
     shape_pair:
     - taper_radius_scale: 0.89
-      taper_angle_deg: 35.0
+      taper_angle_deg: 65.0
     - taper_radius_scale: 0.89
       taper_angle_deg: 35.0
     bond_type: single
   - atom_pair: [C_14, C_15]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
     bond_type: aromatic
   - atom_pair: [C_14, C_16]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.89
+      taper_angle_deg: 35.0
     bond_type: aromatic
   - atom_pair: [C_15, C_17]
     shape_pair:
