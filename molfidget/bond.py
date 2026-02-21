@@ -1,4 +1,3 @@
-from logging import config
 import numpy as np
 import trimesh
 
