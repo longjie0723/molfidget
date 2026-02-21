@@ -8,7 +8,7 @@ from typing import List
 
 @dataclass
 class DefaultAtomConfig:
-    scale: float = 1.0  # Scale factor for van der Waals radius
+    scale: float = 0.8  # Scale factor for van der Waals radius
     color: List[int] = field(default_factory=lambda: [200, 200, 200, 255])
 
 
@@ -31,7 +31,8 @@ class DefaultBondConfig:
     shaft_gap: float = 0.03  # Gap between the shaft and the cavity [Angstrom]
     taper_angle_deg: float = 0.0 # Taper angle in degrees
     taper_radius_scale: float = 1.0 # Scale factor for the taper radius
-
+    magnetic_hole_radius_mm: float = 3.525  # Radius of the magnetic hole [mm]
+    magnetic_hole_length_mm: float = 2.0  # Length of the magnetic hole [mm]
 
 @dataclass
 class DefaultConfig:
@@ -100,7 +101,8 @@ class BondConfig:
     bond_gap_mm: float = None  # Gap between the bond plane [mm]
     taper_angle_deg: List[float] = None  # Taper angle at the two ends in degrees
     taper_radius_scale: List[float] = None  # Scale factor for the taper radius at the two ends
-
+    magnetic_hole_radius_mm: float = None  # Radius of the magnetic hole [mm]
+    magnetic_hole_length_mm: float = None  # Length of the magnetic hole [mm]
 
 
 @dataclass
@@ -269,7 +271,9 @@ def load_mol_file(file_name: str) -> MoleculeConfig:
         elif type == 3:
             bond_type = "triple"
         elif type == 4:
-            bond_type = "1.5"
+            bond_type = "aromatic"
+        elif type == 9:
+            bond_type = "magnetic"
         else:
             raise ValueError(f"Unknown bond type: {type}")
         bonds.append(
@@ -280,7 +284,7 @@ def load_mol_file(file_name: str) -> MoleculeConfig:
         )
     # file_nameから拡張子を除いた名前を設定
     molecle_config = MoleculeConfig(
-        name=file_name.split("/")[-1].split(".")[0], scale=1.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
+        name=file_name.split("/")[-1].split(".")[0], scale=10.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
     )
     return molecle_config
 
@@ -318,6 +322,6 @@ def load_pdb_file(file_name: str) -> MoleculeConfig:
                         )
                     )
     molecle_config = MoleculeConfig(
-        name="file_name", scale=1.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
+        name="file_name", scale=10.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
     )
     return molecle_config
