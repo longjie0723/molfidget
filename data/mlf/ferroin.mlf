@@ -3,7 +3,7 @@ molecule:
   scale: 8.0
   default:
     atom:
-      scale: 0.80
+      vdw_scale: 0.80
       color: [200, 200, 200, 255]
     bond:
       bond_gap_mm: 0.1
@@ -144,7 +144,7 @@ molecule:
     position: [12.7574, 15.7471, 12.422]
   - name: Fe_61
     position: [15.2032, 15.8842, 11.0139]
-    scale: 0.60
+    vdw_scale: 0.60
   - name: N_62
     position: [16.8075, 16.9166, 10.5635]
   - name: N_63

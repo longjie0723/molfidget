@@ -3,7 +3,7 @@ molecule:
   scale: 10.0
   default:
     atom:
-      scale: 0.8
+      vdw_scale: 0.8
       color: [200, 200, 200, 255]
     bond:
       bond_gap_mm: 0.0
