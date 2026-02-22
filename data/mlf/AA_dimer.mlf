@@ -1,6 +1,6 @@
 molecule:
   name: AA_dimer
-  scale: 10.0
+  scale: 8.0
   default:
     atom:
       scale: 0.8
@@ -82,8 +82,10 @@ molecule:
     bond_type: double
   - atom_pair: [C_5, O_7]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
     bond_type: single
   - atom_pair: [O_6, H_16]
     shape_pair:
@@ -92,8 +94,10 @@ molecule:
     bond_type: magnetic
   - atom_pair: [O_7, H_8]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
     bond_type: double
   - atom_pair: [H_8, O_14]
     shape_pair:
@@ -127,11 +131,15 @@ molecule:
     bond_type: double
   - atom_pair: [C_13, O_15]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
     bond_type: single
   - atom_pair: [O_15, H_16]
     shape_pair:
-    - {}
-    - {}
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
     bond_type: double

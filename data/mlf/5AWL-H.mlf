@@ -1,0 +1,1293 @@
+molecule:
+  name: crystal structure of a mutant of chignolin, cln025
+  scale: 8.0
+  default:
+    atom:
+      scale: 0.8
+      color: [200, 200, 200, 255]
+    bond:
+      bond_gap_mm: 0.1
+      bond_gap: 0.0
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap: 0.03
+      taper_angle_deg: 0.0
+      taper_radius_scale: 1.0
+      magnetic_hole_radius_mm: 2.525
+      magnetic_hole_length_mm: 3.0
+      bond_marker: hetero-only-except-ch
+      bond_marker_size_mm: 1.0
+      bond_marker_depth_mm: 0.8
+  atoms:
+  - name: N_1
+    position: [25.823999404907227, 21.67099952697754, 10.23799991607666]
+  - name: C_1
+    position: [24.934999465942383, 20.652000427246094, 10.77400016784668]
+  - name: C_2
+    position: [23.729000091552734, 20.558000564575195, 9.85200023651123]
+  - name: O_1
+    position: [23.389999389648438, 21.601999282836914, 9.288999557495117]
+  - name: C_3
+    position: [24.424999237060547, 21.02899932861328, 12.166999816894531]
+  - name: C_4
+    position: [25.524999618530273, 21.525999069213867, 13.069999694824219]
+  - name: C_5
+    position: [25.82900047302246, 22.8700008392334, 13.274999618530273]
+  - name: C_6
+    position: [26.291000366210938, 20.56399917602539, 13.736000061035156]
+  - name: C_7
+    position: [26.8700008392334, 23.242000579833984, 14.135000228881836]
+  - name: C_8
+    position: [27.325000762939453, 20.871000289916992, 14.57699966430664]
+  - name: C_9
+    position: [27.57699966430664, 22.231000900268555, 14.751999855041504]
+  - name: O_2
+    position: [28.648000717163086, 22.6200008392334, 15.581999778747559]
+  - name: H_1
+    position: [26.382999420166016, 21.94300079345703, 10.875]
+  - name: H_2
+    position: [26.290000915527344, 21.332000732421875, 9.5600004196167]
+  - name: H_3
+    position: [25.3439998626709, 22.363000869750977, 9.949999809265137]
+  - name: H_4
+    position: [25.422000885009766, 19.815000534057617, 10.835000038146973]
+  - name: H_5
+    position: [23.743999481201172, 21.71500015258789, 12.083999633789062]
+  - name: H_6
+    position: [24.00200080871582, 20.256999969482422, 12.572999954223633]
+  - name: H_7
+    position: [25.336000442504883, 23.525999069213867, 12.836999893188477]
+  - name: H_8
+    position: [26.086000442504883, 19.66699981689453, 13.600000381469727]
+  - name: H_9
+    position: [27.07699966430664, 24.13599967956543, 14.284000396728516]
+  - name: H_10
+    position: [27.82699966430664, 20.21500015258789, 15.003999710083008]
+  - name: H_11
+    position: [29.229999542236328, 22.013999938964844, 15.590999603271484]
+  - name: N_2
+    position: [23.06800079345703, 19.43000030517578, 9.704000473022461]
+  - name: C_10
+    position: [21.801000595092773, 19.381000518798828, 9.017000198364258]
+  - name: C_11
+    position: [20.66699981689453, 19.518999099731445, 10.020999908447266]
+  - name: O_3
+    position: [20.66699981689453, 18.957000732421875, 11.086999893188477]
+  - name: C_12
+    position: [21.648000717163086, 18.11400032043457, 8.208000183105469]
+  - name: C_13
+    position: [22.55299949645996, 17.959999084472656, 7.031000137329102]
+  - name: C_14
+    position: [23.697999954223633, 17.187999725341797, 7.09499979019165]
+  - name: C_15
+    position: [22.270999908447266, 18.555999755859375, 5.815999984741211]
+  - name: C_16
+    position: [24.520000457763672, 17.038999557495117, 5.991000175476074]
+  - name: C_17
+    position: [23.079999923706055, 18.37700080871582, 4.709000110626221]
+  - name: C_18
+    position: [24.229000091552734, 17.64699935913086, 4.7779998779296875]
+  - name: O_4
+    position: [24.976999282836914, 17.47800064086914, 3.6649999618530273]
+  - name: H_12
+    position: [23.341999053955078, 18.670000076293945, 10.0]
+  - name: H_13
+    position: [21.76799964904785, 20.12299919128418, 8.392999649047852]
+  - name: H_14
+    position: [21.788000106811523, 17.357999801635742, 8.798999786376953]
+  - name: H_15
+    position: [20.731000900268555, 18.062999725341797, 7.894999980926514]
+  - name: H_16
+    position: [23.91900062561035, 16.761999130249023, 7.892000198364258]
+  - name: H_17
+    position: [21.514999389648438, 19.093000411987305, 5.741000175476074]
+  - name: H_18
+    position: [25.28700065612793, 16.51799964904785, 6.064000129699707]
+  - name: H_19
+    position: [22.834999084472656, 18.76300048828125, 3.8989999294281006]
+  - name: H_20
+    position: [24.645000457763672, 17.922000885009766, 3.0339999198913574]
+  - name: N_3
+    position: [19.665000915527344, 20.305999755859375, 9.62600040435791]
+  - name: C_19
+    position: [18.476999282836914, 20.538999557495117, 10.432000160217285]
+  - name: C_20
+    position: [17.534000396728516, 19.32900047302246, 10.39799976348877]
+  - name: O_5
+    position: [17.29400062561035, 18.804000854492188, 9.310999870300293]
+  - name: C_21
+    position: [17.77899932861328, 21.777999877929688, 9.904000282287598]
+  - name: C_22
+    position: [16.61199951171875, 22.194000244140625, 10.722999572753906]
+  - name: O_6
+    position: [15.529999732971191, 21.611000061035156, 10.649999618530273]
+  - name: O_7
+    position: [16.854000091552734, 23.19700050354004, 11.51200008392334]
+  - name: H_21
+    position: [19.65999984741211, 20.722000122070312, 8.873000144958496]
+  - name: H_22
+    position: [18.735000610351562, 20.67099952697754, 11.357999801635742]
+  - name: H_23
+    position: [18.416000366210938, 22.509000778198242, 9.866999626159668]
+  - name: H_24
+    position: [17.483999252319336, 21.61199951171875, 8.994999885559082]
+  - name: N_4
+    position: [17.025999069213867, 18.888999938964844, 11.526000022888184]
+  - name: C_23
+    position: [16.222999572753906, 17.65999984741211, 11.536999702453613]
+  - name: C_24
+    position: [14.85200023651123, 17.788000106811523, 10.906999588012695]
+  - name: O_8
+    position: [14.260000228881836, 16.756000518798828, 10.57800006866455]
+  - name: C_25
+    position: [16.10099983215332, 17.319000244140625, 13.04699993133545]
+  - name: C_26
+    position: [16.246000289916992, 18.638999938964844, 13.685999870300293]
+  - name: C_27
+    position: [17.243000030517578, 19.406999588012695, 12.888999938964844]
+  - name: H_25
+    position: [16.649999618530273, 16.974000930786133, 11.00100040435791]
+  - name: H_26
+    position: [15.248000144958496, 16.908000946044922, 13.255999565124512]
+  - name: H_27
+    position: [16.791000366210938, 16.701000213623047, 13.333999633789062]
+  - name: H_28
+    position: [15.395000457763672, 19.104000091552734, 13.708999633789062]
+  - name: H_29
+    position: [16.54199981689453, 18.54400062561035, 14.604999542236328]
+  - name: H_30
+    position: [17.08799934387207, 20.363000869750977, 12.940999984741211]
+  - name: H_31
+    position: [18.149999618530273, 19.249000549316406, 13.196000099182129]
+  - name: N_5
+    position: [14.331000328063965, 19.011999130249023, 10.800999641418457]
+  - name: C_28
+    position: [13.039999961853027, 19.288999557495117, 10.211999893188477]
+  - name: C_29
+    position: [13.131999969482422, 19.591999053955078, 8.736000061035156]
+  - name: O_9
+    position: [12.258000373840332, 19.149999618530273, 7.953000068664551]
+  - name: C_30
+    position: [12.28600025177002, 20.42099952697754, 10.96399974822998]
+  - name: C_31
+    position: [11.645000457763672, 19.98200035095215, 12.241000175476074]
+  - name: C_32
+    position: [10.494999885559082, 19.011999130249023, 12.166999816894531]
+  - name: O_10
+    position: [10.277999877929688, 18.22100067138672, 13.126999855041504]
+  - name: O_11
+    position: [9.751999855041504, 19.066999435424805, 11.166999816894531]
+  - name: H_32
+    position: [14.737000465393066, 19.716999053955078, 11.079999923706055]
+  - name: H_33
+    position: [12.522000312805176, 18.474000930786133, 10.307999610900879]
+  - name: H_34
+    position: [12.909000396728516, 21.138999938964844, 11.156000137329102]
+  - name: H_35
+    position: [11.604000091552734, 20.785999298095703, 10.378999710083008]
+  - name: H_36
+    position: [12.333000183105469, 19.58300018310547, 12.795000076293945]
+  - name: H_37
+    position: [11.333000183105469, 20.775999069213867, 12.70300006866455]
+  - name: N_6
+    position: [14.13700008392334, 20.35099983215332, 8.314000129699707]
+  - name: C_33
+    position: [14.199999809265137, 20.805999755859375, 6.940999984741211]
+  - name: C_34
+    position: [15.255000114440918, 20.07200050354004, 6.135000228881836]
+  - name: O_12
+    position: [15.239999771118164, 20.132999420166016, 4.900000095367432]
+  - name: C_35
+    position: [14.51099967956543, 22.290000915527344, 6.823999881744385]
+  - name: O_13
+    position: [15.802000045776367, 22.534000396728516, 7.368000030517578]
+  - name: C_36
+    position: [13.53600025177002, 23.152000427246094, 7.625999927520752]
+  - name: H_38
+    position: [14.789999961853027, 20.611000061035156, 8.8100004196167]
+  - name: H_39
+    position: [13.3149995803833, 20.621999740600586, 6.589000225067139]
+  - name: H_40
+    position: [14.447999954223633, 22.520000457763672, 5.883999824523926]
+  - name: H_41
+    position: [16.29599952697754, 22.8700008392334, 6.7779998779296875]
+  - name: H_42
+    position: [13.770999908447266, 24.08799934387207, 7.5229997634887695]
+  - name: H_43
+    position: [12.633999824523926, 23.007999420166016, 7.301000118255615]
+  - name: H_44
+    position: [13.583999633789062, 22.908000946044922, 8.564000129699707]
+  - name: N_7
+    position: [16.215999603271484, 19.385000228881836, 6.750999927520752]
+  - name: C_37
+    position: [17.256000518798828, 18.676000595092773, 6.039000034332275]
+  - name: C_38
+    position: [18.259000778198242, 19.555999755859375, 5.361000061035156]
+  - name: O_14
+    position: [19.014999389648438, 19.090999603271484, 4.50600004196167]
+  - name: H_45
+    position: [16.275999069213867, 19.32200050354004, 7.60699987411499]
+  - name: H_46
+    position: [17.72100067138672, 18.09600067138672, 6.663000106811523]
+  - name: H_47
+    position: [16.843000411987305, 18.104000091552734, 5.373000144958496]
+  - name: N_8
+    position: [18.36199951171875, 20.804000854492188, 5.695000171661377]
+  - name: C_39
+    position: [19.242000579833984, 21.760000228881836, 5.125]
+  - name: C_40
+    position: [20.41900062561035, 22.025999069213867, 6.073999881744385]
+  - name: O_15
+    position: [20.316999435424805, 21.871999740600586, 7.313000202178955]
+  - name: C_41
+    position: [18.55299949645996, 23.072999954223633, 4.76200008392334]
+  - name: O_16
+    position: [17.905000686645508, 23.601999282836914, 5.921999931335449]
+  - name: C_42
+    position: [17.49799919128418, 22.871000289916992, 3.686000108718872]
+  - name: H_48
+    position: [17.875, 21.14299964904785, 6.316999912261963]
+  - name: H_49
+    position: [19.56599998474121, 21.378000259399414, 4.294000148773193]
+  - name: H_50
+    position: [19.23200035095215, 23.680999755859375, 4.428999900817871]
+  - name: H_51
+    position: [18.360000610351562, 24.23699951171875, 6.23199987411499]
+  - name: H_52
+    position: [17.079999923706055, 23.72100067138672, 3.4790000915527344]
+  - name: H_53
+    position: [17.915000915527344, 22.51300048828125, 2.88700008392334]
+  - name: H_54
+    position: [16.825000762939453, 22.25, 4.005000114440918]
+  - name: N_9
+    position: [21.517000198364258, 22.417999267578125, 5.517000198364258]
+  - name: C_43
+    position: [22.761999130249023, 22.68000030517578, 6.241000175476074]
+  - name: C_44
+    position: [22.687000274658203, 24.059999465942383, 6.86899995803833]
+  - name: O_17
+    position: [22.320999145507812, 25.0310001373291, 6.184999942779541]
+  - name: C_45
+    position: [23.923999786376953, 22.604000091552734, 5.307000160217285]
+  - name: C_46
+    position: [25.267000198364258, 22.7450008392334, 5.968999862670898]
+  - name: C_47
+    position: [26.02400016784668, 23.847000122070312, 6.059999942779541]
+  - name: C_48
+    position: [25.975000381469727, 21.701000213623047, 6.640999794006348]
+  - name: N_10
+    position: [27.18000030517578, 23.570999145507812, 6.75]
+  - name: C_49
+    position: [27.17799949645996, 22.2450008392334, 7.099999904632568]
+  - name: C_50
+    position: [25.746999740600586, 20.347000122070312, 6.894000053405762]
+  - name: C_51
+    position: [28.125, 21.492000579833984, 7.781000137329102]
+  - name: C_52
+    position: [26.676000595092773, 19.593000411987305, 7.572000026702881]
+  - name: C_53
+    position: [27.864999771118164, 20.176000595092773, 8.026000022888184]
+  - name: H_55
+    position: [21.583999633789062, 22.551000595092773, 4.670000076293945]
+  - name: H_56
+    position: [22.881000518798828, 22.01300048828125, 6.934999942779541]
+  - name: H_57
+    position: [23.893999099731445, 21.753999710083008, 4.840000152587891]
+  - name: H_58
+    position: [23.832000732421875, 23.298999786376953, 4.63700008392334]
+  - name: H_59
+    position: [25.799999237060547, 24.67799949645996, 5.706999778747559]
+  - name: H_60
+    position: [27.802000045776367, 24.13599967956543, 6.932000160217285]
+  - name: H_61
+    position: [24.95800018310547, 19.951000213623047, 6.60099983215332]
+  - name: H_62
+    position: [28.922000885009766, 21.878000259399414, 8.0649995803833]
+  - name: H_63
+    position: [26.51300048828125, 18.69099998474121, 7.730000019073486]
+  - name: H_64
+    position: [28.481000900268555, 19.663000106811523, 8.496999740600586]
+  - name: N_11
+    position: [23.05299949645996, 24.187999725341797, 8.138999938964844]
+  - name: C_54
+    position: [23.135000228881836, 25.466999053955078, 8.793999671936035]
+  - name: C_55
+    position: [24.38599967956543, 25.59000015258789, 9.645999908447266]
+  - name: O_18
+    position: [24.584999084472656, 26.75, 10.069999694824219]
+  - name: C_56
+    position: [21.86199951171875, 25.753000259399414, 9.63599967956543]
+  - name: C_57
+    position: [21.753999710083008, 24.860000610351562, 10.821000099182129]
+  - name: C_58
+    position: [22.198999404907227, 25.20800018310547, 12.100000381469727]
+  - name: C_59
+    position: [21.202999114990234, 23.586000442504883, 10.715999603271484]
+  - name: C_60
+    position: [22.104000091552734, 24.385000228881836, 13.182000160217285]
+  - name: C_61
+    position: [21.118000030517578, 22.746999740600586, 11.803999900817871]
+  - name: C_62
+    position: [21.562999725341797, 23.125, 13.050000190734863]
+  - name: O_19
+    position: [21.499000549316406, 22.315000534057617, 14.128000259399414]
+  - name: O_20
+    position: [25.083999633789062, 24.586999893188477, 9.883999824523926]
+  - name: H_65
+    position: [23.26099967956543, 23.523000717163086, 8.642999649047852]
+  - name: H_66
+    position: [23.191999435424805, 26.13800048828125, 8.095999717712402]
+  - name: H_67
+    position: [21.87299919128418, 26.677000045776367, 9.930000305175781]
+  - name: H_68
+    position: [21.076000213623047, 25.642000198364258, 9.07800006866455]
+  - name: H_69
+    position: [22.58099937438965, 26.04800033569336, 12.218999862670898]
+  - name: H_70
+    position: [20.885000228881836, 23.295000076293945, 9.892000198364258]
+  - name: H_71
+    position: [22.4060001373291, 24.674999237060547, 14.012999534606934]
+  - name: H_72
+    position: [20.749000549316406, 21.899999618530273, 11.694000244140625]
+  - name: H_73
+    position: [21.35300064086914, 21.525999069213867, 13.878000259399414]
+  bonds:
+  - atom_pair: [N_1, C_1]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [N_1, H_2]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [N_1, H_3]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [N_1, H_1]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [C_1, C_2]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_1, C_3]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_1, H_4]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_2, N_2]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_2, O_1]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_3, H_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_3, H_5]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_3, C_4]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_4, C_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_4, C_5]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_5, H_7]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_5, C_7]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_6, H_8]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_6, C_8]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_7, H_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_7, C_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_8, H_10]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_8, C_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_9, O_2]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [O_2, H_11]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [N_2, H_12]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [N_2, C_10]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_10, C_11]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_10, C_12]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_10, H_13]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_11, N_3]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_11, O_3]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: triple
+  - atom_pair: [C_12, H_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_12, C_13]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_12, H_14]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_13, C_14]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_13, C_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_14, H_16]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_14, C_16]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_15, C_17]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_15, H_17]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_16, C_18]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_16, H_18]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_17, C_18]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_17, H_19]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_18, O_4]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [O_4, H_20]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [N_3, C_19]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [N_3, H_21]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+    bond_marker: on
+  - atom_pair: [C_19, C_20]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_19, C_21]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_19, H_22]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_20, O_5]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_20, N_4]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_21, C_22]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_21, H_24]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_21, H_23]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_22, O_6]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_22, O_7]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [N_4, C_23]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: plane
+  - atom_pair: [N_4, C_27]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: plane
+  - atom_pair: [C_23, C_25]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_23, C_24]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_23, H_25]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_24, O_8]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_24, N_5]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_25, H_26]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_25, C_26]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_25, H_27]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_26, H_28]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_26, H_29]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_26, C_27]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_27, H_30]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_27, H_31]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [N_5, C_28]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [N_5, H_32]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [C_28, H_33]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_28, C_29]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_28, C_30]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_29, O_9]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_29, N_6]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_30, C_31]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_30, H_35]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_30, H_34]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_31, C_32]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_31, H_36]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_31, H_37]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_32, O_10]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_32, O_11]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [N_6, C_33]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [N_6, H_38]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [C_33, C_34]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_33, H_39]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_33, C_35]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_34, N_7]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_34, O_12]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_35, H_40]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_35, O_13]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_35, C_36]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [O_13, H_41]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+    bond_marker: on
+  - atom_pair: [C_36, H_43]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_36, H_44]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_36, H_42]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [N_7, H_45]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+    bond_marker: on
+  - atom_pair: [N_7, C_37]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_37, H_47]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_37, H_46]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_37, C_38]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_38, O_14]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_38, N_8]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [N_8, H_48]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [N_8, C_39]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_39, C_41]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_39, H_49]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_39, C_40]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_40, O_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_40, N_9]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_41, C_42]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_41, O_16]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_41, H_50]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [O_16, H_51]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+    bond_marker: on
+  - atom_pair: [C_42, H_54]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_42, H_52]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_42, H_53]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [N_9, H_55]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [N_9, C_43]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_43, H_56]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_43, C_44]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_43, C_45]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_44, N_11]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: double
+  - atom_pair: [C_44, O_17]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_45, H_57]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_45, H_58]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_45, C_46]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_46, C_48]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_46, C_47]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_47, H_59]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_47, N_10]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: plane
+  - atom_pair: [C_48, C_50]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_48, C_49]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [N_10, C_49]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: plane
+  - atom_pair: [N_10, H_60]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+    bond_marker: on
+  - atom_pair: [C_49, C_51]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_50, H_61]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_50, C_52]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_51, C_53]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_51, H_62]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_52, H_63]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_52, C_53]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_53, H_64]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [N_11, H_65]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+    bond_marker: on
+  - atom_pair: [N_11, C_54]
+    shape_pair:
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    - taper_radius_scale: 0.90
+      taper_angle_deg: 35.0
+    bond_type: single
+  - atom_pair: [C_54, C_56]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_54, H_66]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_54, C_55]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_55, O_18]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_55, O_20]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: double
+  - atom_pair: [C_56, H_68]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_56, C_57]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_56, H_67]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_57, C_59]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_57, C_58]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_58, C_60]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_58, H_69]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_59, H_70]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_59, C_61]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_60, C_62]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_60, H_71]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_61, H_72]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [C_61, C_62]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: aromatic
+  - atom_pair: [C_62, O_19]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [O_19, H_73]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: single
+  - atom_pair: [H_21, O_15]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: magnetic
+  - atom_pair: [H_41, O_16]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: magnetic
+  - atom_pair: [H_45, O_5]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: magnetic
+  - atom_pair: [H_65, O_1]
+    shape_pair:
+    - {}
+    - {}
+    bond_type: magnetic

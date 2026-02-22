@@ -1,6 +1,6 @@
 molecule:
   name: ethanol
-  scale: 8.0
+  scale: 10.0
   default:
     atom:
       scale: 0.8
@@ -59,7 +59,8 @@ molecule:
     shape_pair:
     - {}
     - {}
-    bond_type: single
+    bond_type: notch_3
+    bond_gap_mm: 0.1
   - atom_pair: [O_4, H_5]
     shape_pair:
     - {}

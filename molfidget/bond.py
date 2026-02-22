@@ -38,6 +38,9 @@ class Bond:
         if config.bond_type == "single":
             config.shape_pair[0].shape_type = "shaft_spin"
             config.shape_pair[1].shape_type = "hole"
+        elif config.bond_type in ("notch_1", "notch_2", "notch_3"):
+            config.shape_pair[0].shape_type = "shaft_spin"
+            config.shape_pair[1].shape_type = "hole"
         elif config.bond_type == "double":
             config.shape_pair[0].shape_type = "shaft_dcut"
             config.shape_pair[1].shape_type = "hole_dcut"
@@ -58,7 +61,15 @@ class Bond:
             config.shape_pair[1].hole_radius_mm = self.magnetic_hole_radius_mm
             config.shape_pair[1].hole_length_mm = self.magnetic_hole_length_mm
             config.shape_pair[1].bond_gap_mm = 0
-
+        elif config.bond_type == "plane":
+            config.shape_pair[0].shape_type = "none"
+            config.shape_pair[1].shape_type = "none"
+        else:
+            valid_bond_types = ("single", "notch_1", "notch_2", "notch_3", "double", "triple", "aromatic", "magnetic", "plane")
+            raise ValueError(
+                f"Unsupported bond_type: {config.bond_type!r} between {self.atom1_name} and {self.atom2_name}. "
+                f"Supported bond_type values are: {', '.join(valid_bond_types)}."
+            )
         self.shape_pair = [Shape(self.atom1_name, config.shape_pair[0], default, scale), Shape(self.atom2_name, config.shape_pair[1], default, scale)]
 
     def update_atoms(self, atoms: dict):
@@ -100,6 +111,9 @@ class Bond:
                 shape.sculpt_trimesh_by_hole_dcut()
             elif shape.shape_type == "none":
                 pass  # 形状なし
+        notch_counts = {"notch_1": 1, "notch_2": 2, "notch_3": 3}
+        if self.bond_type in notch_counts:
+            self._apply_notches(notch_counts[self.bond_type])
 
     def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):
         # mesh = self.slice_by_bond_plane(mesh)
@@ -208,12 +222,17 @@ class Bond:
             return True
         if marker == "hetero-only":
             return self.atom1.elem != self.atom2.elem
-        if marker == "hetero-only-except-h":
-            if self.atom1.elem == "H" or self.atom2.elem == "H":
+        if marker == "hetero-only-except-ch":
+            if (self.atom1.elem == "C" and self.atom2.elem == "H") or (self.atom1.elem == "H" and self.atom2.elem == "C"):
                 return False
             if self.atom1.elem != self.atom2.elem:
                 return True
-        return False
+            return False
+        valid_bond_types = ("off", "on", "hetero-only", "hetero-only-except-ch")
+        raise ValueError(
+            f"Unsupported bond_marker: {marker!r} between {self.atom1_name} and {self.atom2_name}. "
+            f"Supported bond_marker values are: {', '.join(valid_bond_types)}."
+            )
 
     def _engrave_bond_pattern(self, atom: Atom, normal_vec: np.ndarray, plane_distance: float, r1: float, slice_distance: float):
         """時計12方向にビットを割り当てた穴パターンでボンド番号を表現"""
@@ -270,6 +289,220 @@ class Bond:
             return
         holes_mesh = trimesh.boolean.union(holes, check_volume=False)
         atom.mesh = trimesh.boolean.difference([atom.mesh, holes_mesh], check_volume=False)
+
+    def _apply_notches(self, notch_count: int):
+        """notch_N: slice面上に半球突起（shaft側）と半球穴（hole側）をN組追加"""
+        if notch_count <= 0:
+            return
+        shaft_shape = self.shape_pair[0]
+        hole_shape = self.shape_pair[1]
+        normal_vec = self.vector
+        base_radial = self._pick_plane_direction(normal_vec)
+        tangent_world = np.cross(normal_vec, base_radial)
+        tangent_norm = np.linalg.norm(tangent_world)
+        if tangent_norm <= 0:
+            return
+        tangent_world /= tangent_norm
+
+        scale_factor = 4.0 # Adjust this factor to increase/decrease notch size
+        notch_radius = (shaft_shape.bond_gap + shaft_shape.shaft_gap) * scale_factor
+        if notch_radius <= 0:
+            return
+        clearance_factor = 0.4 # smaller value means tighter fit, larger value means looser fit 
+        notch_clearance = max(shaft_shape.shaft_gap, 0.01) * clearance_factor
+        hole_notch_radius = notch_radius + notch_clearance
+        notch_offset1 = shaft_shape.slice_radius * 0.6
+        notch_offset2 = hole_shape.slice_radius * 0.6
+
+        # Coplanar placement on the cut plane is unstable in boolean ops.
+        # Place centers from the actual cut plane and embed into each atom body.
+        embed = max(notch_radius * 0.20, shaft_shape.bond_gap * 0.60, 0.01)
+        plane1 = shaft_shape.slice_distance - shaft_shape.bond_gap / 2
+        plane2 = hole_shape.slice_distance - hole_shape.bond_gap / 2
+        shaft_protrusions = []
+        shaft_beams = []
+        shaft_cuts = []
+        hole_cuts = []
+        for i in range(notch_count):
+            angle = i * (2.0 * np.pi / notch_count)
+            radial_world = np.cos(angle) * base_radial + np.sin(angle) * tangent_world
+            tangent_local = np.cross(normal_vec, radial_world)
+            tangent_local_norm = np.linalg.norm(tangent_local)
+            if tangent_local_norm <= 0:
+                continue
+            tangent_local /= tangent_local_norm
+
+            center1 = radial_world * notch_offset1 + shaft_shape.vector * (plane1 - embed)
+            center2 = radial_world * notch_offset2 + hole_shape.vector * (plane2 + embed)
+
+            protrusion = self._create_hemisphere(notch_radius, direction=shaft_shape.vector)
+            protrusion.apply_translation(center1)
+            shaft_protrusions.append(protrusion)
+
+            # Build a cantilever under the notch hemisphere:
+            # 1) cylindrical pocket, 2) rectangular slot, 3) spring beam.
+            # Keep notch hemisphere as-is, but anchor cantilever features to the slice plane.
+            cantilever_anchor = center1 + shaft_shape.vector * embed
+            cantilever_cuts, cantilever_beam = self._create_cantilever_under_notch(
+                center=cantilever_anchor,
+                normal=shaft_shape.vector,
+                radial=radial_world,
+                tangent=tangent_local,
+                notch_radius=notch_radius,
+            )
+            shaft_cuts.extend(cantilever_cuts)
+            shaft_beams.append(cantilever_beam)
+
+            notch_hole = self._create_hemisphere(hole_notch_radius, direction=-hole_shape.vector)
+            notch_hole.apply_translation(center2)
+            hole_cuts.append(notch_hole)
+
+        if shaft_protrusions:
+            shaft_added_mesh = trimesh.boolean.union(shaft_protrusions, check_volume=False)
+            self.atom1.mesh = trimesh.boolean.union([self.atom1.mesh, shaft_added_mesh], check_volume=False)
+        if shaft_cuts:
+            shaft_cut_mesh = trimesh.boolean.union(shaft_cuts, check_volume=False)
+            self.atom1.mesh = trimesh.boolean.difference([self.atom1.mesh, shaft_cut_mesh], check_volume=False)
+        if shaft_beams:
+            shaft_beam_mesh = trimesh.boolean.union(shaft_beams, check_volume=False)
+            self.atom1.mesh = trimesh.boolean.union([self.atom1.mesh, shaft_beam_mesh], check_volume=False)
+        if hole_cuts:
+            hole_cut_mesh = trimesh.boolean.union(hole_cuts, check_volume=False)
+            self.atom2.mesh = trimesh.boolean.difference([self.atom2.mesh, hole_cut_mesh], check_volume=False)
+
+    def _pick_plane_direction(self, normal_vec: np.ndarray) -> np.ndarray:
+        ref = np.array([1.0, 0.0, 0.0]) if abs(normal_vec[0]) < 0.9 else np.array([0.0, 1.0, 0.0])
+        axis = np.cross(normal_vec, ref)
+        axis_norm = np.linalg.norm(axis)
+        if axis_norm <= 0:
+            return np.array([0.0, 1.0, 0.0])
+        return axis / axis_norm
+
+    def _create_hemisphere(self, radius: float, direction: np.ndarray) -> trimesh.Trimesh:
+        sphere = trimesh.creation.icosphere(subdivisions=3, radius=radius)
+        cap = trimesh.creation.box(extents=[4 * radius, 4 * radius, 2 * radius])
+        cap.apply_translation([0, 0, radius])
+        hemisphere = trimesh.boolean.intersection([sphere, cap], check_volume=False)
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], direction)
+        hemisphere.apply_transform(rotation_matrix)
+        return hemisphere
+
+    def _create_cantilever_under_notch(
+        self,
+        center: np.ndarray,
+        normal: np.ndarray,
+        radial: np.ndarray,
+        tangent: np.ndarray,
+        notch_radius: float,
+    ):
+        # Initial dimensions are fixed constants in model units for quick tuning.
+        cyl_radius = notch_radius * 1.1
+        pocket_depth = 0.2
+        slot_length = 0.5
+        slot_width = 2.0 * cyl_radius
+        slot_depth = pocket_depth
+
+        # 1) Cylindrical pocket directly below the notch hemisphere.
+        cyl_center = center - normal * (pocket_depth / 2.0)
+        cylinder_cut = self._create_oriented_cylinder(
+            radius=cyl_radius,
+            height=pocket_depth,
+            axis=normal,
+            center=cyl_center,
+            sections=24,
+        )
+
+        # 2) Rectangular slot connected to the cylindrical pocket.
+        slot_center = center + tangent * (slot_length / 2.0) - normal * (slot_depth / 2.0)
+        slot_cut = self._create_oriented_box(
+            extents=[slot_length, slot_width, slot_depth],
+            x_axis=tangent,
+            y_axis=radial,
+            z_axis=normal,
+            center=slot_center,
+        )
+
+        # 3) Beam under the notch that reaches the opposite wall of the slot.
+        beam_length = slot_length
+        #beam_width = slot_width * 0.7
+        beam_width = notch_radius * 2
+        beam_depth = slot_depth * 0.50
+        beam_center = center + tangent * (beam_length / 2.0) - normal * (beam_depth / 2.0)
+        beam = self._create_oriented_box(
+            extents=[beam_length, beam_width, beam_depth],
+            x_axis=tangent,
+            y_axis=radial,
+            z_axis=normal,
+            center=beam_center,
+        )
+
+        # Add a cylindrical root under the hemisphere so the beam is fully connected.
+        beam_root_center = center - normal * (beam_depth / 2.0)
+        beam_root = self._create_oriented_cylinder(
+            radius=notch_radius,
+            height=beam_depth,
+            axis=normal,
+            center=beam_root_center,
+            sections=24,
+        )
+        beam = trimesh.boolean.union([beam, beam_root], check_volume=False)
+
+        return [cylinder_cut, slot_cut], beam
+
+    def _create_oriented_cylinder(
+        self,
+        radius: float,
+        height: float,
+        axis: np.ndarray,
+        center: np.ndarray,
+        sections: int = 24,
+    ) -> trimesh.Trimesh:
+        cylinder = trimesh.creation.cylinder(radius=radius, height=height, sections=sections)
+        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], axis)
+        cylinder.apply_transform(rotation_matrix)
+        cylinder.apply_translation(center)
+        return cylinder
+
+    def _create_oriented_box(
+        self,
+        extents,
+        x_axis: np.ndarray,
+        y_axis: np.ndarray,
+        z_axis: np.ndarray,
+        center: np.ndarray,
+    ) -> trimesh.Trimesh:
+        x = np.array(x_axis, dtype=float)
+        z = np.array(z_axis, dtype=float)
+        x_norm = np.linalg.norm(x)
+        z_norm = np.linalg.norm(z)
+        if x_norm <= 0 or z_norm <= 0:
+            return trimesh.creation.box(extents=extents)
+        x /= x_norm
+        z /= z_norm
+        y = np.array(y_axis, dtype=float)
+        y_norm = np.linalg.norm(y)
+        if y_norm <= 0:
+            y = np.cross(z, x)
+            y_norm = np.linalg.norm(y)
+            if y_norm <= 0:
+                y = np.array([0.0, 1.0, 0.0])
+                y_norm = np.linalg.norm(y)
+        y /= y_norm
+        y = np.cross(z, x)
+        y_norm = np.linalg.norm(y)
+        if y_norm <= 0:
+            y = np.array([0.0, 1.0, 0.0])
+        else:
+            y /= y_norm
+
+        box = trimesh.creation.box(extents=extents)
+        transform = np.eye(4)
+        transform[:3, 0] = x
+        transform[:3, 1] = y
+        transform[:3, 2] = z
+        transform[:3, 3] = center
+        box.apply_transform(transform)
+        return box
 
     def create_rotate_shaft(self):
         # Create a shaft

@@ -21,6 +21,7 @@ molecule:
       taper_radius_scale: 1.0
       magnetic_hole_radius_mm: 3.525
       magnetic_hole_length_mm: 2.0
+      bond_marker: off
   atoms:
   - name: O_1
     position: [-2.2368, 0.7663, -2.5515]
