@@ -83,6 +83,7 @@ class Molecule:
             mesh.export(os.path.join(output_dir, f"{atom.name}.stl"))    
 
     def merge_atoms(self):
+        self.atom_groups.clear()
         counter = 0
         for atom in self.atoms.values():
             for pair in atom.pairs.values():
@@ -90,18 +91,30 @@ class Molecule:
                     continue
                 if pair.atom1.elem != pair.atom2.elem:
                     continue
-                # Search group containing atom1 or atom2
-                group = next((g for g in self.atom_groups.values() if pair.atom1 in g or pair.atom2 in g), None)
-                if group is None:
+                # Find groups containing atom1 / atom2 independently.
+                group1_name = next((name for name, g in self.atom_groups.items() if pair.atom1 in g), None)
+                group2_name = next((name for name, g in self.atom_groups.items() if pair.atom2 in g), None)
+
+                if group1_name is None and group2_name is None:
                     # Create a new group if not found
                     self.atom_groups[f"group_{counter}"] = set()
                     self.atom_groups[f"group_{counter}"].add(pair.atom1)
                     self.atom_groups[f"group_{counter}"].add(pair.atom2)
                     counter += 1
-                else:
-                    # Add the atoms to the existing group
-                    group.add(pair.atom1)
-                    group.add(pair.atom2)
+                    continue
+
+                if group1_name is not None and group2_name is not None:
+                    if group1_name != group2_name:
+                        # Merge two existing groups when the pair bridges them.
+                        self.atom_groups[group1_name].update(self.atom_groups[group2_name])
+                        del self.atom_groups[group2_name]
+                    self.atom_groups[group1_name].add(pair.atom1)
+                    self.atom_groups[group1_name].add(pair.atom2)
+                    continue
+
+                target_name = group1_name if group1_name is not None else group2_name
+                self.atom_groups[target_name].add(pair.atom1)
+                self.atom_groups[target_name].add(pair.atom2)
 
         print(f"Merged atoms into {len(self.atom_groups)} groups")
         print("Groups:", self.atom_groups)
