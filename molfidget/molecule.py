@@ -31,10 +31,30 @@ class Molecule:
         for atom_config in config.atoms:
             name = atom_config.name
             self.atoms[name] = Atom(atom_config, config.default.atom)
-        # Load individual bond configurations
+        # 干渉する原子ペアにplaneボンドを自動追加
         self.bonds = {}
+        atom_names = list(self.atoms.keys())
+        for i in range(len(atom_names)):
+            for j in range(i + 1, len(atom_names)):
+                a1, a2 = self.atoms[atom_names[i]], self.atoms[atom_names[j]]
+                distance = np.linalg.norm(np.array([a2.x - a1.x, a2.y - a1.y, a2.z - a1.z]))
+                if distance < a1.shape_radius + a2.shape_radius:
+                    bond_config = BondConfig(
+                        atom_pair=[atom_names[i], atom_names[j]],
+                        bond_type="plane",
+                    )
+                    bond = Bond(bond_config, config.default.bond, self.scale)
+                    bond.index = 0
+                    self.bonds[atom_names[i], atom_names[j]] = bond
+                    print(f"Auto plane bond: {atom_names[i]} - {atom_names[j]} (distance={distance:.3f}, r1+r2={a1.shape_radius + a2.shape_radius:.3f})")
+        # Load individual bond configurations (自動生成のplaneボンドを上書き)
         for idx, bond_config in enumerate(config.bonds, start=1):
             atom1_name, atom2_name = bond_config.atom_pair
+            # 自動生成のplaneボンドがあれば削除（名前の順序が逆の場合も）
+            if (atom1_name, atom2_name) in self.bonds:
+                del self.bonds[atom1_name, atom2_name]
+            if (atom2_name, atom1_name) in self.bonds:
+                del self.bonds[atom2_name, atom1_name]
             bond = Bond(bond_config, config.default.bond, self.scale)
             bond.index = idx  # bond番号を付与（定義順）
             self.bonds[atom1_name, atom2_name] = bond
@@ -43,33 +63,6 @@ class Molecule:
             atom.update_bonds(self.bonds)
         for bond in self.bonds.values():
             bond.update_atoms(self.atoms)
-
-    def create_pairs(self):
-        # Update the pairs of atoms based on the distance between them
-        for id1, atom1 in self.atoms.items():
-            for id2, atom2 in self.atoms.items():
-                if id1 == id2:
-                    continue
-                if atom_distance(atom1, atom2) < atom1.radius + atom2.radius:
-                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="none", shaft=id1 < id2)
-
-    def find_bonds(self):
-        # Update the bonds based on the distance between atoms
-        for id1, atom1 in self.atoms.items():
-            for id2, atom2 in self.atoms.items():
-                if id1 == id2:
-                    continue
-                if frozenset([atom1.name, atom2.name]) not in bond_distance_table:
-                    continue
-                # Check if the atoms are within triple bond distance
-                if atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][2]:
-                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="triple", shaft=id1 < id2)
-                # Check if the atoms are within double bond distance
-                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][1]:
-                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="double", shaft=id1 < id2)
-                # Check if the atoms are within single bond distance
-                elif atom_distance(atom1, atom2) < 1.05*bond_distance_table[frozenset([atom1.name, atom2.name])][0]:
-                    atom1.pairs[id1, id2] = Bond(atom1, atom2, type="single", shaft=id1 < id2)
 
     def __repr__(self):
         return f"Molecule: {self.name}, {len(self.atoms)} atoms"
