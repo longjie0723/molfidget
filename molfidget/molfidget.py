@@ -166,53 +166,45 @@ def setup_argparse():
 
 
 def exec_convert(args):
-    # ファイル名が .pdb か .mol かで処理を分ける
     if args.input_file.endswith('.pdb'):
-        molecule_config = load_pdb_file(args.input_file)
+        config = load_pdb_file(args.input_file)
     elif args.input_file.endswith('.mol'):
-        molecule_config = load_mol_file(args.input_file)
+        config = load_mol_file(args.input_file)
     else:
         raise ValueError("Input file must be a PDB or MOL file")
-    save_molfidget_config(molecule_config, args.output_file)
+    save_molfidget_config(config, args.output_file)
 
 
 def exec_preview(args):
-    molecule_config = load_molfidget_config(args.molfidget_file)
-    molecule = Molecule(molecule_config)
+    config = load_molfidget_config(args.molfidget_file)
+    molecule = Molecule(config.molecule, config.default)
     print(f"Molecule: {molecule.name}")
 
-    # Create trimesh model
     scene = molecule.create_trimesh_scene()
 
-    # Show the model
     viewer = LabeledSceneViewer(scene)
     pyglet.app.run()
 
 
 def exec_generate(args):
-    molecule_config = load_molfidget_config(args.molfidget_file)
-    molecule_config.scale = args.scale if args.scale is not None else molecule_config.scale
-    print(f"Using scale factor: {molecule_config.scale}")
+    config = load_molfidget_config(args.molfidget_file)
+    if args.scale is not None:
+        config.molecule.scale = args.scale
+    print(f"Using scale factor: {config.molecule.scale}")
 
-    molecule = Molecule(molecule_config)
+    molecule = Molecule(config.molecule, config.default)
     print(f"Molecule: {molecule.name}")
-    # Create trimesh model
     scene = molecule.create_trimesh_scene()
-    # Apply scale
-    scene.apply_scale(molecule_config.scale)
+    scene.apply_scale(config.molecule.scale)
 
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
 
-    # export the entire molecule as 3MF
-    # scene.export(os.path.join(output_dir, f"{molecule.name}.3mf"))
     export_scene_as_colored_3mf(scene, os.path.join(output_dir, f"{molecule.name}.3mf"), libpath=None, debug=False)
 
-    # Save STL files for each component
-    molecule.save_stl_files(scale=molecule_config.scale, output_dir=output_dir)
-    # Merge atoms into groups and save group STL files
+    molecule.save_stl_files(scale=config.molecule.scale, output_dir=output_dir)
     molecule.merge_atoms()
-    molecule.save_group_stl_files(molecule_config.scale, output_dir=output_dir)
+    molecule.save_group_stl_files(config.molecule.scale, output_dir=output_dir)
 
 def main():
     parser = setup_argparse()

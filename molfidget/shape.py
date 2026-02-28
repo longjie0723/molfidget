@@ -1,10 +1,10 @@
 import trimesh
 from molfidget.atom import Atom
-from molfidget.config import ShapeConfig, DefaultBondConfig
+from molfidget.config import ShapeConfig, DefaultShapeConfig
 import numpy as np
 
 class Shape:
-    def __init__(self, atom_name: str, config: ShapeConfig, default: DefaultBondConfig, scale: float):
+    def __init__(self, atom_name: str, config: ShapeConfig, default: DefaultShapeConfig, scale: float):
         self.atom_name = atom_name
         self.atom = None
         self.slice_distance = None

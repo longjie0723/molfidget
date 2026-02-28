@@ -20,32 +20,40 @@ class DefaultAtomConfig:
 
 @dataclass
 class DefaultBondConfig:
-    bond_gap_mm: float = 0.1  # Gap between the bond plane [mm]
-    bond_gap: float = 0.0  # Gap between the bond plane [Angstrom]
-    shaft_radius: float = 0.3  # Radius of the shaft [Angstrom]
-    shaft_length: float = 0.3  # Length of the shaft [Angstrom]
-    shaft_radius_mm: float = None  # Radius of the shaft [mm] (priority over shaft_radius)
-    shaft_length_mm: float = None  # Length of the shaft [mm] (priority over shaft_length)
-    stopper_radius: float = 0.4  # Radius of the stopper [Angstrom]
-    stopper_length: float = 0.2  # Length of the stopper [Angstrom]
-    hole_radius: float = 0.3  # Radius of the hole [Angstrom]
-    hole_length: float = 0.3  # Length of the hole [Angstrom]
-    hole_radius_mm: float = None  # Radius of the hole [mm] (priority over hole_radius)
-    hole_length_mm: float = None  # Length of the hole [mm] (priority over hole_length)
-    chamfer_length: float = 0.1  # Length of the chamfer [Angstrom]
-    wall_thickness: float = 0.1  # Thickness of the wall [Angstrom]
-    shaft_gap: float = 0.03  # Gap between the shaft and the cavity [Angstrom]
-    taper_angle_deg: float = 0.0 # Taper angle in degrees
-    taper_radius_scale: float = 1.0 # Scale factor for the taper radius
-    magnetic_hole_radius_mm: float = 3.525  # Radius of the magnetic hole [mm]
-    magnetic_hole_length_mm: float = 2.0  # Length of the magnetic hole [mm]
-    bond_marker: str = "hetero-only-except-ch" # Option for bond number marker display (e.g., on, off, hetero-only, hetero-only-except-ch)
-    bond_marker_size_mm: float = 1.5 # Size of bond number marker [mm] (inherits default when None)
-    bond_marker_depth_mm: float = 0.5 # Depth of bond number marker [mm] (inherits default when None)
+    bond_gap_mm: float = 0.1
+    bond_gap: float = 0.0
+    magnetic_hole_radius_mm: float = 3.525
+    magnetic_hole_length_mm: float = 2.0
+    bond_marker: str = "hetero-only-except-ch"
+    bond_marker_size_mm: float = 1.5
+    bond_marker_depth_mm: float = 0.5
+
+
+@dataclass
+class DefaultShapeConfig:
+    bond_gap_mm: float = 0.1
+    shaft_radius: float = 0.3
+    shaft_length: float = 0.3
+    shaft_radius_mm: float = None
+    shaft_length_mm: float = None
+    stopper_radius: float = 0.4
+    stopper_length: float = 0.2
+    hole_radius: float = 0.3
+    hole_length: float = 0.3
+    hole_radius_mm: float = None
+    hole_length_mm: float = None
+    chamfer_length: float = 0.1
+    wall_thickness: float = 0.1
+    shaft_gap: float = 0.03
+    taper_angle_deg: float = 0.0
+    taper_radius_scale: float = 1.0
+
+
 @dataclass
 class DefaultConfig:
-    atom: DefaultAtomConfig = field(default_factory=lambda: DefaultAtomConfig())
-    bond: DefaultBondConfig = field(default_factory=lambda: DefaultBondConfig())
+    atom: DefaultAtomConfig = field(default_factory=DefaultAtomConfig)
+    bond: DefaultBondConfig = field(default_factory=DefaultBondConfig)
+    shape: DefaultShapeConfig = field(default_factory=DefaultShapeConfig)
 
 
 @dataclass
@@ -88,62 +96,71 @@ class ShapeConfig:
 class BondConfig:
     atom_pair: List[str] = field(
         default_factory=lambda: ["None", "None"]
-    )  # Names of the two atoms forming the bond
+    )
     shape_pair: List[ShapeConfig] = field(
         default_factory=lambda: [ShapeConfig(), ShapeConfig()]
     )
-    bond_type: str = "none"  # Type of the bond (e.g., single, double, triple)
-    shaft_types: List[str] = None  # Types of the two shafts (e.g., spin, fixed, hole)
-    shape_type: List[str] = None  # Types of the two shapes (e.g., spin, fixed, hole)
-    shaft_radius: float = None  # Radius of the shaft [Angstrom]
-    shaft_length: float = None  # Length of the shaft [Angstrom]
-    stopper_radius: float = None  # Radius of the stopper [Angstrom]
-    stopper_length: float = None  # Length of the stopper [Angstrom]
-    hole_radius: float = None  # Radius of the hole [Angstrom]
-    hole_length: float = None  # Length of the hole [Angstrom]
-    chamfer_length: float = None  # Length of the chamfer [Angstrom]
-    wall_thickness: float = None  # Thickness of the wall [Angstrom]
-    shaft_gap: float = None  # Gap between the shaft and the cavity [Angstrom]
-    shaft_gap_mm: float = None  # Gap between the shaft and the cavity [mm]
-    bond_gap: float = None  # Gap between the bond plane [Angstrom]
-    bond_gap_mm: float = None  # Gap between the bond plane [mm]
-    taper_angle_deg: List[float] = None  # Taper angle at the two ends in degrees
-    taper_radius_scale: List[float] = None  # Scale factor for the taper radius at the two ends
-    magnetic_hole_radius_mm: float = None  # Radius of the magnetic hole [mm]
-    magnetic_hole_length_mm: float = None  # Length of the magnetic hole [mm]
-    bond_marker: str = None # Option for bond number marker display (inherits default when None)
-    bond_marker_size_mm: float = None # Size of bond number marker [mm] (inherits default when None)
-    bond_marker_depth_mm: float = None # Depth of bond number marker [mm] (inherits default when None)
+    bond_type: str = "none"
+    bond_gap: float = None
+    bond_gap_mm: float = None
+    magnetic_hole_radius_mm: float = None
+    magnetic_hole_length_mm: float = None
+    bond_marker: str = None
+    bond_marker_size_mm: float = None
+    bond_marker_depth_mm: float = None
+
 
 @dataclass
 class MoleculeConfig:
-    name: str  # Name of the molecule
-    scale: float  # Scale factor for the whole model
-    default: DefaultConfig
+    name: str
+    scale: float
     atoms: List[AtomConfig]
     bonds: List[BondConfig]
 
 
-def load_molfidget_config(file_path: str) -> MoleculeConfig:
+@dataclass
+class MolfidgetConfig:
+    default: DefaultConfig
+    molecule: MoleculeConfig
+
+
+def load_molfidget_config(file_path: str) -> MolfidgetConfig:
     yaml = YAML()
 
     with open(file_path, "r") as file:
         data = yaml.load(file)
 
-    molecule_config = from_dict(data_class=MoleculeConfig, data=data["molecule"])
+    default_config = from_dict(
+        data_class=DefaultConfig, data=data.get("default", {})
+    )
+    molecule_config = from_dict(
+        data_class=MoleculeConfig, data=data["molecule"]
+    )
 
-    return molecule_config
+    return MolfidgetConfig(default=default_config, molecule=molecule_config)
+
+
+def molfidget_config_representer(dumper, data):
+    cmap = CommentedMap()
+    cmap["default"] = data.default
+    cmap["molecule"] = data.molecule
+    return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
 def molecule_config_representer(dumper, data):
-    data_dict = data.__dict__
-    return dumper.represent_mapping("tag:yaml.org,2002:map", {"molecule": data_dict})
+    cmap = CommentedMap()
+    cmap["name"] = data.name
+    cmap["scale"] = data.scale
+    cmap["atoms"] = data.atoms
+    cmap["bonds"] = data.bonds
+    return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
 def default_config_representer(dumper, data):
     cmap = CommentedMap()
     cmap["atom"] = data.atom
     cmap["bond"] = data.bond
+    cmap["shape"] = data.shape
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
@@ -201,24 +218,21 @@ def shape_config_representer(dumper, data):
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
-def bond_config_representer(dumper, data, default_config: DefaultBondConfig = None):
+def bond_config_representer(dumper, data):
     """BondConfigをOrderedDictとして表現し、フィールド順序を保持"""
-    # shape_pairを除外してasdict()を実行
     field_dict = OrderedDict()
     for key in data.__dataclass_fields__.keys():
         value = getattr(data, key)
         if key == "shape_pair":
-            # shape_pairはオブジェクトのまま保持（辞書に変換しない）
             field_dict[key] = value
         else:
             field_dict[key] = value
 
     cmap = CommentedMap()
-
     for key, value in field_dict.items():
         if value is None:
             continue
-        if key in ("atom_pair", "shaft_types", "taper_height", "taper_distance", "taper_angle_deg", "taper_radius_scale"):
+        if key == "atom_pair":
             cmap[key] = CommentedSeq(value)
             cmap[key].fa.set_flow_style()
         else:
@@ -227,18 +241,29 @@ def bond_config_representer(dumper, data, default_config: DefaultBondConfig = No
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
-def save_molfidget_config(config: MoleculeConfig, file_path: str):
+def default_shape_config_representer(dumper, data):
+    data_dict = OrderedDict(asdict(data))
+    cmap = CommentedMap()
+    for key, value in data_dict.items():
+        if value is None:
+            continue
+        cmap[key] = value
+    return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
+
+
+def save_molfidget_config(config: MolfidgetConfig, file_path: str):
     yaml = YAML()
+    yaml.representer.add_representer(MolfidgetConfig, molfidget_config_representer)
     yaml.representer.add_representer(MoleculeConfig, molecule_config_representer)
     yaml.representer.add_representer(DefaultConfig, default_config_representer)
     yaml.representer.add_representer(DefaultAtomConfig, default_atom_config_representer)
     yaml.representer.add_representer(DefaultBondConfig, default_bond_config_representer)
+    yaml.representer.add_representer(DefaultShapeConfig, default_shape_config_representer)
     yaml.representer.add_representer(AtomConfig, atom_config_representer)
     yaml.representer.add_representer(BondConfig, bond_config_representer)
     yaml.representer.add_representer(ShapeConfig, shape_config_representer)
 
     if not file_path:
-        # 標準出力へ
         import sys
         yaml.dump(config, sys.stdout)
         return
@@ -246,7 +271,7 @@ def save_molfidget_config(config: MoleculeConfig, file_path: str):
         yaml.dump(config, file)
 
 
-def load_mol_file(file_name: str) -> MoleculeConfig:
+def load_mol_file(file_name: str) -> MolfidgetConfig:
     # Load a MOL file and populate the molecule with atoms and bonds
     with open(file_name, "r") as file:
         lines = file.readlines()
@@ -288,14 +313,14 @@ def load_mol_file(file_name: str) -> MoleculeConfig:
                 bond_type=bond_type,
             )
         )
-    # file_nameから拡張子を除いた名前を設定
     molecle_config = MoleculeConfig(
-        name=file_name.split("/")[-1].split(".")[0], scale=10.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
+        name=file_name.split("/")[-1].split(".")[0],
+        scale=10.0, atoms=atoms, bonds=bonds,
     )
-    return molecle_config
+    return MolfidgetConfig(default=DefaultConfig(), molecule=molecle_config)
 
 
-def load_pdb_file(file_name: str) -> MoleculeConfig:
+def load_pdb_file(file_name: str) -> MolfidgetConfig:
     # Load a PDB file and populate the molecule with atoms and bonds
     parser = PDBParser(QUIET=True)
     structure = parser.get_structure("pdb", file_name)
@@ -530,6 +555,6 @@ def load_pdb_file(file_name: str) -> MoleculeConfig:
                 )
 
     molecle_config = MoleculeConfig(
-        name=name, scale=8.0, default=DefaultConfig(), atoms=atoms, bonds=bonds
+        name=name, scale=8.0, atoms=atoms, bonds=bonds,
     )
-    return molecle_config
+    return MolfidgetConfig(default=DefaultConfig(), molecule=molecle_config)
