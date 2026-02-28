@@ -149,10 +149,8 @@ def default_config_representer(dumper, data):
 
 def default_atom_config_representer(dumper, data):
     data_dict = OrderedDict(asdict(data))
-    print("default_atom_config:", data_dict)
     cmap = CommentedMap()
     for key, value in data_dict.items():
-        print(key, value)
         if value is None:
             continue
         if key in ("color",):
@@ -191,12 +189,10 @@ def atom_config_representer(dumper, data):
 
 def shape_config_representer(dumper, data):
     """ShapeConfigをOrderedDictとして表現し、フィールド順序を保持"""
-    print('shapeconfigrepresenter:', data)
     field_dict = OrderedDict(asdict(data))
     cmap = CommentedMap()
 
     for key, value in field_dict.items():
-        print(key, value)
         if value is None:
             continue
         else:

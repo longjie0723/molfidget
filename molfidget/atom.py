@@ -18,7 +18,6 @@ class Atom:
         self.x, self.y, self.z = config.position
         self.position = config.position
         self.color = config.color if config.color is not None else atom_color_table[self.elem]
-        print(f"self.color:", self.color)
         self.pairs = {}
 
     def update_bonds(self, bonds: dict):
