@@ -70,8 +70,8 @@ class Shape:
         self.vector /= np.linalg.norm(self.vector)
 
         # Update the slice distance based on the configuration
-        r1 = atom1.scale * atom1.radius
-        r2 = atom2.scale * atom2.radius
+        r1 = atom1.vdw_scale * atom1.radius
+        r2 = atom2.vdw_scale * atom2.radius
         self.slice_distance = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
         self.slice_radius = np.sqrt(r1**2 - self.slice_distance**2)
         #self.slice_distance = (r2**2 - r1**2 + self.atom_distance**2) / (2 * self.atom_distance)

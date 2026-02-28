@@ -14,7 +14,7 @@ import numpy as np
 
 @dataclass
 class DefaultAtomConfig:
-    scale: float = 0.8  # Scale factor for van der Waals radius
+    vdw_scale: float = 0.8  # Scale factor for van der Waals radius
     color: List[int] = field(default_factory=lambda: [200, 200, 200, 255])
 
 
@@ -54,7 +54,7 @@ class AtomConfig:
     position: List[float] = field(
         default=None
     )  # Position of the atom [x, y, z] in Angstrom
-    scale: float = None  # Scale factor for van der Waals radius
+    vdw_scale: float = None  # Scale factor for van der Waals radius
     color: List[int] = None  # Color of the atom in RGBA format [R, G, B, A]
 
 

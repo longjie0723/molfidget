@@ -88,8 +88,8 @@ class Bond:
 
     def update_slice_distance(self):
         # Update the slice distance based on the configuration
-        r1 = self.atom1.scale * self.atom1.radius
-        r2 = self.atom2.scale * self.atom2.radius
+        r1 = self.atom1.vdw_scale * self.atom1.radius
+        r2 = self.atom2.vdw_scale * self.atom2.radius
         self.slice_distance1 = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
         self.slice_distance2 = (r2**2 - r1**2 + self.atom_distance**2) / (2 * self.atom_distance)
 
@@ -169,7 +169,7 @@ class Bond:
         taper_distance = 0.3
         if taper_distance > self.slice_distance:
             taper_distance = self.slice_distance
-        atom_radius = self.atom1.radius * self.atom1.scale
+        atom_radius = self.atom1.radius * self.atom1.vdw_scale
         # r2 は上円錐の半径
         r2 = math.sqrt(atom_radius**2 - self.slice_distance**2)
         # r1 は下円錐の半径
@@ -198,8 +198,8 @@ class Bond:
             vector = np.array([atom2.x - atom1.x, atom2.y - atom1.y, atom2.z - atom1.z])
             distance = np.linalg.norm(vector)
             vector /= distance
-            r1 = atom1.scale * atom1.radius
-            r2 = atom2.scale * atom2.radius
+            r1 = atom1.vdw_scale * atom1.radius
+            r2 = atom2.vdw_scale * atom2.radius
             slice_distance = (r1**2 - r2**2 + distance**2) / (2 * distance)
             # atom1をbond平面でスライスする
             box = trimesh.primitives.Box(
@@ -258,7 +258,7 @@ class Bond:
         v = np.cross(normal_vec, u)
 
         rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], normal_vec)
-        lift = atom.scale * atom.radius * 0.02  # raise top surface slightly to stay flush
+        lift = atom.vdw_scale * atom.radius * 0.02  # raise top surface slightly to stay flush
         holes = []
         for bit in range(12):  # 12 o'clock -> bit0, then clockwise
             if ((self.index >> bit) & 1) == 0:
