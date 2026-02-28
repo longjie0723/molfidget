@@ -87,7 +87,6 @@ class Bond:
         return f"Bond({self.atom1.name}, {self.atom2.name})"
 
     def sculpt_atoms(self):
-        print(f"Sculpting bond between {self.atom1.name} and {self.atom2.name}")
         self.slice_atoms_by_bond_plane()
         for shape in self.shape_pair:
             if shape.taper_radius_scale is not None and shape.taper_angle_deg is not None:

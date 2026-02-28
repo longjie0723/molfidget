@@ -55,9 +55,7 @@ class Shape:
         self.taper_radius_scale = config.taper_radius_scale if config.taper_radius_scale is not None else default.taper_radius_scale
         self.taper_angle_deg = config.taper_angle_deg if config.taper_angle_deg is not None else default.taper_angle_deg
 
-        print(f"shape_type: {self.shape_type}")
-        print(f"hole_length: {self.hole_length}")
-        print(f"shaft_radius: {self.shaft_radius}")
+
 
     def __str__(self):
         return f"Shape(atom: {self.atom_name}, type: {self.shape_type})"
