@@ -9,20 +9,16 @@ import yaml
 from molfidget.atom import Atom
 from molfidget.bond import Bond
 from molfidget.config import (
-    AtomConfig,
     BondConfig,
-    DefaultAtomConfig,
-    DefaultBondConfig,
+    DefaultConfig,
     MoleculeConfig,
 )
 from molfidget.constants import atom_color_table, atom_radius_table
 
 class Molecule:
-    def __init__(self, config: MoleculeConfig):
-        # Group of atoms that can be merged
+    def __init__(self, config: MoleculeConfig, default: DefaultConfig):
         self.atom_groups = OrderedDict()
 
-        # Load the configuration for the molecule
         print(f"Loading configuration for molecule: {config.name}")
         self.name = config.name
         self.scale = config.scale if config.scale is not None else 1.0
@@ -30,7 +26,7 @@ class Molecule:
         self.atoms = {}
         for atom_config in config.atoms:
             name = atom_config.name
-            self.atoms[name] = Atom(atom_config, config.default.atom)
+            self.atoms[name] = Atom(atom_config, default.atom)
         # 干渉する原子ペアにplaneボンドを自動追加
         self.bonds = {}
         atom_names = list(self.atoms.keys())
@@ -43,20 +39,19 @@ class Molecule:
                         atom_pair=[atom_names[i], atom_names[j]],
                         bond_type="plane",
                     )
-                    bond = Bond(bond_config, config.default.bond, self.scale)
+                    bond = Bond(bond_config, default.bond, default.shape, self.scale)
                     bond.index = 0
                     self.bonds[atom_names[i], atom_names[j]] = bond
                     print(f"Auto plane bond: {atom_names[i]} - {atom_names[j]} (distance={distance:.3f}, r1+r2={a1.shape_radius + a2.shape_radius:.3f})")
         # Load individual bond configurations (自動生成のplaneボンドを上書き)
         for idx, bond_config in enumerate(config.bonds, start=1):
             atom1_name, atom2_name = bond_config.atom_pair
-            # 自動生成のplaneボンドがあれば削除（名前の順序が逆の場合も）
             if (atom1_name, atom2_name) in self.bonds:
                 del self.bonds[atom1_name, atom2_name]
             if (atom2_name, atom1_name) in self.bonds:
                 del self.bonds[atom2_name, atom1_name]
-            bond = Bond(bond_config, config.default.bond, self.scale)
-            bond.index = idx  # bond番号を付与（定義順）
+            bond = Bond(bond_config, default.bond, default.shape, self.scale)
+            bond.index = idx
             self.bonds[atom1_name, atom2_name] = bond
         # Update atom pairs based on bonds
         for atom in self.atoms.values():
