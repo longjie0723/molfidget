@@ -1,12 +1,10 @@
 import argparse
-import pyglet
 from molfidget.config import (
     load_pdb_file,
     load_mol_file,
     save_molfidget_config,
     load_molfidget_config,
 )
-from molfidget.labeled_scene_viewer import LabeledSceneViewer
 from molfidget.molecule import Molecule
 import os
 
@@ -176,6 +174,9 @@ def exec_convert(args):
 
 
 def exec_preview(args):
+    import pyglet
+    from molfidget.labeled_scene_viewer import LabeledSceneViewer
+
     config = load_molfidget_config(args.molfidget_file)
     molecule = Molecule(config.molecule, config.default)
     print(f"Molecule: {molecule.name}")
