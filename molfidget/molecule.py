@@ -67,22 +67,13 @@ class Molecule:
     def __repr__(self):
         return f"Molecule: {self.name}, {len(self.atoms)} atoms"
 
-    # Access the center of the molecule
-    @property
-    def center(self):
-        # Get the center of the molecule
-        x = np.mean([atom.x for atom in self.atoms.values()])
-        y = np.mean([atom.y for atom in self.atoms.values()])
-        z = np.mean([atom.z for atom in self.atoms.values()])
-        return np.array([x, y, z])
-
     def create_trimesh_scene(self):
         # Create a trimesh model for the molecule
         scene = trimesh.Scene()
         for atom in self.atoms.values():
             atom.create_trimesh_model()
         for bond in self.bonds.values():
-            bond.sculpt_atoms2()
+            bond.sculpt_atoms()
         for atom in self.atoms.values():
             atom.mesh.apply_translation([atom.x, atom.y, atom.z])
             atom.mesh.visual.vertex_colors = atom.color

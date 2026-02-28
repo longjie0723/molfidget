@@ -86,14 +86,7 @@ class Bond:
     def __repr__(self):
         return f"Bond({self.atom1.name}, {self.atom2.name})"
 
-    def update_slice_distance(self):
-        # Update the slice distance based on the configuration
-        r1 = self.atom1.vdw_scale * self.atom1.radius
-        r2 = self.atom2.vdw_scale * self.atom2.radius
-        self.slice_distance1 = (r1**2 - r2**2 + self.atom_distance**2) / (2 * self.atom_distance)
-        self.slice_distance2 = (r2**2 - r1**2 + self.atom_distance**2) / (2 * self.atom_distance)
-
-    def sculpt_atoms2(self):
+    def sculpt_atoms(self):
         print(f"Sculpting bond between {self.atom1.name} and {self.atom2.name}")
         self.slice_atoms_by_bond_plane()
         for shape in self.shape_pair:
@@ -114,82 +107,6 @@ class Bond:
         notch_counts = {"notch_1": 1, "notch_2": 2, "notch_3": 3}
         if self.bond_type in notch_counts:
             self._apply_notches(notch_counts[self.bond_type])
-
-    def sculpt_trimesh_model(self, mesh: trimesh.Trimesh):
-        # mesh = self.slice_by_bond_plane(mesh)
-
-        #if self.shaft_types[0] == "taper" or self.shaft_types[1] == "taper":
-        #    return mesh
-        #mesh = self.slice_by_taper(mesh)
-        if True:
-            if self.type == "single":
-                # Create the cavity
-                cavity = self.create_cavity_shape()
-                cavity.apply_translation([0, 0, self.slice_distance])
-                rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-                cavity.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.difference([mesh, cavity], check_volume=False)
-                # Create the shaft
-                shaft = self.create_rotate_shaft()
-                shaft.apply_translation([0, 0, self.slice_distance])
-                rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-                shaft.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.union([mesh, shaft], check_volume=False)
-            else:
-                # Create the fixed shaft
-                shaft = self.create_fixed_shaft_shape()
-                shaft.apply_translation([0, 0, self.slice_distance - self.bond_gap])
-                rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-                shaft.apply_transform(rotation_matrix)
-                mesh = trimesh.boolean.union([mesh, shaft], check_volume=False)
-        else:
-            hole = self.create_hole_shape()
-            hole.apply_translation([0, 0, self.slice_distance])
-            rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-            hole.apply_transform(rotation_matrix)
-            mesh = trimesh.boolean.difference([mesh, hole], check_volume=False)
-        return mesh
-    
-    def sculpt_trimesh_by_spin(self, mesh: trimesh.Trimesh):
-        # Create the cavity
-        cavity = self.create_cavity_shape()
-        cavity.apply_translation([0, 0, self.slice_distance])
-        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-        cavity.apply_transform(rotation_matrix)
-        mesh = trimesh.boolean.difference([mesh, cavity], check_volume=False)
-        # Create the shaft
-        shaft = self.create_rotate_shaft(config)
-        shaft.apply_translation([0, 0, self.slice_distance])
-        rotation_matrix = trimesh.geometry.align_vectors([0, 0, 1], self.vector)
-        shaft.apply_transform(rotation_matrix)
-        mesh = trimesh.boolean.union([mesh, shaft], check_volume=False)
-
-    def slice_by_taper(self, mesh: trimesh.Trimesh):
-        import math
-        taper_distance = 0.3
-        if taper_distance > self.slice_distance:
-            taper_distance = self.slice_distance
-        atom_radius = self.atom1.radius * self.atom1.vdw_scale
-        # r2 は上円錐の半径
-        r2 = math.sqrt(atom_radius**2 - self.slice_distance**2)
-        # r1 は下円錐の半径
-        r1 = math.sqrt(atom_radius**2 - (self.slice_distance -taper_distance)**2)
-        # h1 下円錐の高さ
-        h1 = r1 * taper_distance / (r1 - r2)
-        # h 円錐の高さ
-        h = h1 + (self.slice_distance - taper_distance) + atom_radius
-        # r 大円錐の半径
-        r = h * r1 / h1
-        print(f"Creating taper cone with r1={r1}, r2={r2}, h1={h1}, h={h}, r={r}")
-        cone = trimesh.creation.cone(radius=r, height=h)
-        cone.apply_translation([0, 0, - atom_radius])
-        z_axis = np.array([0, 0, 1])
-        rotation_matrix = trimesh.geometry.align_vectors(z_axis, self.vector)
-        cone.apply_transform(rotation_matrix)
-        mesh = trimesh.boolean.intersection([mesh, cone], check_volume=False)
-        # mesh = trimesh.boolean.union([mesh, cone], check_volume=False)
-
-        return mesh
 
     def slice_atoms_by_bond_plane(self):
         # decide once per bond whether to engrave marker
@@ -504,75 +421,3 @@ class Bond:
         box.apply_transform(transform)
         return box
 
-    def create_rotate_shaft(self):
-        # Create a shaft
-        # d1: Shaft length including the wall thickness and gap without chamfer
-        d1 = self.shaft_length + self.wall_thickness + self.shaft_gap
-        cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
-        cylinder1.apply_translation([0, 0, -d1 / 2])
-        # Create the chamfer on the shaft
-        cylinder3 = trimesh.creation.cylinder(
-            radius=self.shaft_radius, height=self.chamfer_length
-        )
-        cylinder3.apply_translation([0, 0, self.chamfer_length / 2])
-        cone1 = trimesh.creation.cone(
-            radius=self.shaft_radius, height=2 * self.shaft_radius, sections=32
-        )
-        cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=False)
-        cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
-        cylinder1.apply_translation([0, 0, self.shaft_length - self.chamfer_length])
-        # Create the stopper
-        cylinder2 = trimesh.creation.cylinder(
-            radius=self.stopper_radius, height=self.stopper_length
-        )
-        cylinder2.apply_translation(
-            [0, 0, -self.stopper_length / 2 - self.wall_thickness - self.shaft_gap]
-        )
-        mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
-        return mesh
-
-    def create_cavity_shape(self):
-        eps = 0.01  # Small epsilon to avoid numerical issues
-        # Create the cavity shape for the shaft
-        d1 = self.wall_thickness + eps
-        cylinder1 = trimesh.creation.cylinder(
-            radius=self.shaft_radius + self.shaft_gap, height=d1
-        )
-        cylinder1.apply_translation([0, 0, -d1 / 2 + eps])
-        # Create the cavity for the stopper
-        d2 = self.stopper_length + 2 * self.shaft_gap
-        cylinder2 = trimesh.creation.cylinder(
-            radius=self.stopper_radius + self.shaft_gap, height=d2
-        )
-        cylinder2.apply_translation([0, 0, -d2 / 2 - d1 + eps])
-        mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
-        return mesh
-
-    def create_fixed_shaft_shape(self, config):
-        eps = 0.01  # Small epsilon to avoid numerical issues
-        # Create a fixed shaft shape
-        d1 = self.shaft_length + self.bond_gap - self.chamfer_length
-        cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
-        cylinder1.apply_translation([0, 0, -d1 / 2])
-        # Create the chamfer on the shaft
-        cylinder2 = trimesh.creation.cylinder(
-            radius=self.shaft_radius, height=self.chamfer_length
-        )
-        cylinder2.apply_translation([0, 0, self.chamfer_length / 2])
-        cone1 = trimesh.creation.cone(
-            radius=self.shaft_radius, height=2 * self.shaft_radius, sections=32
-        )
-        cone1 = trimesh.boolean.intersection([cone1, cylinder2], check_volume=False)
-        cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
-        cylinder1.apply_translation(
-            [0, 0, self.shaft_length + self.bond_gap - self.chamfer_length - eps]
-        )
-        return cylinder1
-
-    def create_hole_shape(self):
-        # Create a hole shape for the shaft
-        eps = 0.01  # Small epsilon to avoid numerical issues
-        d1 = self.hole_length + eps
-        cylinder1 = trimesh.creation.cylinder(radius=self.hole_radius, height=d1)
-        cylinder1.apply_translation([0, 0, -d1 / 2 + eps])
-        return cylinder1

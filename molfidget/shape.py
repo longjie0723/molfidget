@@ -163,42 +163,6 @@ class Shape:
         mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
         return mesh
 
-    def create_rotate_shaft_dcut(self):
-        """回転軸（Dカット有り、ストッパー付き）を作成"""
-        # Create a shaft
-        # d1: Shaft length including the wall thickness and gap without chamfer
-        d1 = self.shaft_length + self.wall_thickness + self.shaft_gap - self.chamfer_length + self.bond_gap / 2
-        cylinder1 = trimesh.creation.cylinder(radius=self.shaft_radius, height=d1)
-        cylinder1.apply_translation([0, 0, -d1 / 2])
-        # Create the chamfer on the shaft
-        cylinder3 = trimesh.creation.cylinder(
-            radius=self.shaft_radius, height=self.chamfer_length
-        )
-        cylinder3.apply_translation([0, 0, self.chamfer_length / 2])
-        cone1 = trimesh.creation.cone(
-            radius=self.shaft_radius, height=2*self.shaft_radius, sections=32
-        )
-        cone1 = trimesh.boolean.intersection([cone1, cylinder3], check_volume=False)
-        cylinder1 = trimesh.boolean.union([cylinder1, cone1], check_volume=False)
-        # D-cut the shaft
-        d2 = d1 + self.chamfer_length
-        box1 = trimesh.creation.box(
-            extents=[2 * self.shaft_radius, 2 * self.shaft_radius, d2])
-        box1.apply_translation([0, 0.3*self.shaft_radius, -d2 / 2 + self.chamfer_length])
-        cylinder1 = trimesh.boolean.intersection(
-            [cylinder1, box1], check_volume=False)
-        cylinder1.apply_translation(
-            [0, 0, self.shaft_length - self.chamfer_length])
-        # Create the stopper
-        cylinder2 = trimesh.creation.cylinder(
-           radius=self.stopper_radius, height=self.stopper_length
-        )
-        cylinder2.apply_translation(
-            [0, 0, -self.stopper_length / 2 - self.wall_thickness - self.shaft_gap]
-        )
-        mesh = trimesh.boolean.union([cylinder1, cylinder2], check_volume=False)
-        return mesh
-
     def create_cavity_shape(self):
         eps = 0.01  # Small epsilon to avoid numerical issues
         # Create the cavity shape for the shaft
