@@ -126,7 +126,11 @@ class Molecule:
             meshes = [atom.mesh.copy().apply_scale(scale) for atom in group]
             merged_mesh = trimesh.util.concatenate(meshes)
             atom_list = sorted(group, key=lambda a: a.id)
-            file_name = f"{atom_list[0].elem}_" + "_".join([atom.id for atom in atom_list]) + ".stl"
+            base_name = f"{atom_list[0].elem}_" + "_".join([atom.id for atom in atom_list])
+            # 32文字制限
+            if len(base_name) > 32:
+                base_name = base_name[:32]
+            file_name = base_name + ".stl"
             merged_mesh.export(os.path.join(output_dir, file_name))
 
 
