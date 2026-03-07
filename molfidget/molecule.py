@@ -87,7 +87,7 @@ class Molecule:
         counter = 0
         for atom in self.atoms.values():
             for pair in atom.pairs.values():
-                if pair.bond_type == "none":
+                if pair.bond_type in ("none", "plane"): # 近接原子に自動で割り当てられるplaneも除外する
                     continue
                 if pair.atom1.elem != pair.atom2.elem:
                     continue
