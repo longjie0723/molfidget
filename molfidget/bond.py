@@ -4,12 +4,24 @@ from trimesh import creation as tm_creation
 
 from molfidget.atom import Atom
 from molfidget.shape import Shape
-from molfidget.config import BondConfig, DefaultBondConfig, DefaultShapeConfig
+from molfidget.config import BondConfig, DefaultBondConfig, BondTypeShapeConfig
+
+
+BOND_TYPE_SHAPE_MAP = {
+    "spin":    ("shaft_spin", "hole"),
+    "normal":  ("shaft", "hole"),
+    "fixed":   ("shaft_dcut", "hole_dcut"),
+    "gapped":  ("shaft", "hole"),
+    "short":   ("shaft", "hole"),
+    "holes":   ("hole", "hole"),
+    "notch_2": ("shaft_spin", "hole"),
+    "notch_3": ("shaft_spin", "hole"),
+    "plane":   ("none", "none"),
+}
 
 
 class Bond:
-    def __init__(self, config: BondConfig, default_bond: DefaultBondConfig,
-                 default_shape: DefaultShapeConfig, scale: float):
+    def __init__(self, config: BondConfig, default_bond: DefaultBondConfig, scale: float):
         self.atom1_name = config.atom_pair[0]
         self.atom2_name = config.atom_pair[1]
         self.atom_name = config.atom_pair
@@ -20,49 +32,43 @@ class Bond:
         self.bond_marker_size = self.bond_marker_size_mm / scale if self.bond_marker_size_mm is not None else None
         self.bond_marker_depth = self.bond_marker_depth_mm / scale if self.bond_marker_depth_mm is not None else None
         self.bond_type = config.bond_type if config.bond_type else "none"
-        self.bond_gap_mm = config.bond_gap_mm if config.bond_gap_mm is not None else default_bond.bond_gap_mm
-        self.bond_gap = self.bond_gap_mm / scale
-        self.magnetic_hole_radius_mm = config.magnetic_hole_radius_mm if config.magnetic_hole_radius_mm is not None else default_bond.magnetic_hole_radius_mm
-        self.magnetic_hole_length_mm = config.magnetic_hole_length_mm if config.magnetic_hole_length_mm is not None else default_bond.magnetic_hole_length_mm
 
-        if config.bond_type == "single":
-            config.shape_pair[0].shape_type = "shaft_spin"
-            config.shape_pair[1].shape_type = "hole"
-        elif config.bond_type in ("notch_1", "notch_2", "notch_3"):
-            config.shape_pair[0].shape_type = "shaft_spin"
-            config.shape_pair[1].shape_type = "hole"
-        elif config.bond_type == "double":
-            config.shape_pair[0].shape_type = "shaft_dcut"
-            config.shape_pair[1].shape_type = "hole_dcut"
-        elif config.bond_type == "triple":
-            config.shape_pair[0].shape_type = "shaft_dcut"
-            config.shape_pair[1].shape_type = "hole_dcut"
-        elif config.bond_type == "aromatic":
-            config.shape_pair[0].shape_type = "shaft"
-            config.shape_pair[1].shape_type = "hole"
-            config.shape_pair[0].shaft_radius = 0.8
-            config.shape_pair[1].hole_radius = 0.8
-        elif config.bond_type == "magnetic":
-            config.shape_pair[0].shape_type = "hole"
-            config.shape_pair[0].hole_radius_mm = self.magnetic_hole_radius_mm
-            config.shape_pair[0].hole_length_mm = self.magnetic_hole_length_mm
-            config.shape_pair[0].bond_gap_mm = 0
-            config.shape_pair[1].shape_type = "hole"
-            config.shape_pair[1].hole_radius_mm = self.magnetic_hole_radius_mm
-            config.shape_pair[1].hole_length_mm = self.magnetic_hole_length_mm
-            config.shape_pair[1].bond_gap_mm = 0
-        elif config.bond_type == "plane":
-            config.shape_pair[0].shape_type = "none"
-            config.shape_pair[1].shape_type = "none"
-        else:
-            valid_bond_types = ("single", "notch_1", "notch_2", "notch_3", "double", "triple", "aromatic", "magnetic", "plane")
+        # bond_typeごとのデフォルト取得
+        bt_default = getattr(default_bond, config.bond_type, BondTypeShapeConfig())
+
+        # bond_gap_mm: shape_pair > bt_default > default_bond共通
+        bond_gap_mm = config.bond_gap_mm
+        if bond_gap_mm is None:
+            bond_gap_mm = bt_default.bond_gap_mm
+        if bond_gap_mm is None:
+            bond_gap_mm = default_bond.bond_gap_mm
+        self.bond_gap_mm = bond_gap_mm
+        self.bond_gap = self.bond_gap_mm / scale
+
+        # shape_typeの設定
+        shape_types = BOND_TYPE_SHAPE_MAP.get(config.bond_type)
+        if shape_types is None:
             raise ValueError(
                 f"Unsupported bond_type: {config.bond_type!r} between {self.atom1_name} and {self.atom2_name}. "
-                f"Supported bond_type values are: {', '.join(valid_bond_types)}."
+                f"Supported bond_type values are: {', '.join(BOND_TYPE_SHAPE_MAP.keys())}."
             )
+        if config.shape_pair[0].shape_type is None:
+            config.shape_pair[0].shape_type = shape_types[0]
+        if config.shape_pair[1].shape_type is None:
+            config.shape_pair[1].shape_type = shape_types[1]
+
+        # 共通パラメータをshape_pairに注入（未設定の場合のみ）
+        for sp in config.shape_pair:
+            if sp.bond_gap_mm is None:
+                sp.bond_gap_mm = self.bond_gap_mm
+            if sp.taper_angle_deg is None:
+                sp.taper_angle_deg = default_bond.taper_angle_deg
+            if sp.taper_radius_scale is None:
+                sp.taper_radius_scale = default_bond.taper_radius_scale
+
         self.shape_pair = [
-            Shape(self.atom1_name, config.shape_pair[0], default_shape, scale),
-            Shape(self.atom2_name, config.shape_pair[1], default_shape, scale),
+            Shape(self.atom1_name, config.shape_pair[0], bt_default, scale),
+            Shape(self.atom2_name, config.shape_pair[1], bt_default, scale),
         ]
 
     def update_atoms(self, atoms: dict):
@@ -96,7 +102,7 @@ class Bond:
                 shape.sculpt_trimesh_by_hole_dcut()
             elif shape.shape_type == "none":
                 pass  # 形状なし
-        notch_counts = {"notch_1": 1, "notch_2": 2, "notch_3": 3}
+        notch_counts = {"notch_2": 2, "notch_3": 3}
         if self.bond_type in notch_counts:
             self._apply_notches(notch_counts[self.bond_type])
 

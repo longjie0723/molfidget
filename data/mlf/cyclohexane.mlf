@@ -3,18 +3,6 @@ default:
     vdw_scale: 0.8
   bond:
     bond_gap_mm: 0.0
-  shape:
-    shaft_radius: 0.3
-    shaft_length: 0.3
-    stopper_radius: 0.4
-    stopper_length: 0.2
-    hole_radius: 0.3
-    hole_length: 0.3
-    chamfer_length: 0.1
-    wall_thickness: 0.1
-    shaft_gap: 0.03
-    taper_angle_deg: 0.0
-    taper_radius_scale: 1.0
 molecule:
   name: cyclohexane
   scale: 10.0
@@ -57,7 +45,7 @@ molecule:
     position: [-0.636, 0.531, -0.964]
   bonds:
   - atom_pair: [C_1, C_2]
-    bond_type: single
+    bond_type: spin
     bond_gap_mm: 0.3
     shape_pair:
     - taper_radius_scale: 0.3
@@ -65,7 +53,7 @@ molecule:
     - taper_radius_scale: 0.3
       taper_angle_deg: 5.0
   - atom_pair: [C_1, C_6]
-    bond_type: single
+    bond_type: spin
     bond_gap_mm: 0.3
     shape_pair:
     - taper_radius_scale: 0.3
@@ -73,11 +61,11 @@ molecule:
     - taper_radius_scale: 0.3
       taper_angle_deg: 5.0
   - atom_pair: [C_1, H_11]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_1, H_10]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_2, C_3]
-    bond_type: single
+    bond_type: spin
     bond_gap_mm: 0.3
     shape_pair:
     - taper_radius_scale: 0.3
@@ -85,11 +73,11 @@ molecule:
     - taper_radius_scale: 0.3
       taper_angle_deg: 5.0
   - atom_pair: [C_2, H_8]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_2, H_9]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_3, C_4]
-    bond_type: single
+    bond_type: spin
     bond_gap_mm: 0.3
     shape_pair:
     - taper_radius_scale: 0.3
@@ -97,11 +85,11 @@ molecule:
     - taper_radius_scale: 0.3
       taper_angle_deg: 5.0
   - atom_pair: [C_3, H_7]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_3, H_18]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_4, C_5]
-    bond_type: single
+    bond_type: spin
     bond_gap_mm: 0.3
     shape_pair:
     - taper_radius_scale: 0.3
@@ -109,11 +97,11 @@ molecule:
     - taper_radius_scale: 0.3
       taper_angle_deg: 5.0
   - atom_pair: [C_4, H_12]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_4, H_13]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_5, C_6]
-    bond_type: single
+    bond_type: spin
     bond_gap_mm: 0.3
     shape_pair:
     - taper_radius_scale: 0.3
@@ -121,10 +109,10 @@ molecule:
     - taper_radius_scale: 0.3
       taper_angle_deg: 5.0
   - atom_pair: [C_5, H_14]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_5, H_15]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_6, H_17]
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_6, H_16]
-    bond_type: single
+    bond_type: spin

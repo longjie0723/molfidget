@@ -1,0 +1,88 @@
+default:
+  atom:
+    vdw_scale: 0.8
+  bond:
+    bond_gap_mm: 0.1
+molecule:
+  name: n-hexane
+  scale: 10.0
+  atoms:
+  - name: C_1
+    position: [-3.073, -1.781, 0.0]
+  - name: C_2
+    position: [-1.566, -1.781, 0.0]
+  - name: H_3
+    position: [-3.461, -0.734, 0.0]
+  - name: H_4
+    position: [-3.467, -2.304, -0.905]
+  - name: H_5
+    position: [-3.467, -2.304, 0.905]
+  - name: C_6
+    position: [-1.008, -3.189, 0.0]
+  - name: H_7
+    position: [-1.189, -1.231, -0.902]
+  - name: H_8
+    position: [-1.192, -1.251, 0.915]
+  - name: C_9
+    position: [0.499, -3.189, 0.0]
+  - name: H_10
+    position: [-1.385, -3.739, 0.903]
+  - name: H_11
+    position: [-1.385, -3.739, -0.902]
+  - name: H_12
+    position: [0.893, -2.666, -0.905]
+  - name: H_13
+    position: [0.893, -2.666, 0.905]
+  - name: C_14
+    position: [1.035, -4.633, 0.0]
+  - name: C_15
+    position: [2.535, -4.641, -0.0]
+  - name: H_16
+    position: [0.636, -5.153, -0.904]
+  - name: H_17
+    position: [0.637, -5.152, 0.905]
+  - name: H_18
+    position: [2.924, -5.688, 0.0]
+  - name: H_19
+    position: [2.933, -4.121, -0.905]
+  - name: H_20
+    position: [2.933, -4.121, 0.904]
+  bonds:
+  - atom_pair: [C_1, C_2]
+    bond_type: spin
+  - atom_pair: [C_1, H_3]
+    bond_type: spin
+  - atom_pair: [C_1, H_4]
+    bond_type: spin
+  - atom_pair: [C_1, H_5]
+    bond_type: spin
+  - atom_pair: [C_2, C_6]
+    bond_type: spin
+  - atom_pair: [C_2, H_7]
+    bond_type: spin
+  - atom_pair: [C_2, H_8]
+    bond_type: spin
+  - atom_pair: [C_6, C_9]
+    bond_type: spin
+  - atom_pair: [C_6, H_10]
+    bond_type: spin
+  - atom_pair: [C_6, H_11]
+    bond_type: spin
+  - atom_pair: [C_9, H_12]
+    bond_type: spin
+  - atom_pair: [C_9, H_13]
+    bond_type: spin
+  - atom_pair: [C_9, C_14]
+    bond_type: spin
+  - atom_pair: [C_14, C_15]
+    bond_type: spin
+  - atom_pair: [C_14, H_16]
+    bond_type: spin
+  - atom_pair: [C_14, H_17]
+    bond_type: spin
+  - atom_pair: [C_15, H_18]
+    bond_type: spin
+  - atom_pair: [C_15, H_19]
+    bond_type: spin
+  - atom_pair: [C_15, H_20]
+    bond_type: spin
