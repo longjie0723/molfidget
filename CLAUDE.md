@@ -128,7 +128,7 @@ mol.export_scene_as_colored_3mf(scene, "output.3mf")
 
 ## 配布
 
-PyPIパッケージ名: `molfidget`（バージョン: 1.1.0）
+PyPIパッケージ名: `molfidget`（バージョン: 1.2.0）
 GitHub Actionsで自動公開: `.github/workflows/pypi-publish.yml`
 
 ## 連携プロジェクト
