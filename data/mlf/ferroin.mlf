@@ -3,21 +3,10 @@ default:
     vdw_scale: 0.80
   bond:
     bond_gap_mm: 0.1
-    bond_gap: 0.0
-    magnetic_hole_radius_mm: 3.525
-    magnetic_hole_length_mm: 2.0
-  shape:
-    shaft_radius: 0.3
-    shaft_length: 0.3
-    stopper_radius: 0.4
-    stopper_length: 0.2
-    hole_radius: 0.3
-    hole_length: 0.3
-    chamfer_length: 0.1
-    wall_thickness: 0.1
-    shaft_gap: 0.03
-    taper_angle_deg: 0.0
-    taper_radius_scale: 1.0
+    holes:
+      hole_radius_mm: 3.525
+      hole_length_mm: 2.0
+      bond_gap_mm: 0.0
 molecule:
   name: ferroin
   scale: 8.0
@@ -159,398 +148,164 @@ molecule:
     position: [14.3471, 17.4079, 11.93]
   bonds:
   - atom_pair: [C_1, H_2]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_1, C_3]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_1, N_62]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_3, H_4]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_3, C_5]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_5, H_6]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_5, C_7]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_7, C_8]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_7, C_20]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_8, H_9]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_8, C_10]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_10, H_11]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_10, C_12]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_12, C_13]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_12, C_19]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_13, H_14]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_13, C_15]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_15, H_16]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_15, C_17]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_17, H_18]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_17, N_63]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_19, C_20]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_19, N_63]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_20, N_62]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_21, H_22]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_21, C_23]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_21, N_64]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_23, H_24]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_23, C_25]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_25, H_26]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_25, C_27]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_27, C_28]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_27, C_40]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_28, H_29]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_28, C_30]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_30, H_31]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_30, C_32]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_32, C_33]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_32, C_39]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_33, H_34]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_33, C_35]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_35, H_36]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_35, C_37]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_37, H_38]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_37, N_65]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_39, C_40]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_39, N_65]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_40, N_64]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_41, H_42]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_41, C_43]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_41, N_66]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_43, H_44]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_43, C_45]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_45, H_46]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_45, C_47]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_47, C_48]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_47, C_60]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_48, H_49]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_48, C_50]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_50, H_51]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_50, C_52]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_52, C_53]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_52, C_59]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_53, H_54]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_53, C_55]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_55, H_56]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_55, C_57]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_57, H_58]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_57, N_67]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_59, C_60]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_59, N_67]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [C_60, N_66]
-    shape_pair:
-    - {}
-    - {}
     bond_type: plane
   - atom_pair: [Fe_61, N_62]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
     bond_marker: off
   - atom_pair: [Fe_61, N_63]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
     bond_marker: off
   - atom_pair: [Fe_61, N_64]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
     bond_marker: off
   - atom_pair: [Fe_61, N_65]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
     bond_marker: off
   - atom_pair: [Fe_61, N_66]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
     bond_marker: off
   - atom_pair: [Fe_61, N_67]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
     bond_marker: off

@@ -3,21 +3,10 @@ default:
     vdw_scale: 0.8
   bond:
     bond_gap_mm: 0.1
-    bond_gap: 0.0
-    magnetic_hole_radius_mm: 3.525
-    magnetic_hole_length_mm: 2.0
-  shape:
-    shaft_radius: 0.3
-    shaft_length: 0.3
-    stopper_radius: 0.4
-    stopper_length: 0.2
-    hole_radius: 0.3
-    hole_length: 0.3
-    chamfer_length: 0.1
-    wall_thickness: 0.1
-    shaft_gap: 0.03
-    taper_angle_deg: 0.0
-    taper_radius_scale: 1.0
+    holes:
+      hole_radius_mm: 3.525
+      hole_length_mm: 2.0
+      bond_gap_mm: 0.0
 molecule:
   name: AA_dimer
   scale: 8.0
@@ -56,90 +45,54 @@ molecule:
     position: [-0.407, 1.138, 0.001]
   bonds:
   - atom_pair: [C_1, H_2]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_1, H_3]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_1, H_4]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_1, C_5]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_5, O_6]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: double
+    bond_type: fixed
   - atom_pair: [C_5, O_7]
     shape_pair:
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_6, H_16]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
   - atom_pair: [O_7, H_8]
     shape_pair:
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
-    bond_type: double
+    bond_type: fixed
   - atom_pair: [H_8, O_14]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: magnetic
+    bond_type: holes
   - atom_pair: [C_9, H_10]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_9, H_11]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_9, H_12]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_9, C_13]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_13, O_14]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: double
+    bond_type: fixed
   - atom_pair: [C_13, O_15]
     shape_pair:
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_15, H_16]
     shape_pair:
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.90
       taper_angle_deg: 35.0
-    bond_type: double
+    bond_type: fixed

@@ -3,18 +3,6 @@ default:
     vdw_scale: 0.8
   bond:
     bond_gap_mm: 0.0
-  shape:
-    shaft_radius: 0.3
-    shaft_length: 0.3
-    stopper_radius: 0.4
-    stopper_length: 0.2
-    hole_radius: 0.3
-    hole_length: 0.3
-    chamfer_length: 0.1
-    wall_thickness: 0.1
-    shaft_gap: 0.03
-    taper_angle_deg: 0.0
-    taper_radius_scale: 1.0
 molecule:
   name: CO
   scale: 10.0
@@ -25,4 +13,4 @@ molecule:
     position: [0.9904, -0.0518, -0.0014]
   bonds:
   - atom_pair: [C_1, O_2]
-    bond_type: triple
+    bond_type: fixed

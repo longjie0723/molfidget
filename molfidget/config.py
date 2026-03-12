@@ -19,41 +19,66 @@ class DefaultAtomConfig:
 
 
 @dataclass
-class DefaultBondConfig:
-    bond_gap_mm: float = 0.1
-    bond_gap: float = 0.0
-    magnetic_hole_radius_mm: float = 3.525
-    magnetic_hole_length_mm: float = 2.0
-    bond_marker: str = "hetero-only-except-ch"
-    bond_marker_size_mm: float = 1.5
-    bond_marker_depth_mm: float = 0.5
+class BondTypeShapeConfig:
+    shaft_radius: float = None
+    shaft_length: float = None
+    shaft_radius_mm: float = None
+    shaft_length_mm: float = None
+    stopper_radius: float = None
+    stopper_length: float = None
+    hole_radius: float = None
+    hole_length: float = None
+    hole_radius_mm: float = None
+    hole_length_mm: float = None
+    chamfer_length: float = None
+    wall_thickness: float = None
+    shaft_gap: float = None
+    shaft_gap_mm: float = None
+    bond_gap_mm: float = None
 
 
 @dataclass
-class DefaultShapeConfig:
+class DefaultBondConfig:
+    # 共通パラメータ
     bond_gap_mm: float = 0.1
-    shaft_radius: float = 0.3
-    shaft_length: float = 0.3
-    shaft_radius_mm: float = None
-    shaft_length_mm: float = None
-    stopper_radius: float = 0.4
-    stopper_length: float = 0.2
-    hole_radius: float = 0.3
-    hole_length: float = 0.3
-    hole_radius_mm: float = None
-    hole_length_mm: float = None
-    chamfer_length: float = 0.1
-    wall_thickness: float = 0.1
-    shaft_gap: float = 0.03
+    bond_marker: str = "hetero-only-except-ch"
+    bond_marker_size_mm: float = 1.5
+    bond_marker_depth_mm: float = 0.5
     taper_angle_deg: float = 0.0
     taper_radius_scale: float = 1.0
+    # bond_typeごとのデフォルト
+    spin: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
+        chamfer_length=0.1, wall_thickness=0.1, shaft_gap=0.03,
+        stopper_radius=0.4, stopper_length=0.2))
+    normal: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
+        chamfer_length=0.1))
+    fixed: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
+        chamfer_length=0.1))
+    gapped: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.8, shaft_length=0.3, hole_radius=0.8, hole_length=0.3,
+        chamfer_length=0.1))
+    short: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.3, shaft_length=0.2, hole_radius=0.3, hole_length=0.3,
+        chamfer_length=0.1))
+    holes: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        hole_radius_mm=3.525, hole_length_mm=2.0, bond_gap_mm=0.0))
+    notch_2: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
+        chamfer_length=0.1, wall_thickness=0.1, shaft_gap=0.03,
+        stopper_radius=0.4, stopper_length=0.2))
+    notch_3: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
+        chamfer_length=0.1, wall_thickness=0.1, shaft_gap=0.03,
+        stopper_radius=0.4, stopper_length=0.2))
 
 
 @dataclass
 class DefaultConfig:
     atom: DefaultAtomConfig = field(default_factory=DefaultAtomConfig)
     bond: DefaultBondConfig = field(default_factory=DefaultBondConfig)
-    shape: DefaultShapeConfig = field(default_factory=DefaultShapeConfig)
 
 
 @dataclass
@@ -101,10 +126,7 @@ class BondConfig:
         default_factory=lambda: [ShapeConfig(), ShapeConfig()]
     )
     bond_type: str = "none"
-    bond_gap: float = None
     bond_gap_mm: float = None
-    magnetic_hole_radius_mm: float = None
-    magnetic_hole_length_mm: float = None
     bond_marker: str = None
     bond_marker_size_mm: float = None
     bond_marker_depth_mm: float = None
@@ -124,11 +146,31 @@ class MolfidgetConfig:
     molecule: MoleculeConfig
 
 
+OLD_BOND_TYPES = {
+    "single": "spin", "double": "fixed", "triple": "fixed",
+    "aromatic": "gapped", "magnetic": "holes", "1.5": "gapped",
+}
+
+
 def load_molfidget_config(file_path: str) -> MolfidgetConfig:
     yaml = YAML()
 
     with open(file_path, "r") as file:
         data = yaml.load(file)
+
+    # 旧形式の検出
+    if "shape" in data.get("default", {}):
+        raise ValueError(
+            "旧形式のMLFファイルです。default.shape は廃止されました。"
+            "default.bond.{bond_type} サブセクションに移行してください。"
+        )
+    for bond_data in data.get("molecule", {}).get("bonds", []):
+        bt = str(bond_data.get("bond_type", ""))
+        if bt in OLD_BOND_TYPES:
+            raise ValueError(
+                f"bond_type '{bt}' は廃止されました。"
+                f"代わりに '{OLD_BOND_TYPES[bt]}' を使用してください。"
+            )
 
     default_config = from_dict(
         data_class=DefaultConfig, data=data.get("default", {})
@@ -160,7 +202,6 @@ def default_config_representer(dumper, data):
     cmap = CommentedMap()
     cmap["atom"] = data.atom
     cmap["bond"] = data.bond
-    cmap["shape"] = data.shape
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
@@ -178,14 +219,34 @@ def default_atom_config_representer(dumper, data):
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
-def default_bond_config_representer(dumper, data):
+BOND_TYPE_FIELDS = ("spin", "normal", "fixed", "gapped", "short", "holes", "notch_2", "notch_3")
+
+
+def bond_type_shape_config_representer(dumper, data):
     data_dict = OrderedDict(asdict(data))
     cmap = CommentedMap()
     for key, value in data_dict.items():
         if value is None:
             continue
-        else:
-            cmap[key] = value
+        cmap[key] = value
+    return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
+
+
+def default_bond_config_representer(dumper, data):
+    data_dict = OrderedDict(asdict(data))
+    cmap = CommentedMap()
+    # 共通パラメータを先に出力
+    for key, value in data_dict.items():
+        if key in BOND_TYPE_FIELDS:
+            continue
+        if value is None:
+            continue
+        cmap[key] = value
+    # bond_typeサブセクションを出力
+    for bt_name in BOND_TYPE_FIELDS:
+        bt_config = getattr(data, bt_name, None)
+        if bt_config is not None:
+            cmap[bt_name] = bt_config
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
@@ -241,16 +302,6 @@ def bond_config_representer(dumper, data):
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
-def default_shape_config_representer(dumper, data):
-    data_dict = OrderedDict(asdict(data))
-    cmap = CommentedMap()
-    for key, value in data_dict.items():
-        if value is None:
-            continue
-        cmap[key] = value
-    return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
-
-
 def save_molfidget_config(config: MolfidgetConfig, file_path: str):
     yaml = YAML()
     yaml.representer.add_representer(MolfidgetConfig, molfidget_config_representer)
@@ -258,7 +309,7 @@ def save_molfidget_config(config: MolfidgetConfig, file_path: str):
     yaml.representer.add_representer(DefaultConfig, default_config_representer)
     yaml.representer.add_representer(DefaultAtomConfig, default_atom_config_representer)
     yaml.representer.add_representer(DefaultBondConfig, default_bond_config_representer)
-    yaml.representer.add_representer(DefaultShapeConfig, default_shape_config_representer)
+    yaml.representer.add_representer(BondTypeShapeConfig, bond_type_shape_config_representer)
     yaml.representer.add_representer(AtomConfig, atom_config_representer)
     yaml.representer.add_representer(BondConfig, bond_config_representer)
     yaml.representer.add_representer(ShapeConfig, shape_config_representer)
@@ -296,15 +347,15 @@ def load_mol_file(file_name: str) -> MolfidgetConfig:
         id2 = int(line[3:6])
         type = int(line[6:9])
         if type == 1:
-            bond_type = "single"
+            bond_type = "spin"
         elif type == 2:
-            bond_type = "double"
+            bond_type = "fixed"
         elif type == 3:
-            bond_type = "triple"
+            bond_type = "fixed"
         elif type == 4:
-            bond_type = "aromatic"
+            bond_type = "gapped"
         elif type == 9:
-            bond_type = "magnetic"
+            bond_type = "holes"
         else:
             raise ValueError(f"Unknown bond type: {type}")
         bonds.append(
@@ -426,16 +477,16 @@ def load_pdb_file(file_name: str) -> MolfidgetConfig:
                 dist = atom - nb
                 # Determine cutoff and bond type
                 key = frozenset([elem1, elem2])
-                bond_type = "single"
+                bond_type = "spin"
                 if key in bond_distance_table:
                     single_d, double_d, triple_d = bond_distance_table[key]
                     cutoff = 1.1 * single_d
                     if triple_d > 0 and dist <= 1.05 * triple_d:
-                        bond_type = "triple"
+                        bond_type = "fixed"
                     elif double_d > 0 and dist <= 1.05 * double_d:
-                        bond_type = "double"
+                        bond_type = "fixed"
                     else:
-                        bond_type = "single"
+                        bond_type = "spin"
                 elif "H" in (elem1, elem2):
                     cutoff = 1.2
                 else:
@@ -483,7 +534,7 @@ def load_pdb_file(file_name: str) -> MolfidgetConfig:
                 bonds.append(
                     BondConfig(
                         atom_pair=[a1.name, a2.name],
-                        bond_type="single",
+                        bond_type="spin",
                     )
                 )
 
@@ -492,7 +543,7 @@ def load_pdb_file(file_name: str) -> MolfidgetConfig:
     elem_by_name = {cfg.name: element_by_atom[atom] for atom, cfg in atom_config_by_atom.items()}
     adjacency = {name: set() for name in name_to_config.keys()}
     for bond in bonds:
-        if bond.bond_type == "magnetic":
+        if bond.bond_type == "holes":
             continue
         a1, a2 = bond.atom_pair
         if a1 in adjacency and a2 in adjacency:
@@ -550,7 +601,7 @@ def load_pdb_file(file_name: str) -> MolfidgetConfig:
                 bonds.append(
                     BondConfig(
                         atom_pair=[h_name, a_name],
-                        bond_type="magnetic",
+                        bond_type="holes",
                     )
                 )
 

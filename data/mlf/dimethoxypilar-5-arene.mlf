@@ -3,24 +3,13 @@ default:
     vdw_scale: 0.8
   bond:
     bond_gap_mm: 0.1
-    bond_gap: 0.0
-    magnetic_hole_radius_mm: 3.525
-    magnetic_hole_length_mm: 2.0
     bond_marker: hetero-only-except-ch
     bond_marker_size_mm: 1.5
     bond_marker_depth_mm: 0.5
-  shape:
-    shaft_radius: 0.3
-    shaft_length: 0.3
-    stopper_radius: 0.4
-    stopper_length: 0.2
-    hole_radius: 0.3
-    hole_length: 0.3
-    chamfer_length: 0.1
-    wall_thickness: 0.1
-    shaft_gap: 0.03
-    taper_angle_deg: 0.0
-    taper_radius_scale: 1.0
+    holes:
+      hole_radius_mm: 3.525
+      hole_length_mm: 2.0
+      bond_gap_mm: 0.0
 molecule:
   name: dimetoxypilar-5-arene
   scale: 8.0
@@ -242,587 +231,317 @@ molecule:
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_1, C_13]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_2, C_9]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_2, C_14]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_3, C_21]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_3, C_22]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_4, C_18]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_4, C_23]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_5, C_26]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_5, C_28]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_6, C_7]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_6, H_29]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_6, C_59]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_6, H_81]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_7, C_8]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_7, C_12]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_8, C_9]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_8, H_30]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_9, C_10]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_10, C_11]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_10, C_15]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_11, C_12]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_11, H_31]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_13, H_32]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_13, H_33]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_13, H_34]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_14, H_35]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_14, H_36]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_14, H_37]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_15, C_16]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_15, H_38]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_15, H_39]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_16, C_17]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_16, C_21]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_17, C_18]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_17, H_40]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_18, C_19]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_19, C_20]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_19, C_24]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_20, C_21]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_20, H_41]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_22, H_42]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_22, H_43]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_22, H_44]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_23, H_45]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_23, H_46]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_23, H_47]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_24, C_25]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_24, H_48]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_24, H_49]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_25, C_26]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_25, C_79]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_26, C_27]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_27, H_50]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_27, C_77]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_28, H_51]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_28, H_52]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_28, H_53]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_54, C_64]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_54, C_65]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_55, C_61]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_55, C_66]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_56, C_73]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_56, C_74]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_57, C_70]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_57, C_75]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_58, C_78]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_58, C_80]
     shape_pair:
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
     - taper_radius_scale: 0.85
       taper_angle_deg: 35.0
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_59, C_60]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_59, C_64]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_60, C_61]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_60, H_82]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_61, C_62]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_62, C_63]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_62, C_67]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_63, C_64]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_63, H_83]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_65, H_84]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_65, H_85]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_65, H_86]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_66, H_87]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_66, H_88]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_66, H_89]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_67, C_68]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_67, H_90]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_67, H_91]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_68, C_69]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_68, C_73]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_69, C_70]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_69, H_92]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_70, C_71]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_71, C_72]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_71, C_76]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_72, C_73]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_72, H_93]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_74, H_94]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_74, H_95]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_74, H_96]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_75, H_97]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_75, H_98]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_75, H_99]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_76, C_77]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_76, H_100]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_76, H_101]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_77, C_78]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_78, C_79]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: aromatic
+    bond_type: gapped
   - atom_pair: [C_79, H_102]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_80, H_103]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_80, H_104]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [C_80, H_105]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin

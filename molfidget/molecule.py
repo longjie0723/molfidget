@@ -39,7 +39,7 @@ class Molecule:
                         atom_pair=[atom_names[i], atom_names[j]],
                         bond_type="plane",
                     )
-                    bond = Bond(bond_config, default.bond, default.shape, self.scale)
+                    bond = Bond(bond_config, default.bond, self.scale)
                     bond.index = 0
                     self.bonds[atom_names[i], atom_names[j]] = bond
                     print(f"Auto plane bond: {atom_names[i]} - {atom_names[j]} (distance={distance:.3f}, r1+r2={a1.shape_radius + a2.shape_radius:.3f})")
@@ -50,7 +50,7 @@ class Molecule:
                 del self.bonds[atom1_name, atom2_name]
             if (atom2_name, atom1_name) in self.bonds:
                 del self.bonds[atom2_name, atom1_name]
-            bond = Bond(bond_config, default.bond, default.shape, self.scale)
+            bond = Bond(bond_config, default.bond, self.scale)
             bond.index = idx
             self.bonds[atom1_name, atom2_name] = bond
         # Update atom pairs based on bonds

@@ -3,24 +3,9 @@ default:
     vdw_scale: 0.8
   bond:
     bond_gap_mm: 0.1
-    bond_gap: 0.0
-    magnetic_hole_radius_mm: 3.525
-    magnetic_hole_length_mm: 2.0
     bond_marker: hetero-only-except-ch
     bond_marker_size_mm: 1.5
     bond_marker_depth_mm: 0.5
-  shape:
-    shaft_radius: 0.3
-    shaft_length: 0.3
-    stopper_radius: 0.4
-    stopper_length: 0.2
-    hole_radius: 0.3
-    hole_length: 0.3
-    chamfer_length: 0.1
-    wall_thickness: 0.1
-    shaft_gap: 0.03
-    taper_angle_deg: 0.0
-    taper_radius_scale: 1.0
 molecule:
   name: H2O
   scale: 10.0
@@ -33,12 +18,6 @@ molecule:
     position: [-0.188, 1.239, 0.0044]
   bonds:
   - atom_pair: [O_1, H_2]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
   - atom_pair: [O_1, H_3]
-    shape_pair:
-    - {}
-    - {}
-    bond_type: single
+    bond_type: spin
