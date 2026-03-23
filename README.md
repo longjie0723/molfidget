@@ -123,6 +123,7 @@ molfidget generate --scale 10.0 --output-dir output data/mlf/ethanol.mlf
 
 * MLFファイル形式の仕様: [docs/mlf_file.md](docs/mlf_file.md)
 * プロジェクト全体のドキュメント: [docs/index.md](docs/index.md)
+* molfidget の印刷 Tips：[docs/print_tips.md](docs/print_tips.md)
 
 # 関連記事 (note)
 
