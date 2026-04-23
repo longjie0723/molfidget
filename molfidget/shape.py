@@ -48,13 +48,9 @@ class Shape:
         else:
             self.hole_radius = config.hole_radius if config.hole_radius is not None else (default.hole_radius or 0.3)
 
-        # shaft_gap: mm単位が指定されていればそちらを優先
-        if config.shaft_gap_mm is not None:
-            self.shaft_gap = config.shaft_gap_mm / scale
-        elif default.shaft_gap_mm is not None:
-            self.shaft_gap = default.shaft_gap_mm / scale
-        else:
-            self.shaft_gap = config.shaft_gap if config.shaft_gap is not None else (default.shaft_gap or 0.03)
+        shaft_gap_mm = config.shaft_gap_mm if config.shaft_gap_mm is not None else default.shaft_gap_mm
+        self.shaft_gap_mm = shaft_gap_mm if shaft_gap_mm is not None else 0.3
+        self.shaft_gap = self.shaft_gap_mm / scale
         self.stopper_radius = config.stopper_radius if config.stopper_radius is not None else (default.stopper_radius or 0.4)
         self.stopper_length = config.stopper_length if config.stopper_length is not None else (default.stopper_length or 0.2)
         self.wall_thickness = config.wall_thickness if config.wall_thickness is not None else (default.wall_thickness or 0.1)
