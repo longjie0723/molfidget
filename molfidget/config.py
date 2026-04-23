@@ -32,7 +32,6 @@ class BondTypeShapeConfig:
     hole_length_mm: float = None
     chamfer_length: float = None
     wall_thickness: float = None
-    shaft_gap: float = None
     shaft_gap_mm: float = None
     bond_gap_mm: float = None
 
@@ -49,7 +48,7 @@ class DefaultBondConfig:
     # bond_typeごとのデフォルト
     spin: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
         shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
-        chamfer_length=0.1, wall_thickness=0.1, shaft_gap=0.03,
+        chamfer_length=0.1, wall_thickness=0.1, shaft_gap_mm=0.3,
         stopper_radius=0.4, stopper_length=0.2))
     normal: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
         shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
@@ -67,11 +66,11 @@ class DefaultBondConfig:
         hole_radius_mm=3.525, hole_length_mm=2.0, bond_gap_mm=0.0))
     notch_2: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
         shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
-        chamfer_length=0.1, wall_thickness=0.1, shaft_gap=0.03,
+        chamfer_length=0.1, wall_thickness=0.1, shaft_gap_mm=0.3,
         stopper_radius=0.4, stopper_length=0.2))
     notch_3: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
         shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
-        chamfer_length=0.1, wall_thickness=0.1, shaft_gap=0.03,
+        chamfer_length=0.1, wall_thickness=0.1, shaft_gap_mm=0.3,
         stopper_radius=0.4, stopper_length=0.2))
 
 
@@ -106,11 +105,9 @@ class ShapeConfig:
     hole_length_mm: float = None  # Length of the hole [mm]
     chamfer_length: float = None  # Length of the chamfer [Angstrom]
     wall_thickness: float = None  # Thickness of the wall [Angstrom]
-    shaft_gap: float = None  # Gap between the shaft and the cavity [Angstrom]
     shaft_gap_mm: float = None  # Gap between the shaft and the cavity [mm]
     taper_radius_scale: float = None  # Scale factor for the taper radius
     taper_angle_deg: float = None  # Taper angle in degrees
-    bond_gap: float = None  # Gap between the bond plane [Angstrom]
     bond_gap_mm: float = None  # Gap between the bond plane [mm]
 
     taper_distance: float = None  # Distance for tapering [Angstrom]
@@ -171,6 +168,27 @@ def load_molfidget_config(file_path: str) -> MolfidgetConfig:
                 f"bond_type '{bt}' は廃止されました。"
                 f"代わりに '{OLD_BOND_TYPES[bt]}' を使用してください。"
             )
+
+    deprecated_shape_keys = {
+        "shaft_gap": "shaft_gap_mm",
+        "bond_gap": "bond_gap_mm",
+    }
+
+    def check_deprecated_shape_keys(node, path="root"):
+        if isinstance(node, dict):
+            for key, replacement in deprecated_shape_keys.items():
+                if key in node:
+                    raise ValueError(
+                        f"{path}.{key} は廃止されました。"
+                        f" 代わりに {replacement} を使用してください。"
+                    )
+            for child_key, child_value in node.items():
+                check_deprecated_shape_keys(child_value, f"{path}.{child_key}")
+        elif isinstance(node, list):
+            for index, item in enumerate(node):
+                check_deprecated_shape_keys(item, f"{path}[{index}]")
+
+    check_deprecated_shape_keys(data)
 
     default_config = from_dict(
         data_class=DefaultConfig, data=data.get("default", {})

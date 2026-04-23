@@ -92,9 +92,13 @@ molfidget generate --scale 10.0 --output-dir output data/mlf/ethanol.mlf
 * scale=10.0とかにするとプリント可能なSTLになる
 * スケールはMLFファイル内で指定するか、`generate`コマンドの`--scale`オプションで上書きできる
 
-#### 軸ギャップ（bond_gap_mm）
-* 可動軸の軸と穴のギャップは、MLFファイルの`default.bond.bond_gap_mm`で指定する
-* 単位はmmで、デフォルトは0.2になっている
+#### 結合平面ギャップ（bond_gap_mm）
+* 結合平面の隙間は、MLFファイルの`default.bond.bond_gap_mm`で指定する
+* 単位はmmで、デフォルトは0.1
+
+#### 軸ギャップ（shaft_gap_mm）
+* 可動軸の軸と穴のギャップは、MLFファイルの`default.bond.<bond_type>.shaft_gap_mm`で指定する
+* 単位はmmで、`spin` / `notch_2` / `notch_3` のデフォルトは0.3
 * 通常の3Dプリンタだとたぶん0.2〜0.3ぐらいの間で問題ない
 
 ### 典型的なワークフロー
@@ -104,7 +108,7 @@ molfidget generate --scale 10.0 --output-dir output data/mlf/ethanol.mlf
 molfidget convert data/pdb/ethanol.pdb data/mlf/ethanol.mlf
 
 # 2. (オプション) MLFファイルを手動編集してパラメータを調整
-# 例: bond_gap_mm, shaft_radius, shape_types など
+# 例: bond_gap_mm, shaft_gap_mm, shaft_radius, shape_types など
 
 # 3. プレビューで確認
 molfidget preview data/mlf/ethanol.mlf
