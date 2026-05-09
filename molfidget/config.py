@@ -149,6 +149,29 @@ OLD_BOND_TYPES = {
 }
 
 
+ASYMMETRIC_BOND_TYPES = {"spin", "fixed", "gapped", "normal", "short", "notch_2", "notch_3"}
+
+
+def _atom_element_from_name(atom_name: str) -> str:
+    return atom_name.split("_", 1)[0]
+
+
+def normalize_bond_direction(bond_config: BondConfig) -> BondConfig:
+    """Prefer carbon on atom_pair[0] for asymmetric bond shapes."""
+    if bond_config.bond_type not in ASYMMETRIC_BOND_TYPES:
+        return bond_config
+
+    atom1_name, atom2_name = bond_config.atom_pair
+    atom1_is_carbon = _atom_element_from_name(atom1_name) == "C"
+    atom2_is_carbon = _atom_element_from_name(atom2_name) == "C"
+
+    if not atom1_is_carbon and atom2_is_carbon:
+        bond_config.atom_pair = [atom2_name, atom1_name]
+        bond_config.shape_pair = [bond_config.shape_pair[1], bond_config.shape_pair[0]]
+
+    return bond_config
+
+
 def load_molfidget_config(file_path: str) -> MolfidgetConfig:
     yaml = YAML()
 
@@ -382,6 +405,7 @@ def load_mol_file(file_name: str) -> MolfidgetConfig:
                 bond_type=bond_type,
             )
         )
+        normalize_bond_direction(bonds[-1])
     molecle_config = MoleculeConfig(
         name=file_name.split("/")[-1].split(".")[0],
         scale=10.0, atoms=atoms, bonds=bonds,
@@ -521,6 +545,7 @@ def load_pdb_file(file_name: str) -> MolfidgetConfig:
                             bond_type=bond_type,
                         )
                     )
+                    normalize_bond_direction(bonds[-1])
 
     # 2) Parse CONECT records and add any missing bonds
     with open(file_name, "r") as file:
@@ -555,6 +580,7 @@ def load_pdb_file(file_name: str) -> MolfidgetConfig:
                         bond_type="spin",
                     )
                 )
+                normalize_bond_direction(bonds[-1])
 
     # Detect hydrogen bonds and add as magnetic bonds
     name_to_config = {cfg.name: cfg for cfg in atom_config_by_atom.values()}
