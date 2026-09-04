@@ -47,7 +47,7 @@ MLF File → (load) → MoleculeConfig → Molecule → create_trimesh_scene() �
 - **molfidget.py**: CLIエントリーポイント。3つのサブコマンド（convert/preview/generate）と3MFエクスポート機能。pyglet/LabeledSceneViewerのimportは`exec_preview()`内で遅延実行（ヘッドレス環境対応）
 - **config.py**: データクラス群（`MoleculeConfig`, `AtomConfig`, `BondConfig`, `ShapeConfig`）、PDB/MOLパーサー、MLF（YAML）の読み書き。`dacite.from_dict`でYAML→dataclass変換、`ruamel.yaml`でフロースタイル保持した書き出し
 - **molecule.py**: `Molecule`クラス。Atom/Bondの初期化、trimeshシーン生成、STL/3MF出力、元素グループへのマージ
-- **bond.py**: `Bond`クラス。bond_typeに応じたshape_pairの自動設定、結合平面でのスライス、ノッチ機構（notch_2/3）、ボンドマーカー刻印
+- **bond.py**: `Bond`クラス。bond_typeに応じたshape_pairの自動設定、結合平面でのスライス、ノッチ機構（notch_1/2/3）、ボンドマーカー刻印
 - **shape.py**: `Shape`クラス。軸（shaft/shaft_spin/shaft_dcut）と穴（hole/hole_dcut）の3Dジオメトリ生成。テーパー・面取り・Dカット処理
 - **atom.py**: `Atom`クラス。ファン・デル・ワールス半径の球体メッシュ生成。bondによって形状が切り出される
 - **constants.py**: 元素ごとのファン・デル・ワールス半径、CPKカラー、結合距離テーブル
@@ -68,7 +68,7 @@ MLF File → (load) → MoleculeConfig → Molecule → create_trimesh_scene() �
 | gapped | shaft | hole | 一体成型用（軸太め） |
 | short | shaft | hole | はめ込み用（軸短め） |
 | holes | hole | hole | 磁石接続用 |
-| notch_2, notch_3 | shaft_spin | hole | ノッチ付き回転軸 |
+| notch_1, notch_2, notch_3 | shaft_spin | hole | ノッチ付き回転軸 |
 | plane | none | none | 平面スライスのみ |
 
 ## 単位系
