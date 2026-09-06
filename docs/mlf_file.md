@@ -118,9 +118,9 @@ molecule:  # 分子データ本体
 | hole_length_mm | float | 2.0 | 穴の深さ [mm] |
 | bond_gap_mm | float | 0.0 | 結合平面の隙間 [mm] |
 
-##### notch_2 / notch_3（回転軸 + 丸穴 + ノッチ付き）
+##### notch_1 / notch_2 / notch_3（回転軸 + 丸穴 + ノッチ付き）
 
-spinと同じデフォルト値。ノッチの組数が名前で決まる（notch_2=2組、notch_3=3組）。
+spinと同じデフォルト値。ノッチの組数が名前で決まる（notch_1=1組、notch_2=2組、notch_3=3組）。
 
 | パラメータ | 型 | デフォルト | 説明 |
 |---|---|---|---|
@@ -189,6 +189,16 @@ default:
       hole_radius_mm: 3.525
       hole_length_mm: 2.0
       bond_gap_mm: 0.0
+    notch_1:
+      shaft_radius: 0.3
+      shaft_length: 0.3
+      hole_radius: 0.3
+      hole_length: 0.3
+      chamfer_length: 0.1
+      wall_thickness: 0.1
+      shaft_gap_mm: 0.3
+      stopper_radius: 0.4
+      stopper_length: 0.2
     notch_2:
       shaft_radius: 0.3
       shaft_length: 0.3
@@ -271,6 +281,7 @@ bondの配列。
 | gapped | shaft | hole | 丸軸 + 丸穴（一体成型用、軸太め） |
 | short | shaft | hole | 短い丸軸 + 丸穴（はめ込み用） |
 | holes | hole | hole | 丸穴 + 丸穴（磁石接続用） |
+| notch_1 | shaft_spin | hole | 回転軸 + 丸穴 + ノッチ1組 |
 | notch_2 | shaft_spin | hole | 回転軸 + 丸穴 + ノッチ2組 |
 | notch_3 | shaft_spin | hole | 回転軸 + 丸穴 + ノッチ3組 |
 | plane | none | none | 平面スライスのみ（形状なし） |

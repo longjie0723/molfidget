@@ -100,7 +100,7 @@ molfidget generate --scale 10.0 --output-dir output data/mlf/ethanol.mlf
 
 #### 軸ギャップ（shaft_gap_mm）
 * 可動軸の軸と穴のギャップは、MLFファイルの`default.bond.<bond_type>.shaft_gap_mm`で指定する
-* 単位はmmで、`spin` / `notch_2` / `notch_3` のデフォルトは0.3
+* 単位はmmで、`spin` / `notch_1` / `notch_2` / `notch_3` のデフォルトは0.3
 * 通常の3Dプリンタだとたぶん0.2〜0.3ぐらいの間で問題ない
 
 ### 典型的なワークフロー

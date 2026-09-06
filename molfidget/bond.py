@@ -14,6 +14,7 @@ BOND_TYPE_SHAPE_MAP = {
     "gapped":  ("shaft", "hole"),
     "short":   ("shaft", "hole"),
     "holes":   ("hole", "hole"),
+    "notch_1": ("shaft_spin", "hole"),
     "notch_2": ("shaft_spin", "hole"),
     "notch_3": ("shaft_spin", "hole"),
     "plane":   ("none", "none"),
@@ -102,7 +103,7 @@ class Bond:
                 shape.sculpt_trimesh_by_hole_dcut()
             elif shape.shape_type == "none":
                 pass  # 形状なし
-        notch_counts = {"notch_2": 2, "notch_3": 3}
+        notch_counts = {"notch_1": 1, "notch_2": 2, "notch_3": 3}
         if self.bond_type in notch_counts:
             self._apply_notches(notch_counts[self.bond_type])
 

@@ -1,0 +1,46 @@
+default:
+  atom:
+    vdw_scale: 0.8
+  bond:
+    bond_gap_mm: 0.1
+    bond_marker: hetero-only-except-ch
+molecule:
+  name: ethanol
+  scale: 10.0
+  atoms:
+  - name: C_1
+    position: [0.445, -2.202, -5.28]
+  - name: H_2
+    position: [1.032, -1.394, -5.234]
+  - name: H_3
+    position: [-0.151, -2.228, -4.477]
+  - name: O_4
+    position: [1.295, -3.437, -5.31]
+  - name: H_5
+    position: [1.85, -3.479, -4.479]
+  - name: C_6
+    position: [-0.394, -2.141, -6.522]
+  - name: H_7
+    position: [-0.979, -2.951, -6.569]
+  - name: H_8
+    position: [-0.962, -1.319, -6.501]
+  - name: H_9
+    position: [0.202, -2.114, -7.325]
+  bonds:
+  - atom_pair: [C_1, H_2]
+    bond_type: spin
+  - atom_pair: [C_1, H_3]
+    bond_type: spin
+  - atom_pair: [C_1, O_4]
+    bond_type: spin
+  - atom_pair: [C_1, C_6]
+    bond_type: notch_1
+    bond_gap_mm: 0.1
+  - atom_pair: [O_4, H_5]
+    bond_type: spin
+  - atom_pair: [C_6, H_7]
+    bond_type: spin
+  - atom_pair: [C_6, H_8]
+    bond_type: spin
+  - atom_pair: [C_6, H_9]
+    bond_type: spin

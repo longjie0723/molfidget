@@ -64,6 +64,10 @@ class DefaultBondConfig:
         chamfer_length=0.1))
     holes: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
         hole_radius_mm=3.525, hole_length_mm=2.0, bond_gap_mm=0.0))
+    notch_1: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
+        shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
+        chamfer_length=0.1, wall_thickness=0.1, shaft_gap_mm=0.3,
+        stopper_radius=0.4, stopper_length=0.2))
     notch_2: BondTypeShapeConfig = field(default_factory=lambda: BondTypeShapeConfig(
         shaft_radius=0.3, shaft_length=0.3, hole_radius=0.3, hole_length=0.3,
         chamfer_length=0.1, wall_thickness=0.1, shaft_gap_mm=0.3,
@@ -149,7 +153,7 @@ OLD_BOND_TYPES = {
 }
 
 
-ASYMMETRIC_BOND_TYPES = {"spin", "fixed", "gapped", "normal", "short", "notch_2", "notch_3"}
+ASYMMETRIC_BOND_TYPES = {"spin", "fixed", "gapped", "normal", "short", "notch_1", "notch_2", "notch_3"}
 
 
 def _atom_element_from_name(atom_name: str) -> str:
@@ -260,7 +264,7 @@ def default_atom_config_representer(dumper, data):
     return dumper.represent_mapping("tag:yaml.org,2002:map", cmap)
 
 
-BOND_TYPE_FIELDS = ("spin", "normal", "fixed", "gapped", "short", "holes", "notch_2", "notch_3")
+BOND_TYPE_FIELDS = ("spin", "normal", "fixed", "gapped", "short", "holes", "notch_1", "notch_2", "notch_3")
 
 
 def bond_type_shape_config_representer(dumper, data):
